@@ -54,7 +54,7 @@ def extract_github(handle: str, offline: bool) -> dict:
         try:
             user = gh_get(f"/users/{handle}")
             repos = gh_get(f"/users/{handle}/repos?per_page=100&sort=updated")
-            repos = [r for r in repos if not r["fork"] and r["name"] not in (handle, "test", f"{handle}.github.io")]
+            repos = [r for r in repos if not r["fork"] and not r.get("private") and r["name"] not in (handle, "test", f"{handle}.github.io")]
             for r in repos:
                 r["languages"] = gh_get(f"/repos/{handle}/{r['name']}/languages")
             data = {"user": user, "repos": repos, "fetched_at": now_iso()}
@@ -207,6 +207,11 @@ def quality(tables: dict[str, list[dict]]) -> list[dict]:
         if dangling:
             check(f"topology_edges_{p['id']}", False, str(dangling))
     check("topology_edges_resolve", all(c["passed"] for c in checks if c["name"].startswith("topology_edges_")))
+
+    public = {r["name"] for r in tables["repos"]}
+    if public:  # only when the GitHub snapshot is available
+        missing = [p["id"] for p in tables["projects"] if p["repo_url"].rsplit("/", 1)[-1] not in public]
+        check("project_repos_public", not missing, ", ".join(missing))
 
     skills = [s["skill"] for s in tables["skills"]]
     check("skills_unique", len(skills) == len(set(skills)) and bool(skills))

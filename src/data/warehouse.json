@@ -461,28 +461,6 @@
    "edges": []
   },
   {
-   "id": "banking-dwh",
-   "name": "Banking Data Warehouse",
-   "kind": "Warehouse",
-   "featured": false,
-   "summary": "Banking warehouse with Python ETL, Airflow orchestration, PostgreSQL and Grafana.",
-   "problem": "",
-   "built": "",
-   "result": "",
-   "stack": [
-    "Python",
-    "Airflow",
-    "PostgreSQL",
-    "Grafana"
-   ],
-   "repo_url": "https://github.com/AhmdGameel/Banking-DWH-Project",
-   "stars": 0,
-   "last_push": null,
-   "metrics": [],
-   "topology": [],
-   "edges": []
-  },
-  {
    "id": "social-etl",
    "name": "Social Media ETL",
    "kind": "Batch",

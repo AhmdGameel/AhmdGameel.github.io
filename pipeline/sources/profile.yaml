@@ -182,14 +182,6 @@ projects:
     summary: Airflow with CeleryExecutor loading real estate sales into Hadoop HDFS and Hive.
     stack: [Airflow, Hadoop, Hive, PostgreSQL, Redis, Docker]
 
-  - id: banking-dwh
-    name: Banking Data Warehouse
-    kind: Warehouse
-    featured: false
-    repo: Banking-DWH-Project
-    summary: Banking warehouse with Python ETL, Airflow orchestration, PostgreSQL and Grafana.
-    stack: [Python, Airflow, PostgreSQL, Grafana]
-
   - id: social-etl
     name: Social Media ETL
     kind: Batch

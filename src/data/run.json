@@ -1,19 +1,19 @@
 {
- "run_id": "4ac1605b",
- "started_at": "2026-10-02T12:29:29+00:00",
- "duration_ms": 8706,
- "github_fetched_at": "2026-10-02T12:29:38+00:00",
+ "run_id": "516c45ba",
+ "started_at": "2026-10-02T12:32:15+00:00",
+ "duration_ms": 10774,
+ "github_fetched_at": "2026-10-02T12:32:26+00:00",
  "rows": {
   "person": 1,
   "experience": 4,
-  "projects": 6,
+  "projects": 5,
   "skills": 31,
   "certifications": 3,
   "education": 1,
   "repos": 11,
   "repo_languages": 13
  },
- "rows_total": 70,
+ "rows_total": 69,
  "checks": [
   {
    "name": "text_style",
@@ -47,6 +47,11 @@
   },
   {
    "name": "topology_edges_resolve",
+   "passed": true,
+   "detail": ""
+  },
+  {
+   "name": "project_repos_public",
    "passed": true,
    "detail": ""
   },
