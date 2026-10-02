@@ -1,60 +1,51 @@
 ---
 import SectionHead from './SectionHead.astro';
 import Topology from './Topology.astro';
+import Icon from './Icon.astro';
 import { projects } from '../lib/data';
 
 const featured = projects.filter((p) => p.featured);
 const rest = projects.filter((p) => !p.featured);
-const snake = (s: string) => s.replace(/-/g, '_');
 ---
 
-<section id="gold" class="stage">
+<section id="projects" class="stage">
   <div class="wrap">
     <SectionHead
       index="03"
-      label="Projects"
-      table="gold.projects"
-      intro="Each project is written as a short case study: the problem, what I built, and what it achieved. The diagram shows how the data flows, live."
-    >
-      Shipped with a contract, <em>not a screenshot.</em>
-    </SectionHead>
+      title="Projects"
+      intro="Personal projects I built to practice batch, streaming and warehousing end to end. Each one is on GitHub with a README and setup steps."
+    />
 
-    <div class="contracts">
+    <div class="list">
       {featured.map((p, i) => (
-        <article class="contract reveal" data-spotlight>
-          <div class="c-head mono">
-            <span><span class="faint">contract</span> gold.{snake(p.id)}</span>
-            <span><span class="faint">kind</span> {p.kind}</span>
-            <span class="hide-sm"><span class="faint">owner</span> ahmed</span>
-            {p.last_push && <span class="hide-sm"><span class="faint">last push</span> {p.last_push}</span>}
-            <span class="spacer"></span>
-            <span class="ok-pill">contract valid</span>
-          </div>
-
-          <div class="c-body">
-            <div class="c-text">
+        <article class="card reveal">
+          <div class="top">
+            <div class="title-row">
               <span class="num mono">{String(i + 1).padStart(2, '0')}</span>
               <h3 class="serif">{p.name}</h3>
-              <dl class="case">
-                <div><dt class="mono">Problem</dt><dd>{p.problem}</dd></div>
-                <div><dt class="mono">What I built</dt><dd>{p.built}</dd></div>
-                <div><dt class="mono">Result</dt><dd>{p.result}</dd></div>
-              </dl>
-              <a class="repo mono" href={p.repo_url} target="_blank" rel="noopener">
-                Read the source <span aria-hidden="true">&#8599;</span>
-              </a>
+              <span class="tag mono">{p.kind}</span>
             </div>
-            <div class="c-sla">
-              <dl class="sla">
-                {p.metrics.map((m) => (
-                  <div><dt class="mono">{m.label}</dt><dd class="mono">{m.value}</dd></div>
-                ))}
+            <p class="summary">{p.summary}</p>
+          </div>
+
+          <div class="body">
+            <dl class="case">
+              <div><dt class="mono">Problem</dt><dd>{p.problem}</dd></div>
+              <div><dt class="mono">What I built</dt><dd>{p.built}</dd></div>
+              <div><dt class="mono">Result</dt><dd>{p.result}</dd></div>
+            </dl>
+            <div class="side">
+              <dl class="metrics">
+                {p.metrics.map((m) => <div><dt class="mono">{m.label}</dt><dd>{m.value}</dd></div>)}
               </dl>
               <div class="stack">{p.stack.map((s) => <span class="chip">{s}</span>)}</div>
+              <a class="repo" href={p.repo_url} target="_blank" rel="noopener">
+                <Icon name="github" size={16} /> View code on GitHub
+              </a>
             </div>
           </div>
 
-          <div class="c-topo">
+          <div class="flow">
             <div class="label">How the data flows</div>
             <div class="t-h"><Topology id={p.id} nodes={p.topology} edges={p.edges} /></div>
             <div class="t-v"><Topology id={p.id} nodes={p.topology} edges={p.edges} vertical /></div>
@@ -64,109 +55,79 @@ const snake = (s: string) => s.replace(/-/g, '_');
     </div>
 
     <div class="more reveal">
-      <div class="label more-label">More projects</div>
-      <div class="q mono">
-        <span class="signal">SELECT</span> name, kind, stack{' '}<span class="signal">FROM</span> gold.projects{' '}<span class="signal">WHERE</span> featured = false;
-      </div>
-      <table>
-        <thead class="mono"><tr><th>name</th><th>kind</th><th class="hide-sm">stack</th><th></th></tr></thead>
-        <tbody>
-          {rest.map((p) => (
-            <tr>
-              <td>
-                <strong>{p.name}</strong>
-                <span class="muted d">{p.summary}</span>
-              </td>
-              <td class="mono">{p.kind}</td>
-              <td class="mono hide-sm muted">{p.stack.join(', ')}</td>
-              <td><a class="mono" href={p.repo_url} target="_blank" rel="noopener" aria-label={`${p.name} on GitHub`}>repo &#8599;</a></td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      <div class="foot mono faint">{rest.length} rows returned</div>
+      <h3 class="label">More on GitHub</h3>
+      <ul>
+        {rest.map((p) => (
+          <li>
+            <a href={p.repo_url} target="_blank" rel="noopener">
+              <span class="m-name">{p.name}</span>
+              <span class="m-sum">{p.summary}</span>
+              <span class="m-stack mono faint">{p.stack.join(', ')}</span>
+              <span class="m-arrow" aria-hidden="true"><Icon name="arrow" size={16} /></span>
+            </a>
+          </li>
+        ))}
+      </ul>
     </div>
   </div>
 </section>
 
 <style>
-  .contracts { display: grid; gap: clamp(28px, 4vw, 48px); }
-  .contract { border: 1px solid var(--line); background: color-mix(in srgb, var(--paper) 92%, transparent); }
-  .c-head {
-    display: flex; flex-wrap: wrap; align-items: center; gap: 6px 22px;
-    padding: 12px 16px;
-    border-bottom: 1px solid var(--line);
-    font-size: 12px;
-  }
-  .spacer { flex: 1; }
-  .ok-pill { color: var(--ok); background: var(--ok-soft); padding: 3px 8px; border-radius: 2px; font-size: 11px; }
-  @media (max-width: 640px) { .hide-sm { display: none; } }
-
-  .c-body { display: grid; gap: 28px; padding: clamp(20px, 3vw, 36px); }
-  @media (min-width: 960px) { .c-body { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 48px; } }
-  .c-text { position: relative; }
+  .list { display: grid; gap: clamp(28px, 4vw, 40px); }
+  .card { border: 1px solid var(--line); background: color-mix(in srgb, var(--paper) 94%, transparent); border-radius: 6px; overflow: hidden; }
+  .top { padding: clamp(20px, 3vw, 32px) clamp(20px, 3vw, 32px) 0; }
+  .title-row { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 14px; }
   .num { font-size: 12px; color: var(--signal); }
-  .c-text h3 { margin: 8px 0 14px; font-size: clamp(36px, 4.4vw, 60px); line-height: 1; letter-spacing: -0.01em; }
-  .case { margin: 0 0 24px; display: grid; gap: 14px; }
-  .case div { display: grid; gap: 2px; }
-  .case dt { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--signal); }
-  .case dd { margin: 0; color: var(--ink-2); max-width: 58ch; }
-  .contract { position: relative; overflow: hidden; }
-  .contract::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    background: radial-gradient(520px circle at var(--mx, -999px) var(--my, -999px), var(--signal-soft), transparent 60%);
-    opacity: 0;
-    transition: opacity 0.4s;
+  .title-row h3 { margin: 0; font-size: clamp(30px, 3.4vw, 44px); line-height: 1.05; font-weight: 400; }
+  .tag { font-size: 11px; padding: 3px 8px; border: 1px solid var(--line-strong); border-radius: 999px; color: var(--ink-2); }
+  .summary { margin: 10px 0 0; color: var(--ink-2); max-width: 70ch; }
+
+  .body { display: grid; gap: 28px; padding: clamp(20px, 3vw, 32px); }
+  @media (min-width: 960px) { .body { grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 40px; } }
+  .case { margin: 0; display: grid; gap: 16px; }
+  .case dt { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--signal); margin-bottom: 3px; }
+  .case dd { margin: 0; color: var(--ink-2); }
+  .metrics {
+    margin: 0 0 18px;
+    display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+    border-top: 1px solid var(--line); border-left: 1px solid var(--line);
   }
-  .contract:hover::before { opacity: 1; }
-  .contract > * { position: relative; }
-  .sla {
-    margin: 0 0 20px;
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    border-top: 1px solid var(--line);
-    border-left: 1px solid var(--line);
+  .metrics div { padding: 11px 13px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+  .metrics dt { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-3); }
+  .metrics dd { margin: 3px 0 0; font-weight: 600; font-size: 16px; }
+  .stack { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 20px; }
+  .repo {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 14px; font-weight: 600; text-decoration: none;
+    border-bottom: 1px solid var(--ink); padding-bottom: 2px;
   }
-  .sla div { padding: 12px 14px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }
-  .sla dt { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-3); }
-  .sla dd { margin: 4px 0 0; font-size: clamp(18px, 2vw, 24px); color: var(--ink); letter-spacing: -0.02em; }
-  .stack { display: flex; flex-wrap: wrap; gap: 6px; }
-  .repo { font-size: 13px; text-decoration: none; border-bottom: 1px solid var(--ink); padding-bottom: 2px; }
   .repo:hover { color: var(--signal); border-color: var(--signal); }
 
-  .c-topo {
-    padding: clamp(20px, 3vw, 36px);
+  .flow {
+    padding: clamp(18px, 3vw, 28px) clamp(20px, 3vw, 32px);
     border-top: 1px solid var(--line);
-    display: flex; flex-direction: column; gap: 12px;
-    background:
-      radial-gradient(circle at 1px 1px, var(--line) 1px, transparent 0) 0 0 / 16px 16px;
+    background: radial-gradient(circle at 1px 1px, var(--line) 1px, transparent 0) 0 0 / 16px 16px;
+    display: grid; gap: 12px;
   }
-  .t-h { max-width: 980px; width: 100%; margin: 0 auto; }
+  .t-h { max-width: 940px; width: 100%; margin: 0 auto; }
   .t-v { display: none; }
-  @media (max-width: 640px) { .t-h { display: none; } .t-v { display: block; max-width: 420px; margin: 0 auto; width: 100%; } }
+  @media (max-width: 640px) { .t-h { display: none; } .t-v { display: block; max-width: 400px; margin: 0 auto; width: 100%; } }
 
-  .more-label { padding: 14px 16px 0; }
-  .more { margin-top: clamp(48px, 6vw, 72px); border: 1px solid var(--line); background: color-mix(in srgb, var(--paper) 92%, transparent); }
-  .q { padding: 14px 16px; font-size: 13px; border-bottom: 1px solid var(--line); background: var(--paper-2); }
-  table { width: 100%; border-collapse: collapse; }
-  th { text-align: left; font-weight: 400; font-size: 11px; color: var(--ink-3); padding: 10px 16px; border-bottom: 1px solid var(--line); }
-  td { padding: 14px 16px; border-bottom: 1px solid var(--line); vertical-align: top; font-size: 14px; }
-  td.mono { font-size: 12px; }
-  td strong { font-weight: 600; display: block; }
-  td .d { display: block; font-size: 13px; margin-top: 2px; }
-  td a { white-space: nowrap; font-size: 12px; }
-  .foot { padding: 10px 16px; font-size: 11px; }
+  .more { margin-top: clamp(40px, 6vw, 56px); }
+  .more h3 { margin: 0 0 10px; font-weight: 400; }
+  .more ul { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
+  .more a {
+    display: grid; gap: 2px 24px; padding: 16px 4px;
+    border-bottom: 1px solid var(--line);
+    text-decoration: none;
+    transition: background-color 0.2s;
+  }
+  @media (min-width: 860px) { .more a { grid-template-columns: 220px minmax(0, 1fr) 260px 20px; align-items: baseline; } }
+  .more a:hover { background: var(--paper-2); }
+  .more a:hover .m-arrow { color: var(--signal); transform: translate(2px, -2px); }
+  .m-name { font-weight: 600; }
+  .m-sum { color: var(--ink-2); font-size: 15px; }
+  .m-stack { font-size: 12px; }
+  .m-arrow { color: var(--ink-3); transition: transform 0.2s, color 0.2s; }
+  @media (max-width: 859px) { .m-arrow { display: none; } }
 </style>
-
-<script>
-  document.querySelectorAll<HTMLElement>('[data-spotlight]').forEach((el) => {
-    el.addEventListener('pointermove', (e) => {
-      const r = el.getBoundingClientRect();
-      el.style.setProperty('--mx', `${e.clientX - r.left}px`);
-      el.style.setProperty('--my', `${e.clientY - r.top}px`);
-    });
-  });
-</script>

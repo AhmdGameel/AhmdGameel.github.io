@@ -19,7 +19,7 @@ type Dot = {
 const ease = (t: number) => 1 - Math.pow(1 - t, 3);
 
 export function startStream() {
-  const box = document.querySelector<HTMLElement>('#source .name-box');
+  const box = document.querySelector<HTMLElement>('#top .name-box');
   const canvas = document.getElementById('stream') as HTMLCanvasElement | null;
   const name = document.getElementById('hero-name');
   if (!box || !canvas || !name) return;

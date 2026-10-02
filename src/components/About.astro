@@ -1,119 +1,24 @@
 ---
 import SectionHead from './SectionHead.astro';
-import { person, experience, education, certifications, skills } from '../lib/data';
-
-const current = experience.find((e) => e.is_current);
-const edu = education[0];
-const facts: [string, string][] = [
-  ['Now', current ? `${current.role} at ${current.company} (${current.mode})` : person.status],
-  ['Degree', `${edu.degree}, ${edu.school}, GPA ${edu.gpa}, class of ${edu.end}`],
-  ['Certified', `${certifications[0].name}, ${certifications[0].issuer}`],
-  ['Community', person.community],
-  ['Based in', person.location],
-];
-
-const principles = [
-  { t: 'Contracts before code', d: 'I agree on schemas, owners and SLAs first, so downstream teams know exactly what they will get.' },
-  { t: 'Quality checks are code', d: 'Validation runs inside the pipeline. Bad records go to a dead letter queue, not to a dashboard.' },
-  { t: 'Safe to rerun', d: 'Loads are idempotent and partitioned, so a failed run is a retry, not an incident.' },
-  { t: 'Visible by default', d: 'Every pipeline reports what it did: rows, duration, freshness and failed checks.' },
-];
-
-const groups = [...new Set(skills.map((s) => s.group))];
+import { person } from '../lib/data';
 ---
 
-<section id="bronze" class="stage">
-  <div class="wrap">
-    <SectionHead index="01" label="About" table="bronze.raw_profile">
-      I make messy data <em>dependable.</em>
-    </SectionHead>
-
-    <div class="grid">
-      <div class="left reveal">
-        <p class="summary">{person.summary}</p>
-        <dl class="facts">
-          {facts.map(([k, v]) => (
-            <div><dt class="mono">{k}</dt><dd>{v}</dd></div>
-          ))}
-        </dl>
-      </div>
-
-      <div class="right">
-        <div class="label reveal">How I work</div>
-        <ol class="principles">
-          {principles.map((p, i) => (
-            <li class="reveal" style={`transition-delay:${i * 70}ms`}>
-              <span class="n mono">{String(i + 1).padStart(2, '0')}</span>
-              <div>
-                <h3>{p.t}</h3>
-                <p>{p.d}</p>
-              </div>
-            </li>
-          ))}
-        </ol>
-      </div>
-    </div>
-
-    <div class="skills reveal">
-      <div class="skills-head">
-        <span class="label">Toolbox</span>
-        <span class="legend mono faint">
-          <span class="meter" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i></span>
-          hands on depth, 1 to 5
-        </span>
-      </div>
-      <div class="skills-grid">
-        {groups.map((g) => (
-          <div class="group">
-            <div class="gname mono">{g}</div>
-            <ul>
-              {skills.filter((s) => s.group === g).map((s) => (
-                <li>
-                  <span>{s.name}</span>
-                  <span class="meter" role="img" aria-label={`depth ${s.level} of 5`}>
-                    {[1, 2, 3, 4, 5].map((i) => <i class={i <= s.level ? 'on' : ''}></i>)}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        ))}
-      </div>
+<section id="about" class="stage">
+  <div class="wrap grid">
+    <SectionHead index="01" title="About" />
+    <div class="text reveal">
+      {person.about.map((p: string, i: number) => <p class:list={[i === 0 && 'lead']}>{p}</p>)}
+      <p class="community mono"><span class="dot-sq"></span>{person.community}</p>
     </div>
   </div>
 </section>
 
 <style>
-  .grid { display: grid; gap: clamp(40px, 6vw, 88px); align-items: start; }
-  @media (min-width: 960px) { .grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } }
-
-  .summary { margin: 0 0 32px; font-size: clamp(17px, 1.5vw, 19px); color: var(--ink-2); max-width: 56ch; }
-  .facts { margin: 0; border-top: 1px solid var(--line); }
-  .facts div { display: grid; grid-template-columns: 104px 1fr; gap: 16px; padding: 13px 0; border-bottom: 1px solid var(--line); }
-  .facts dt { font-size: 12px; color: var(--ink-3); padding-top: 3px; }
-  .facts dd { margin: 0; }
-
-  .principles { list-style: none; margin: 14px 0 0; padding: 0; display: grid; gap: 0; border-top: 1px solid var(--line); }
-  .principles li { display: grid; grid-template-columns: 44px 1fr; gap: 8px; padding: 18px 0; border-bottom: 1px solid var(--line); }
-  .n { font-size: 12px; color: var(--signal); padding-top: 4px; }
-  .principles h3 { margin: 0 0 4px; font-family: var(--serif); font-weight: 400; font-size: 26px; line-height: 1.15; }
-  .principles p { margin: 0; color: var(--ink-2); font-size: 15px; }
-
-  .skills { margin-top: clamp(64px, 9vw, 104px); }
-  .skills-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
-  .legend { display: inline-flex; align-items: center; gap: 8px; font-size: 11px; }
-  .skills-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    border-top: 1px solid var(--line);
-    border-left: 1px solid var(--line);
-  }
-  .group { padding: 18px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); transition: background-color 0.25s; }
-  .group:hover { background: var(--paper-2); }
-  .gname { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--signal); margin-bottom: 12px; }
-  .group ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 9px; }
-  .group li { display: flex; justify-content: space-between; align-items: center; gap: 12px; font-size: 14px; }
-  .meter { display: inline-flex; gap: 3px; }
-  .meter i { width: 7px; height: 7px; background: var(--queued); border-radius: 1px; }
-  .meter i.on { background: var(--ink); }
+  .grid { display: grid; gap: 8px; }
+  @media (min-width: 900px) { .grid { grid-template-columns: 280px minmax(0, 1fr); gap: 48px; } }
+  .text { max-width: 64ch; }
+  .text p { margin: 0 0 18px; color: var(--ink-2); font-size: 17px; }
+  .text .lead { font-family: var(--serif); font-size: clamp(24px, 2.4vw, 30px); line-height: 1.25; color: var(--ink); }
+  .community { display: inline-flex; align-items: center; gap: 10px; font-size: 13px !important; margin-top: 8px !important; }
+  .dot-sq { width: 8px; height: 8px; background: var(--signal); display: inline-block; }
 </style>

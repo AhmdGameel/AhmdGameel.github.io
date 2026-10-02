@@ -1,27 +1,27 @@
 {
- "run_id": "895fb5e7",
- "started_at": "2026-10-02T12:07:31+00:00",
- "duration_ms": 13885,
- "github_fetched_at": "2026-10-02T12:07:45+00:00",
+ "run_id": "4ac1605b",
+ "started_at": "2026-10-02T12:29:29+00:00",
+ "duration_ms": 8706,
+ "github_fetched_at": "2026-10-02T12:29:38+00:00",
  "rows": {
   "person": 1,
   "experience": 4,
   "projects": 6,
-  "skills": 23,
+  "skills": 31,
   "certifications": 3,
   "education": 1,
   "repos": 11,
   "repo_languages": 13
  },
- "rows_total": 62,
+ "rows_total": 70,
  "checks": [
   {
-   "name": "no_em_dashes",
+   "name": "text_style",
    "passed": true,
    "detail": ""
   },
   {
-   "name": "english_only",
+   "name": "text_language",
    "passed": true,
    "detail": ""
   },
@@ -51,7 +51,7 @@
    "detail": ""
   },
   {
-   "name": "skills_level_range",
+   "name": "skills_unique",
    "passed": true,
    "detail": ""
   }

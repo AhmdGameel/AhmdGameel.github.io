@@ -36,7 +36,7 @@ export interface Project {
 export const person = warehouse.person[0];
 export const experience = warehouse.experience as Experience[];
 export const projects = warehouse.projects as Project[];
-export const skills = warehouse.skills as { name: string; group: string; level: number }[];
+export const skillGroups = warehouse.skill_groups as { group: string; items: string[] }[];
 export const certifications = warehouse.certifications;
 export const education = warehouse.education;
 export const repos = warehouse.repos;

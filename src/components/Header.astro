@@ -1,0 +1,141 @@
+---
+import { person } from '../lib/data';
+import Icon from './Icon.astro';
+
+const links = [
+  { id: 'about', label: 'About' },
+  { id: 'experience', label: 'Experience' },
+  { id: 'projects', label: 'Projects' },
+  { id: 'skills', label: 'Skills' },
+  { id: 'contact', label: 'Contact' },
+];
+---
+
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="topbar">
+  <div class="inner">
+    <a href="#top" class="brand" aria-label={`${person.name}, back to top`}>
+      <img src="/favicon.svg" width="28" height="28" alt="" />
+      <span>{person.name}</span>
+    </a>
+
+    <nav class="nav" aria-label="Sections">
+      {links.map((l) => <a href={`#${l.id}`} data-link={l.id}>{l.label}</a>)}
+    </nav>
+
+    <div class="actions">
+      <button id="theme-toggle" class="icon-btn" type="button" aria-label="Switch between light and dark theme">
+        <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.5" fill="none" stroke="currentColor" stroke-width="1.3" /><path d="M8 1.5 A6.5 6.5 0 0 1 8 14.5 Z" fill="currentColor" /></svg>
+      </button>
+      <a class="btn small" href={person.cv} download>
+        <Icon name="download" size={15} /> Resume
+      </a>
+      <button id="menu-toggle" class="icon-btn menu-btn" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-nav">
+        <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M2 5h14M2 9h14M2 13h14" stroke="currentColor" stroke-width="1.5" /></svg>
+      </button>
+    </div>
+  </div>
+  <nav id="mobile-nav" class="mobile-nav" aria-label="Sections" hidden>
+    {links.map((l) => <a href={`#${l.id}`}>{l.label}</a>)}
+  </nav>
+</header>
+
+<style>
+  .skip {
+    position: absolute; left: 12px; top: -48px; z-index: 100;
+    background: var(--ink); color: var(--paper);
+    padding: 8px 12px; border-radius: var(--radius); text-decoration: none;
+  }
+  .skip:focus { top: 12px; }
+  .topbar {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+    background: color-mix(in srgb, var(--paper) 85%, transparent);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line);
+  }
+  .inner {
+    max-width: var(--max);
+    margin: 0 auto;
+    height: 60px;
+    padding: 0 var(--gutter);
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  }
+  .brand { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; font-weight: 600; font-size: 15px; letter-spacing: -0.01em; white-space: nowrap; }
+  @media (max-width: 359px) { .brand span { display: none; } }
+  .brand img { border-radius: 6px; }
+  .nav { display: none; gap: 4px; }
+  .nav a {
+    position: relative;
+    padding: 8px 12px;
+    font-size: 14px;
+    color: var(--ink-2);
+    text-decoration: none;
+    border-radius: var(--radius);
+    transition: color 0.2s, background-color 0.2s;
+  }
+  .nav a:hover { color: var(--ink); background: var(--paper-2); }
+  .nav a.active { color: var(--ink); }
+  .nav a.active::after {
+    content: ''; position: absolute; left: 12px; right: 12px; bottom: 2px; height: 2px; background: var(--signal);
+  }
+  .actions { display: flex; align-items: center; gap: 8px; }
+  .icon-btn {
+    width: 38px; height: 38px;
+    display: grid; place-items: center;
+    border: 1px solid var(--line); border-radius: var(--radius);
+    background: transparent; cursor: pointer;
+  }
+  .icon-btn:hover { border-color: var(--ink-3); }
+  .btn.small { padding: 9px 13px; font-size: 13px; gap: 8px; }
+  .mobile-nav { display: grid; padding: 8px var(--gutter) 16px; border-top: 1px solid var(--line); }
+  .mobile-nav[hidden] { display: none; }
+  .mobile-nav a { padding: 12px 0; text-decoration: none; font-size: 17px; border-bottom: 1px solid var(--line); }
+  @media (min-width: 900px) {
+    .nav { display: flex; }
+    .menu-btn, .mobile-nav { display: none !important; }
+  }
+</style>
+
+<script>
+  const root = document.documentElement;
+  document.getElementById('theme-toggle')?.addEventListener('click', () => {
+    const dark = root.dataset.theme ? root.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+    const next = dark ? 'light' : 'dark';
+    root.dataset.theme = next;
+    try { localStorage.setItem('theme', next); } catch (e) {}
+    window.dispatchEvent(new CustomEvent('themechange'));
+  });
+
+  // Mobile menu
+  const menuBtn = document.getElementById('menu-toggle');
+  const mobile = document.getElementById('mobile-nav');
+  const setMenu = (open: boolean) => {
+    if (!menuBtn || !mobile) return;
+    mobile.hidden = !open;
+    menuBtn.setAttribute('aria-expanded', String(open));
+    menuBtn.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+  };
+  menuBtn?.addEventListener('click', () => setMenu(mobile!.hidden));
+  mobile?.querySelectorAll('a').forEach((a) => a.addEventListener('click', () => setMenu(false)));
+
+  // Highlight the section being read
+  const links = [...document.querySelectorAll<HTMLAnchorElement>('.nav a')];
+  const sections = links.map((l) => document.getElementById(l.dataset.link!)).filter(Boolean) as HTMLElement[];
+  const onScroll = () => {
+    const mid = innerHeight * 0.35;
+    let active = '';
+    for (const s of sections) if (s.getBoundingClientRect().top <= mid) active = s.id;
+    links.forEach((l) => l.classList.toggle('active', l.dataset.link === active));
+  };
+  addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+
+  // Gentle reveal on scroll
+  const io = new IntersectionObserver(
+    (entries) => entries.forEach((e) => e.isIntersecting && (e.target.classList.add('in'), io.unobserve(e.target))),
+    { rootMargin: '0px 0px -8% 0px' },
+  );
+  document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
+</script>

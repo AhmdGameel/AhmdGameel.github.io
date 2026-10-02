@@ -148,7 +148,7 @@ def transform(profile: dict, gh: dict) -> dict[str, list[dict]]:
             }
         )
 
-    skills = [dict(s) for s in profile["skills"]]
+    skills = [{"skill": item, "category": g["group"]} for g in profile["skills"] for item in g["items"]]
     certifications = [{**c, "date": str(c["date"])} for c in profile["certifications"]]
     education = [dict(e) for e in profile["education"]]
 
@@ -157,6 +157,7 @@ def transform(profile: dict, gh: dict) -> dict[str, list[dict]]:
         "experience": experience,
         "projects": projects,
         "skills": skills,
+        "skill_groups": [dict(g) for g in profile["skills"]],
         "certifications": certifications,
         "education": education,
         "repos": repos,
@@ -183,10 +184,10 @@ def quality(tables: dict[str, list[dict]]) -> list[dict]:
         checks.append({"name": name, "passed": ok, "detail": detail})
 
     dashes = [p for p, s in walk_strings(tables) if EM_DASH in s or SPACED_EN_DASH.search(s)]
-    check("no_em_dashes", not dashes, ", ".join(dashes[:5]))
+    check("text_style", not dashes, ", ".join(dashes[:5]))
 
     non_ascii = [p for p, s in walk_strings(tables) if re.search(r"[؀-ۿ]", s)]
-    check("english_only", not non_ascii, ", ".join(non_ascii[:5]))
+    check("text_language", not non_ascii, ", ".join(non_ascii[:5]))
 
     for name in ("experience", "projects"):
         ids = [r["id"] for r in tables[name]]
@@ -207,7 +208,8 @@ def quality(tables: dict[str, list[dict]]) -> list[dict]:
             check(f"topology_edges_{p['id']}", False, str(dangling))
     check("topology_edges_resolve", all(c["passed"] for c in checks if c["name"].startswith("topology_edges_")))
 
-    check("skills_level_range", all(1 <= s["level"] <= 5 for s in tables["skills"]))
+    skills = [s["skill"] for s in tables["skills"]]
+    check("skills_unique", len(skills) == len(set(skills)) and bool(skills))
     return checks
 
 
@@ -219,7 +221,7 @@ def load_parquet(tables: dict[str, list[dict]]) -> dict[str, int]:
     counts = {}
     sql_tables = {
         "person": [
-            {k: v for k, v in tables["person"][0].items() if k in ("name", "title", "location", "email", "github", "linkedin", "status", "tagline")}
+            {k: v for k, v in tables["person"][0].items() if k in ("name", "title", "location", "email", "github", "linkedin", "youtube", "x", "status")}
         ],
         "experience": [
             {k: v for k, v in r.items()} for r in tables["experience"]

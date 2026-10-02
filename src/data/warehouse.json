@@ -8,10 +8,16 @@
    "email": "ahmed0gameel@gmail.com",
    "github": "https://github.com/AhmdGameel",
    "linkedin": "https://www.linkedin.com/in/AhmdGameel",
+   "youtube": "https://www.youtube.com/@AhmdGameel",
+   "x": "https://x.com/AhmdGameel",
    "cv": "/Ahmed_Gameel.pdf",
-   "tagline": "I build pipelines that keep moving when the data does not behave.",
-   "summary": "Data Engineer building batch and streaming pipelines on AWS, Spark, Kafka and Flink. I care about the boring parts that make data trustworthy: contracts, quality checks, idempotent loads and clear lineage. Currently shipping AWS Glue and PySpark pipelines at DigitalH, and graduating in Artificial Intelligence from Kafrelsheikh University.\n",
-   "status": "Open to Data Engineering roles",
+   "status": "Open to Data Engineering opportunities",
+   "intro": "I build ETL pipelines with Python, SQL and PySpark, currently on AWS Glue at DigitalH. I graduated in Artificial Intelligence from Kafrelsheikh University in 2026.\n",
+   "about": [
+    "I work as a Data Engineer at DigitalH, where I help build ETL pipelines on AWS Glue with PySpark and Python, moving and cleaning data stored in Amazon S3.\n",
+    "Outside work I learn by building complete projects: a streaming pipeline with Kafka and Flink, batch pipelines orchestrated with Airflow, and a SQL Server warehouse modeled as a star schema. Each one has a README that explains the design and how to run it.\n",
+    "I am early in my career and looking to grow in a team that cares about reliable, well documented data.\n"
+   ],
    "community": "Microsoft Student Ambassador"
   }
  ],
@@ -31,9 +37,9 @@
     "Amazon S3"
    ],
    "highlights": [
-    "Design and develop scalable ETL and ELT pipelines using AWS Glue, PySpark and Python.",
-    "Build and maintain Glue jobs that ingest, transform and optimize large datasets stored in Amazon S3.",
-    "Deliver reliable, production ready workflows for enterprise projects with the data engineering team."
+    "Design and develop ETL and ELT pipelines using AWS Glue, PySpark and Python.",
+    "Build and maintain Glue jobs that ingest, transform and optimize datasets stored in Amazon S3.",
+    "Work with the data engineering team to deliver production workflows for enterprise projects."
    ]
   },
   {
@@ -51,8 +57,8 @@
    ],
    "highlights": [
     "Collected, cleaned and modeled data from multiple sources with Power BI, DAX and Power Query.",
-    "Designed and published interactive dashboards that support data driven decisions.",
-    "Applied data governance and visualization best practices in a real world capstone."
+    "Designed and published interactive dashboards and reports.",
+    "Completed a real world capstone project applying data governance and visualization practices."
    ]
   },
   {
@@ -73,8 +79,8 @@
     "MongoDB"
    ],
    "highlights": [
-    "Built reproducible environments with Docker and used Hadoop for distributed data management.",
-    "Implemented in memory processing with Spark and warehousing on Hadoop with Hive.",
+    "Set up reproducible environments with Docker and used Hadoop for distributed storage.",
+    "Processed data in memory with Spark and built warehouse tables on Hadoop with Hive.",
     "Automated data flows with Apache NiFi across PostgreSQL and MongoDB."
    ]
   },
@@ -92,7 +98,7 @@
     "Data Modeling"
    ],
    "highlights": [
-    "Developed and implemented ETL processes with SQL Server Integration Services.",
+    "Built ETL processes with SQL Server Integration Services (SSIS).",
     "Learned data warehouse architecture, implementation and dimensional modeling."
    ]
   }
@@ -101,12 +107,12 @@
   {
    "id": "tower-health-stream",
    "name": "Tower Health Stream",
-   "kind": "streaming",
+   "kind": "Streaming",
    "featured": true,
-   "summary": "Real time network intelligence for 10,192 real Egyptian cell towers. Detects tower degradation before customers notice, and tells weather from technical faults.",
-   "problem": "Telecom monitoring is usually reactive. Engineers hear about a weak tower only after customers start complaining.",
-   "built": "A streaming pipeline where Kafka carries tower telemetry, Flink validates every event and detects anomalies in 10 minute windows, a Python service enriches alerts with live weather, Iceberg keeps history, and Grafana shows it live. Airflow and dbt run the batch side.",
-   "result": "Sustained 2,038 events per second with alerts in under 150 ms, and each alert explains whether weather or a technical fault is the likely cause.",
+   "summary": "A streaming pipeline that monitors simulated telemetry from 10,192 real Egyptian cell tower locations.",
+   "problem": "Telecom teams often learn about a weak tower only after customers complain. I wanted to see how early a streaming pipeline could flag it.",
+   "built": "Kafka carries tower events, Flink validates them and detects anomalies in 10 minute windows, a Python service adds live weather to each alert, Iceberg stores history, and Grafana shows the results. Airflow and dbt handle the batch side.",
+   "result": "In local tests on Docker it handled about 2,000 events per second and raised alerts in under 150 ms.",
    "stack": [
     "Kafka",
     "Flink",
@@ -124,20 +130,20 @@
    "last_push": "2026-03-22",
    "metrics": [
     {
-     "label": "throughput",
-     "value": "2,038 ev/s"
+     "label": "towers",
+     "value": "10,192"
     },
     {
-     "label": "events per hour",
-     "value": "7.3M"
+     "label": "events per second",
+     "value": "~2,000"
     },
     {
-     "label": "detection latency",
+     "label": "alert latency",
      "value": "< 150 ms"
     },
     {
-     "label": "towers",
-     "value": "10,192"
+     "label": "services",
+     "value": "9 in Docker"
     }
    ],
    "topology": [
@@ -151,35 +157,35 @@
     {
      "id": "kafka",
      "label": "Kafka",
-     "sub": "KRaft",
+     "sub": "event log",
      "x": 1,
      "y": 1
     },
     {
      "id": "dq",
-     "label": "Flink DQ",
-     "sub": "validate",
+     "label": "Flink",
+     "sub": "validation",
      "x": 2,
      "y": 0
     },
     {
      "id": "anom",
-     "label": "Flink Anomaly",
-     "sub": "10 min window",
+     "label": "Flink",
+     "sub": "anomalies",
      "x": 2,
      "y": 2
     },
     {
      "id": "ice",
      "label": "Iceberg",
-     "sub": "time travel",
+     "sub": "history",
      "x": 3,
      "y": 0
     },
     {
      "id": "wx",
-     "label": "Weather Enrich",
-     "sub": "Open-Meteo",
+     "label": "Weather API",
+     "sub": "enrichment",
      "x": 3,
      "y": 2
     },
@@ -193,7 +199,7 @@
     {
      "id": "graf",
      "label": "Grafana",
-     "sub": "5 s refresh",
+     "sub": "dashboard",
      "x": 5,
      "y": 1
     }
@@ -236,12 +242,12 @@
   {
    "id": "airflow-pyspark-etl",
    "name": "Log Analytics ETL",
-   "kind": "batch",
+   "kind": "Batch",
    "featured": true,
-   "summary": "Airflow and PySpark pipeline that turns 3.5 GB of raw web server logs into clean, enriched Parquet and analytics reports, with automatic detection of new files.",
-   "problem": "Millions of raw access log lines are unreadable for analysts and expensive to store as text.",
-   "built": "Modular Airflow DAGs that split logs by date, parse them with PySpark, join 258K hostname lookups, run data quality rules, and publish analytics reports. New files are picked up automatically.",
-   "result": "10M+ records processed, storage cut by 93% with Parquet, and reports that rebuild themselves.",
+   "summary": "An Airflow and PySpark pipeline that turns raw web server logs into clean Parquet and reports.",
+   "problem": "3.5 GB of raw access logs are hard to analyze and expensive to keep as text.",
+   "built": "Airflow DAGs that split the logs by date, parse them with PySpark, add hostnames from a 258K row lookup, apply data quality rules, and generate analytics reports. New files are picked up automatically.",
+   "result": "Processed more than 10 million records, and Parquet reduced the data from 3.5 GB to about 240 MB.",
    "stack": [
     "Airflow",
     "PySpark",
@@ -259,15 +265,15 @@
      "value": "10M+"
     },
     {
-     "label": "raw size",
+     "label": "raw logs",
      "value": "3.5 GB"
     },
     {
-     "label": "compression",
-     "value": "93%"
+     "label": "as Parquet",
+     "value": "~240 MB"
     },
     {
-     "label": "hostname lookups",
+     "label": "lookup rows",
      "value": "258K"
     }
    ],
@@ -282,7 +288,7 @@
     {
      "id": "split",
      "label": "Split by Date",
-     "sub": "landing",
+     "sub": "Python",
      "x": 1,
      "y": 1
     },
@@ -302,8 +308,8 @@
     },
     {
      "id": "dq",
-     "label": "Quality",
-     "sub": "clean",
+     "label": "Clean",
+     "sub": "quality rules",
      "x": 4,
      "y": 1
     },
@@ -341,12 +347,12 @@
   {
    "id": "unified-sales-warehouse",
    "name": "Unified Sales Warehouse",
-   "kind": "warehouse",
+   "kind": "Warehouse",
    "featured": true,
-   "summary": "CRM and ERP sales data unified in SQL Server with a Bronze, Silver, Gold medallion design and a star schema data mart for analytics.",
-   "problem": "Sales data lived in two systems that disagreed on customers, products and formats.",
-   "built": "SSIS loads raw files into a Bronze layer, stored procedures clean and conform them in Silver, and Gold exposes a star schema with fact_sales, dim_customers and dim_products.",
-   "result": "One trusted model for sales reporting, with every number traceable back to its source row.",
+   "summary": "A SQL Server data warehouse that combines CRM and ERP sales data.",
+   "problem": "Sales data came from two systems with different formats for customers and products.",
+   "built": "SSIS loads the raw files into a Bronze layer, stored procedures clean and standardize them in Silver, and Gold exposes a star schema with fact_sales, dim_customers and dim_products.",
+   "result": "One consistent model for sales reporting, where each number can be traced back to its source.",
    "stack": [
     "SQL Server",
     "SSIS",
@@ -359,19 +365,19 @@
    "metrics": [
     {
      "label": "sources",
-     "value": "2 systems"
+     "value": "CRM + ERP"
     },
     {
      "label": "layers",
-     "value": "3"
+     "value": "Bronze, Silver, Gold"
     },
     {
      "label": "model",
-     "value": "star schema"
+     "value": "Star schema"
     },
     {
-     "label": "load",
-     "value": "SSIS + T-SQL"
+     "label": "tools",
+     "value": "SSIS, T-SQL"
     }
    ],
    "topology": [
@@ -399,7 +405,7 @@
     {
      "id": "sv",
      "label": "Silver",
-     "sub": "cleansed",
+     "sub": "cleaned",
      "x": 2,
      "y": 1
     },
@@ -433,7 +439,7 @@
   {
    "id": "realestate-etl",
    "name": "Real Estate ETL",
-   "kind": "batch",
+   "kind": "Batch",
    "featured": false,
    "summary": "Airflow with CeleryExecutor loading real estate sales into Hadoop HDFS and Hive.",
    "problem": "",
@@ -457,9 +463,9 @@
   {
    "id": "banking-dwh",
    "name": "Banking Data Warehouse",
-   "kind": "warehouse",
+   "kind": "Warehouse",
    "featured": false,
-   "summary": "End to end banking warehouse with Python ETL, Airflow orchestration, PostgreSQL and Grafana.",
+   "summary": "Banking warehouse with Python ETL, Airflow orchestration, PostgreSQL and Grafana.",
    "problem": "",
    "built": "",
    "result": "",
@@ -479,7 +485,7 @@
   {
    "id": "social-etl",
    "name": "Social Media ETL",
-   "kind": "batch",
+   "kind": "Batch",
    "featured": false,
    "summary": "API collectors for X and YouTube orchestrated by Airflow in Docker, landing in PostgreSQL.",
    "problem": "",
@@ -502,119 +508,196 @@
  ],
  "skills": [
   {
-   "name": "Python",
-   "group": "language",
-   "level": 5
+   "skill": "Python",
+   "category": "Languages"
   },
   {
-   "name": "SQL",
-   "group": "language",
-   "level": 5
+   "skill": "SQL",
+   "category": "Languages"
   },
   {
-   "name": "Bash",
-   "group": "language",
-   "level": 3
+   "skill": "Bash",
+   "category": "Languages"
   },
   {
-   "name": "C++",
-   "group": "language",
-   "level": 3
+   "skill": "C++",
+   "category": "Languages"
   },
   {
-   "name": "Apache Spark",
-   "group": "processing",
-   "level": 4
+   "skill": "Apache Spark",
+   "category": "Processing"
   },
   {
-   "name": "Apache Flink",
-   "group": "processing",
-   "level": 3
+   "skill": "PySpark",
+   "category": "Processing"
   },
   {
-   "name": "Apache Kafka",
-   "group": "streaming",
-   "level": 4
+   "skill": "Apache Flink",
+   "category": "Processing"
   },
   {
-   "name": "Apache Airflow",
-   "group": "orchestration",
-   "level": 5
+   "skill": "Apache Airflow",
+   "category": "Orchestration and streaming"
   },
   {
-   "name": "dbt",
-   "group": "transformation",
-   "level": 3
+   "skill": "Apache Kafka",
+   "category": "Orchestration and streaming"
   },
   {
-   "name": "Apache Iceberg",
-   "group": "storage",
-   "level": 3
+   "skill": "Apache NiFi",
+   "category": "Orchestration and streaming"
   },
   {
-   "name": "Hadoop",
-   "group": "storage",
-   "level": 3
+   "skill": "dbt",
+   "category": "Orchestration and streaming"
   },
   {
-   "name": "Hive",
-   "group": "storage",
-   "level": 3
+   "skill": "Apache Iceberg",
+   "category": "Storage and warehousing"
   },
   {
-   "name": "AWS Glue",
-   "group": "cloud",
-   "level": 4
+   "skill": "Parquet",
+   "category": "Storage and warehousing"
   },
   {
-   "name": "Amazon S3",
-   "group": "cloud",
-   "level": 4
+   "skill": "Hadoop",
+   "category": "Storage and warehousing"
   },
   {
-   "name": "Microsoft Fabric",
-   "group": "cloud",
-   "level": 4
+   "skill": "Hive",
+   "category": "Storage and warehousing"
   },
   {
-   "name": "Azure",
-   "group": "cloud",
-   "level": 3
+   "skill": "Data Modeling",
+   "category": "Storage and warehousing"
   },
   {
-   "name": "PostgreSQL",
-   "group": "database",
-   "level": 4
+   "skill": "PostgreSQL",
+   "category": "Databases"
   },
   {
-   "name": "SQL Server",
-   "group": "database",
-   "level": 4
+   "skill": "SQL Server",
+   "category": "Databases"
   },
   {
-   "name": "DuckDB",
-   "group": "database",
-   "level": 4
+   "skill": "MySQL",
+   "category": "Databases"
   },
   {
-   "name": "MySQL",
-   "group": "database",
-   "level": 3
+   "skill": "DuckDB",
+   "category": "Databases"
   },
   {
-   "name": "Docker",
-   "group": "platform",
-   "level": 4
+   "skill": "MongoDB",
+   "category": "Databases"
   },
   {
-   "name": "Linux",
-   "group": "platform",
-   "level": 4
+   "skill": "AWS Glue",
+   "category": "Cloud and tools"
   },
   {
-   "name": "Power BI",
-   "group": "analytics",
-   "level": 4
+   "skill": "Amazon S3",
+   "category": "Cloud and tools"
+  },
+  {
+   "skill": "Microsoft Fabric",
+   "category": "Cloud and tools"
+  },
+  {
+   "skill": "Azure",
+   "category": "Cloud and tools"
+  },
+  {
+   "skill": "Docker",
+   "category": "Cloud and tools"
+  },
+  {
+   "skill": "Linux",
+   "category": "Cloud and tools"
+  },
+  {
+   "skill": "Git",
+   "category": "Cloud and tools"
+  },
+  {
+   "skill": "Power BI",
+   "category": "Analytics"
+  },
+  {
+   "skill": "DAX",
+   "category": "Analytics"
+  },
+  {
+   "skill": "Grafana",
+   "category": "Analytics"
+  }
+ ],
+ "skill_groups": [
+  {
+   "group": "Languages",
+   "items": [
+    "Python",
+    "SQL",
+    "Bash",
+    "C++"
+   ]
+  },
+  {
+   "group": "Processing",
+   "items": [
+    "Apache Spark",
+    "PySpark",
+    "Apache Flink"
+   ]
+  },
+  {
+   "group": "Orchestration and streaming",
+   "items": [
+    "Apache Airflow",
+    "Apache Kafka",
+    "Apache NiFi",
+    "dbt"
+   ]
+  },
+  {
+   "group": "Storage and warehousing",
+   "items": [
+    "Apache Iceberg",
+    "Parquet",
+    "Hadoop",
+    "Hive",
+    "Data Modeling"
+   ]
+  },
+  {
+   "group": "Databases",
+   "items": [
+    "PostgreSQL",
+    "SQL Server",
+    "MySQL",
+    "DuckDB",
+    "MongoDB"
+   ]
+  },
+  {
+   "group": "Cloud and tools",
+   "items": [
+    "AWS Glue",
+    "Amazon S3",
+    "Microsoft Fabric",
+    "Azure",
+    "Docker",
+    "Linux",
+    "Git"
+   ]
+  },
+  {
+   "group": "Analytics",
+   "items": [
+    "Power BI",
+    "DAX",
+    "Grafana"
+   ]
   }
  ],
  "certifications": [

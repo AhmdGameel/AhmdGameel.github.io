@@ -3,45 +3,27 @@ import SectionHead from './SectionHead.astro';
 import { pipelineRun } from '../lib/data';
 
 const presets = [
-  { label: 'Who is Ahmed?', sql: 'SELECT name, title, location, status\nFROM person;' },
-  {
-    label: 'Months in each role',
-    sql: "SELECT role, company,\n       date_diff('month', strptime(start_month, '%Y-%m'),\n         coalesce(strptime(end_month, '%Y-%m'), current_date)) + 1 AS months\nFROM experience\nORDER BY start_month DESC;",
-  },
-  {
-    label: 'Streaming work',
-    sql: "SELECT name, kind, array_to_string(stack, ', ') AS stack\nFROM projects\nWHERE kind = 'streaming' OR list_contains(stack, 'Kafka');",
-  },
-  {
-    label: 'Skills by group',
-    sql: 'SELECT "group", count(*) AS skills, round(avg(level), 1) AS avg_level,\n       string_agg(name, \', \') AS names\nFROM skills\nGROUP BY "group"\nORDER BY avg_level DESC, skills DESC;',
-  },
-  {
-    label: 'GitHub languages',
-    sql: 'SELECT language, count(*) AS repos, round(avg(share) * 100, 1) AS avg_share_pct\nFROM repo_languages\nGROUP BY language\nORDER BY repos DESC, avg_share_pct DESC;',
-  },
-  {
-    label: 'Should we hire him?',
-    sql: "SELECT CASE WHEN count(*) >= 3 THEN 'yes' ELSE 'also yes' END AS should_you_hire_ahmed,\n       (SELECT email FROM person) AS next_step\nFROM projects\nWHERE featured;",
-  },
+  { label: 'Experience', sql: "SELECT role, company, start_month,\n       coalesce(end_month, 'present') AS end_month\nFROM experience\nORDER BY start_month DESC;" },
+  { label: 'Projects that use Kafka', sql: "SELECT name, kind, summary\nFROM projects\nWHERE list_contains(stack, 'Kafka');" },
+  { label: 'Skills by category', sql: "SELECT category, string_agg(skill, ', ') AS skills\nFROM skills\nGROUP BY category\nORDER BY count(*) DESC;" },
+  { label: 'Certifications', sql: 'SELECT name, issuer, date\nFROM certifications\nORDER BY date DESC;' },
+  { label: 'GitHub repos by language', sql: 'SELECT language, count(*) AS repos\nFROM repos\nWHERE language IS NOT NULL\nGROUP BY language\nORDER BY repos DESC;' },
+  { label: 'Latest GitHub activity', sql: 'SELECT name, last_push, description\nFROM repos\nORDER BY last_push DESC\nLIMIT 5;' },
 ];
 const tables = Object.entries(pipelineRun.rows as Record<string, number>);
 ---
 
-<section id="serving" class="stage">
+<section id="demo" class="stage">
   <div class="wrap">
     <SectionHead
-      index="04"
-      label="Ask my data"
-      table="serving.sql"
-      intro="This is a real database (DuckDB) running inside your browser, loaded with my profile as Parquet tables. Tap a question, or write your own SQL."
-    >
-      Don't read my resume. <em>Query it.</em>
-    </SectionHead>
+      index="05"
+      title="Query my profile"
+      intro="A small extra for the curious. My profile is stored as Parquet files and this is DuckDB running inside your browser, so nothing is sent to a server. Pick a question or write your own SQL."
+    />
 
     <div class="console reveal" data-tables={JSON.stringify(tables.map(([t]) => t))}>
       <aside class="schema">
-        <div class="label">tables</div>
+        <div class="label">Tables</div>
         <ul id="schema-list">
           {tables.map(([t, n]) => (
             <li>
@@ -70,7 +52,7 @@ const tables = Object.entries(pipelineRun.rows as Record<string, number>);
         <div class="bar">
           <div class="status mono" id="sql-status" aria-live="polite">
             <span class="state-dot" data-state="cold"></span>
-            <span id="sql-state">engine cold, loads when you get here</span>
+            <span id="sql-state">the SQL engine loads when you scroll here</span>
           </div>
           <button class="btn" id="sql-run" type="button">Run <span class="kbd">Ctrl Enter</span></button>
         </div>

@@ -58,7 +58,7 @@ function typeName(t: unknown) {
 }
 
 export function initConsole() {
-  const root = document.querySelector<HTMLElement>('#serving .console');
+  const root = document.querySelector<HTMLElement>('#demo .console');
   if (!root) return;
   const ta = document.getElementById('sql') as HTMLTextAreaElement;
   const hl = document.getElementById('sql-hl')!;
@@ -84,7 +84,7 @@ export function initConsole() {
   function boot() {
     if (booting) return booting;
     booting = (async () => {
-      setState('loading', 'downloading the duckdb-wasm engine, a few MB, once');
+      setState('loading', 'loading DuckDB, a few MB, only once');
       const t0 = performance.now();
       const duckdb = await import('@duckdb/duckdb-wasm');
       const bundle = await duckdb.selectBundle(duckdb.getJsDelivrBundles());
@@ -151,7 +151,12 @@ export function initConsole() {
           .map((r, i) => {
             const cells = fields
               .map((f) => {
-                const { text, cls } = fmt(r[f.name]);
+                const raw = r[f.name];
+                const kind = typeName(f.type);
+                const { text, cls } =
+                  (kind === 'date' || kind === 'timestamp') && (typeof raw === 'number' || typeof raw === 'bigint')
+                    ? { text: new Date(Number(raw)).toISOString().slice(0, kind === 'date' ? 10 : 16).replace('T', ' '), cls: '' }
+                    : fmt(raw);
                 return `<td class="${cls}">${esc(text)}</td>`;
               })
               .join('');
@@ -208,7 +213,7 @@ export function initConsole() {
   const warm = new IntersectionObserver(([e]) => {
     if (e.isIntersecting) { warm.disconnect(); boot().catch(() => {}); }
   });
-  const gold = document.getElementById('gold');
+  const gold = document.getElementById('skills');
   if (gold) warm.observe(gold);
 
   // Run the first query as the visitor approaches the section.

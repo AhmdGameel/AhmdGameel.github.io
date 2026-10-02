@@ -3,7 +3,7 @@ import '../styles/global.css';
 import { person } from '../lib/data';
 
 const title = `${person.name} | ${person.title}`;
-const description = `${person.name} is a ${person.title} in ${person.location} building batch and streaming pipelines with Spark, Kafka, Flink, Airflow and AWS. This portfolio is itself a data pipeline you can query with SQL.`;
+const description = `${person.name}, ${person.title} in ${person.location}. ETL pipelines with Python, SQL, PySpark, Airflow and AWS Glue. Experience, projects, skills and resume.`;
 const url = 'https://ahmdgameel.github.io/';
 ---
 
@@ -18,7 +18,6 @@ const url = 'https://ahmdgameel.github.io/';
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="icon" type="image/png" sizes="512x512" href="/icon-512.png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-    <link rel="preload" href="/portrait.webp" as="image" type="image/webp" />
     <meta name="theme-color" content="#f3f0e8" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#0f0f0d" media="(prefers-color-scheme: dark)" />
     <meta property="og:type" content="website" />
@@ -34,7 +33,7 @@ const url = 'https://ahmdgameel.github.io/';
       jobTitle: person.title,
       email: `mailto:${person.email}`,
       url,
-      sameAs: [person.github, person.linkedin],
+      sameAs: [person.github, person.linkedin, person.youtube, person.x],
       address: { '@type': 'PostalAddress', addressLocality: 'Cairo', addressCountry: 'EG' },
     })} />
     <script is:inline>

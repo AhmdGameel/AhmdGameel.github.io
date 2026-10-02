@@ -1,0 +1,64 @@
+---
+import SectionHead from './SectionHead.astro';
+import { skillGroups, education, certifications, fmtMonth } from '../lib/data';
+
+const edu = education[0];
+---
+
+<section id="skills" class="stage">
+  <div class="wrap grid">
+    <SectionHead index="04" title="Skills and education" intro="Tools I have used at work, in training programs, or in the projects above." />
+    <div>
+      <dl class="groups reveal">
+        {skillGroups.map((g) => (
+          <div class="group">
+            <dt class="mono">{g.group}</dt>
+            <dd>{g.items.map((s) => <span class="chip">{s}</span>)}</dd>
+          </div>
+        ))}
+      </dl>
+
+      <div class="edu">
+        <div class="block reveal">
+          <h3 class="label">Education</h3>
+          <p class="big serif">{edu.degree}</p>
+          <p>{edu.school}, {edu.start} to {edu.end}, GPA {edu.gpa}</p>
+          <p class="muted small">Relevant coursework: {edu.coursework.join(', ')}.</p>
+        </div>
+        <div class="block reveal">
+          <h3 class="label">Certifications</h3>
+          <ul class="certs">
+            {certifications.map((c) => (
+              <li>
+                <span class="cname">{c.name}</span>
+                <span class="mono faint">{c.issuer}, {fmtMonth(String(c.date).slice(0, 7))}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .grid { display: grid; gap: 8px; }
+  @media (min-width: 900px) { .grid { grid-template-columns: 280px minmax(0, 1fr); gap: 48px; } }
+  .groups { margin: 0; border-top: 1px solid var(--line); }
+  .group { display: grid; gap: 10px 24px; padding: 16px 0; border-bottom: 1px solid var(--line); }
+  @media (min-width: 700px) { .group { grid-template-columns: 200px minmax(0, 1fr); align-items: baseline; } }
+  .group dt { font-size: 12px; color: var(--ink-2); }
+  .group dd { margin: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+  .group .chip { font-family: var(--sans); font-size: 13.5px; color: var(--ink); padding: 6px 11px; }
+
+  .edu { display: grid; gap: 32px; margin-top: clamp(40px, 6vw, 64px); }
+  @media (min-width: 760px) { .edu { grid-template-columns: 1fr 1fr; } }
+  .block h3 { margin: 0 0 12px; font-weight: 400; }
+  .block p { margin: 0 0 6px; }
+  .big { font-size: 26px; line-height: 1.2; }
+  .small { font-size: 14px; }
+  .certs { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
+  .certs li { display: flex; flex-direction: column; gap: 2px; padding: 12px 0; border-bottom: 1px solid var(--line); }
+  .cname { font-weight: 600; }
+  .certs .mono { font-size: 12px; }
+</style>

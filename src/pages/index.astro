@@ -1,22 +1,24 @@
 ---
 import Base from '../layouts/Base.astro';
-import Chrome from '../components/Chrome.astro';
+import Header from '../components/Header.astro';
 import Hero from '../components/Hero.astro';
 import About from '../components/About.astro';
 import Experience from '../components/Experience.astro';
 import Projects from '../components/Projects.astro';
+import Skills from '../components/Skills.astro';
 import Query from '../components/Query.astro';
 import Contact from '../components/Contact.astro';
 import Footer from '../components/Footer.astro';
 ---
 
 <Base>
-  <Chrome />
-  <main>
+  <Header />
+  <main id="main">
     <Hero />
     <About />
     <Experience />
     <Projects />
+    <Skills />
     <Query />
     <Contact />
   </main>
