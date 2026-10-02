@@ -84,7 +84,7 @@ export function initConsole() {
   function boot() {
     if (booting) return booting;
     booting = (async () => {
-      setState('loading', 'starting duckdb-wasm');
+      setState('loading', 'downloading the duckdb-wasm engine, a few MB, once');
       const t0 = performance.now();
       const duckdb = await import('@duckdb/duckdb-wasm');
       const bundle = await duckdb.selectBundle(duckdb.getJsDelivrBundles());
@@ -203,7 +203,15 @@ export function initConsole() {
     }),
   );
 
-  // Warm the engine and run the first query as the visitor approaches the section.
+  // Download the engine in the background while the visitor reads the projects,
+  // so it is usually warm by the time they reach the console.
+  const warm = new IntersectionObserver(([e]) => {
+    if (e.isIntersecting) { warm.disconnect(); boot().catch(() => {}); }
+  });
+  const gold = document.getElementById('gold');
+  if (gold) warm.observe(gold);
+
+  // Run the first query as the visitor approaches the section.
   const io = new IntersectionObserver(
     ([e]) => {
       if (e.isIntersecting) { io.disconnect(); run(); }
