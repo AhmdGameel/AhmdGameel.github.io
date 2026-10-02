@@ -3,20 +3,16 @@ import { person, pipelineRun as run } from '../lib/data';
 
 const updated = new Date(run.started_at);
 const date = updated.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' });
-const repo = 'https://github.com/AhmdGameel/AhmdGameel.github.io';
 ---
 
 <footer class="foot">
   <div class="wrap row">
     <span>&copy; {updated.getUTCFullYear()} {person.name}</span>
     <span class="muted">Built with Astro and DuckDB. GitHub data refreshes daily. Last updated {date}.</span>
-    <a href={repo} target="_blank" rel="noopener">Source code</a>
   </div>
 </footer>
 
 <style>
   .foot { border-top: 1px solid var(--line); padding: 28px 0 36px; font-size: 13px; }
   .row { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 24px; }
-  a { text-decoration: none; font-weight: 600; }
-  a:hover { color: var(--signal); }
 </style>

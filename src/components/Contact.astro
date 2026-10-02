@@ -14,9 +14,37 @@ const links = [
 
 <section id="contact" class="stage">
   <div class="wrap grid">
-    <SectionHead index="06" title="Contact" intro="Email is the fastest way to reach me. I am open to Data Engineering opportunities." />
+    <SectionHead index="06" title="Contact" intro="Send me a message here and it goes straight to my inbox. I am open to Data Engineering opportunities." />
 
     <div>
+      <form class="form reveal" id="contact-form" data-endpoint={`https://formsubmit.co/ajax/${person.email}`} novalidate>
+        <div class="row2">
+          <label class="field">
+            <span>Your name</span>
+            <input name="name" type="text" autocomplete="name" required maxlength="120" />
+          </label>
+          <label class="field">
+            <span>Your email</span>
+            <input name="email" type="email" autocomplete="email" required maxlength="200" />
+          </label>
+        </div>
+        <label class="field">
+          <span>Subject</span>
+          <input name="subject" type="text" required maxlength="160" />
+        </label>
+        <label class="field">
+          <span>Message</span>
+          <textarea name="message" rows="6" required maxlength="5000"></textarea>
+        </label>
+        <input class="honey" type="text" name="_honey" tabindex="-1" autocomplete="off" aria-hidden="true" />
+        <div class="send">
+          <button class="btn" type="submit">Send message</button>
+          <p class="status" id="form-status" role="status" aria-live="polite"></p>
+        </div>
+      </form>
+
+      <p class="or label reveal">Or reach me directly</p>
+
       <div class="mail reveal">
         <a class="address serif" href={`mailto:${person.email}`}>{person.email}</a>
         <button class="btn ghost copy" type="button" data-copy={person.email}>Copy email</button>
@@ -41,8 +69,31 @@ const links = [
   .grid { display: grid; gap: 8px; }
   @media (min-width: 900px) { .grid { grid-template-columns: 280px minmax(0, 1fr); gap: 48px; } }
   .mail { display: flex; flex-wrap: wrap; align-items: center; gap: 14px 20px; margin-bottom: 32px; }
+  .form { display: grid; gap: 14px; margin-bottom: 44px; }
+  .row2 { display: grid; gap: 14px; }
+  @media (min-width: 640px) { .row2 { grid-template-columns: 1fr 1fr; } }
+  .field { display: grid; gap: 6px; }
+  .field span { font-size: 13px; font-weight: 600; }
+  .field input, .field textarea {
+    font: inherit; font-size: 16px; color: var(--ink);
+    width: 100%; padding: 12px 14px;
+    background: color-mix(in srgb, var(--paper) 70%, var(--paper-2));
+    border: 1px solid var(--line-strong); border-radius: 6px;
+    outline: none; resize: vertical;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .field input:focus, .field textarea:focus { border-color: var(--ink-2); box-shadow: 0 0 0 3px var(--signal-soft); }
+  .field [aria-invalid='true'] { border-color: var(--signal); }
+  .honey { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
+  .send { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 18px; }
+  .send .btn[disabled] { opacity: 0.6; cursor: wait; }
+  .status { margin: 0; font-size: 14px; color: var(--ink-2); }
+  .status.ok { color: var(--ok); }
+  .status.err { color: var(--signal); }
+  .or { margin: 0 0 14px; }
+  .mail { margin-bottom: 24px !important; }
   .address {
-    font-size: clamp(28px, 4vw, 46px);
+    font-size: clamp(22px, 2.8vw, 32px);
     line-height: 1.1;
     text-decoration: none;
     overflow-wrap: anywhere;
@@ -70,6 +121,66 @@ const links = [
 </style>
 
 <script>
+  const form = document.getElementById('contact-form') as HTMLFormElement | null;
+  const statusEl = document.getElementById('form-status');
+  const setStatus = (text: string, kind = '') => {
+    if (!statusEl) return;
+    statusEl.textContent = text;
+    statusEl.className = `status ${kind}`;
+  };
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const fields = [...form.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>('input[required], textarea[required]')];
+    let firstBad: HTMLElement | null = null;
+    for (const f of fields) {
+      const bad = !f.value.trim() || (f.type === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(f.value.trim()));
+      f.setAttribute('aria-invalid', String(bad));
+      if (bad && !firstBad) firstBad = f;
+    }
+    if (firstBad) {
+      setStatus('Please fill in every field with a valid email.', 'err');
+      firstBad.focus();
+      return;
+    }
+
+    const data = Object.fromEntries(new FormData(form)) as Record<string, string>;
+    if (data._honey) return; // bots fill hidden fields
+    const button = form.querySelector<HTMLButtonElement>('button[type=submit]')!;
+    button.disabled = true;
+    button.textContent = 'Sending...';
+    setStatus('');
+
+    try {
+      const res = await fetch(form.dataset.endpoint!, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({
+          name: data.name.trim(),
+          email: data.email.trim(),
+          _replyto: data.email.trim(),
+          _subject: `Portfolio: ${data.subject.trim()}`,
+          subject: data.subject.trim(),
+          message: data.message.trim(),
+          _template: 'table',
+          _captcha: 'false',
+        }),
+      });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok || String(json.success) !== 'true') throw new Error(json.message || `HTTP ${res.status}`);
+      form.reset();
+      fields.forEach((f) => f.removeAttribute('aria-invalid'));
+      setStatus('Thanks, your message was sent. I will reply to your email soon.', 'ok');
+    } catch {
+      setStatus('Sorry, the message could not be sent. Please email me directly at the address below.', 'err');
+    } finally {
+      button.disabled = false;
+      button.textContent = 'Send message';
+    }
+  });
+
+  form?.querySelectorAll('input, textarea').forEach((f) => f.addEventListener('input', () => f.removeAttribute('aria-invalid')));
+
   document.querySelectorAll<HTMLButtonElement>('[data-copy]').forEach((b) =>
     b.addEventListener('click', async () => {
       try {
