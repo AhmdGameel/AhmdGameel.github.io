@@ -1,0 +1,48 @@
+---
+import '../styles/global.css';
+import { person } from '../lib/data';
+
+const title = `${person.name} | ${person.title}`;
+const description = `${person.name} is a ${person.title} in ${person.location} building batch and streaming pipelines with Spark, Kafka, Flink, Airflow and AWS. This portfolio is itself a data pipeline you can query with SQL.`;
+const url = 'https://ahmdgameel.github.io/';
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={url} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="theme-color" content="#f3f0e8" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0f0f0d" media="(prefers-color-scheme: dark)" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={url} />
+    <meta property="og:image" content={`${url}og.png`} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <script is:inline type="application/ld+json" set:html={JSON.stringify({
+      '@context': 'https://schema.org',
+      '@type': 'Person',
+      name: person.name,
+      jobTitle: person.title,
+      email: `mailto:${person.email}`,
+      url,
+      sameAs: [person.github, person.linkedin],
+      address: { '@type': 'PostalAddress', addressLocality: 'Cairo', addressCountry: 'EG' },
+    })} />
+    <script is:inline>
+      try {
+        const t = localStorage.getItem('theme');
+        if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t;
+      } catch (e) {}
+      document.documentElement.classList.add('js');
+    </script>
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>

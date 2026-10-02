@@ -1,0 +1,201 @@
+# Source of truth for the portfolio. Edit this file, the pipeline does the rest.
+# Rule: English only, and never use em dashes.
+
+person:
+  name: Ahmed Gameel
+  handle: AhmdGameel
+  title: Data Engineer
+  location: Cairo, Egypt
+  email: ahmed0gameel@gmail.com
+  github: https://github.com/AhmdGameel
+  linkedin: https://www.linkedin.com/in/AhmdGameel
+  cv: /Ahmed_Gameel.pdf
+  tagline: I build pipelines that keep moving when the data does not behave.
+  summary: >
+    Data Engineer building batch and streaming pipelines on AWS, Spark, Kafka and Flink.
+    I care about the boring parts that make data trustworthy: contracts, quality checks,
+    idempotent loads and clear lineage. Currently shipping AWS Glue and PySpark pipelines
+    at DigitalH, and graduating in Artificial Intelligence from Kafrelsheikh University.
+  status: Open to Data Engineering roles
+  community: Microsoft Student Ambassador
+
+experience:
+  - id: digitalh
+    role: Data Engineer
+    company: DigitalH
+    mode: Remote
+    start: 2026-05
+    end: null
+    stack: [AWS Glue, PySpark, Python, Amazon S3]
+    highlights:
+      - Design and develop scalable ETL and ELT pipelines using AWS Glue, PySpark and Python.
+      - Build and maintain Glue jobs that ingest, transform and optimize large datasets stored in Amazon S3.
+      - Deliver reliable, production ready workflows for enterprise projects with the data engineering team.
+
+  - id: depi-powerbi
+    role: Microsoft Power BI Specialist
+    company: Digital Egypt Pioneers Initiative
+    mode: Remote
+    start: 2025-06
+    end: 2025-12
+    stack: [Power BI, DAX, Power Query]
+    highlights:
+      - Collected, cleaned and modeled data from multiple sources with Power BI, DAX and Power Query.
+      - Designed and published interactive dashboards that support data driven decisions.
+      - Applied data governance and visualization best practices in a real world capstone.
+
+  - id: odc
+    role: Big Data Trainee
+    company: Orange Digital Center Egypt
+    mode: Hybrid
+    start: 2024-08
+    end: 2024-09
+    stack: [Hadoop, Spark, Hive, NiFi, Docker, PostgreSQL, MongoDB]
+    highlights:
+      - Built reproducible environments with Docker and used Hadoop for distributed data management.
+      - Implemented in memory processing with Spark and warehousing on Hadoop with Hive.
+      - Automated data flows with Apache NiFi across PostgreSQL and MongoDB.
+
+  - id: depi-de
+    role: Data Engineer Trainee
+    company: Digital Egypt Pioneers Initiative
+    mode: Hybrid
+    start: 2024-06
+    end: 2024-09
+    stack: [SSIS, SQL Server, Data Modeling]
+    highlights:
+      - Developed and implemented ETL processes with SQL Server Integration Services.
+      - Learned data warehouse architecture, implementation and dimensional modeling.
+
+education:
+  - school: Kafrelsheikh University
+    degree: Bachelor of Artificial Intelligence
+    start: 2022
+    end: 2026
+    gpa: 3.4
+    coursework: [Data Structures, Algorithms, Distributed Systems, Databases, Big Data Analysis, Cloud, Machine Learning, Operating Systems, Networks]
+
+projects:
+  - id: tower-health-stream
+    name: Tower Health Stream
+    kind: streaming
+    featured: true
+    repo: tower-health-stream
+    summary: >
+      Real time network intelligence for 10,192 real Egyptian cell towers. Detects tower
+      degradation before customers notice, and tells weather from technical faults.
+    metrics:
+      - { label: throughput, value: "2,038 ev/s" }
+      - { label: events per hour, value: "7.3M" }
+      - { label: detection latency, value: "< 150 ms" }
+      - { label: towers, value: "10,192" }
+    stack: [Kafka, Flink, Iceberg, Airflow, dbt, DuckDB, PostgreSQL, Grafana, Docker, Python]
+    topology:
+      - { id: sim, label: Tower Simulator, sub: OpenCelliD, x: 0, y: 1 }
+      - { id: kafka, label: Kafka, sub: KRaft, x: 1, y: 1 }
+      - { id: dq, label: Flink DQ, sub: validate, x: 2, y: 0 }
+      - { id: anom, label: Flink Anomaly, sub: 10 min window, x: 2, y: 2 }
+      - { id: ice, label: Iceberg, sub: time travel, x: 3, y: 0 }
+      - { id: wx, label: Weather Enrich, sub: Open-Meteo, x: 3, y: 2 }
+      - { id: pg, label: PostgreSQL, sub: serving, x: 4, y: 1 }
+      - { id: graf, label: Grafana, sub: 5 s refresh, x: 5, y: 1 }
+    edges: [[sim, kafka], [kafka, dq], [kafka, anom], [dq, ice], [anom, wx], [wx, pg], [dq, pg], [pg, graf]]
+
+  - id: airflow-pyspark-etl
+    name: Log Analytics ETL
+    kind: batch
+    featured: true
+    repo: airflow-pyspark-etl-pipeline
+    summary: >
+      Airflow and PySpark pipeline that turns 3.5 GB of raw web server logs into clean,
+      enriched Parquet and analytics reports, with automatic detection of new files.
+    metrics:
+      - { label: records, value: "10M+" }
+      - { label: raw size, value: "3.5 GB" }
+      - { label: compression, value: "93%" }
+      - { label: hostname lookups, value: "258K" }
+    stack: [Airflow, PySpark, Parquet, PostgreSQL, Docker, Python]
+    topology:
+      - { id: raw, label: Raw Logs, sub: 3.5 GB, x: 0, y: 1 }
+      - { id: split, label: Split by Date, sub: landing, x: 1, y: 1 }
+      - { id: parse, label: Parse, sub: PySpark, x: 2, y: 1 }
+      - { id: enrich, label: Enrich, sub: hostnames, x: 3, y: 1 }
+      - { id: dq, label: Quality, sub: clean, x: 4, y: 1 }
+      - { id: rep, label: Reports, sub: JSON, x: 5, y: 1 }
+    edges: [[raw, split], [split, parse], [parse, enrich], [enrich, dq], [dq, rep]]
+
+  - id: unified-sales-warehouse
+    name: Unified Sales Warehouse
+    kind: warehouse
+    featured: true
+    repo: unified-sales-warehouse
+    summary: >
+      CRM and ERP sales data unified in SQL Server with a Bronze, Silver, Gold medallion
+      design and a star schema data mart for analytics.
+    metrics:
+      - { label: sources, value: "2 systems" }
+      - { label: layers, value: "3" }
+      - { label: model, value: "star schema" }
+      - { label: load, value: "SSIS + T-SQL" }
+    stack: [SQL Server, SSIS, T-SQL, Data Modeling]
+    topology:
+      - { id: crm, label: CRM, sub: sales, x: 0, y: 0 }
+      - { id: erp, label: ERP, sub: attributes, x: 0, y: 2 }
+      - { id: br, label: Bronze, sub: raw, x: 1, y: 1 }
+      - { id: sv, label: Silver, sub: cleansed, x: 2, y: 1 }
+      - { id: gd, label: Gold, sub: star schema, x: 3, y: 1 }
+    edges: [[crm, br], [erp, br], [br, sv], [sv, gd]]
+
+  - id: realestate-etl
+    name: Real Estate ETL
+    kind: batch
+    featured: false
+    repo: RealEstate-ETL-Pipeline
+    summary: Airflow with CeleryExecutor loading real estate sales into Hadoop HDFS and Hive.
+    stack: [Airflow, Hadoop, Hive, PostgreSQL, Redis, Docker]
+
+  - id: banking-dwh
+    name: Banking Data Warehouse
+    kind: warehouse
+    featured: false
+    repo: Banking-DWH-Project
+    summary: End to end banking warehouse with Python ETL, Airflow orchestration, PostgreSQL and Grafana.
+    stack: [Python, Airflow, PostgreSQL, Grafana]
+
+  - id: social-etl
+    name: Social Media ETL
+    kind: batch
+    featured: false
+    repo: scalable-airflow-social-etl
+    summary: API collectors for X and YouTube orchestrated by Airflow in Docker, landing in PostgreSQL.
+    stack: [Airflow, PostgreSQL, Python, REST APIs, Docker]
+
+skills:
+  - { name: Python, group: language, level: 5 }
+  - { name: SQL, group: language, level: 5 }
+  - { name: Bash, group: language, level: 3 }
+  - { name: C++, group: language, level: 3 }
+  - { name: Apache Spark, group: processing, level: 4 }
+  - { name: Apache Flink, group: processing, level: 3 }
+  - { name: Apache Kafka, group: streaming, level: 4 }
+  - { name: Apache Airflow, group: orchestration, level: 5 }
+  - { name: dbt, group: transformation, level: 3 }
+  - { name: Apache Iceberg, group: storage, level: 3 }
+  - { name: Hadoop, group: storage, level: 3 }
+  - { name: Hive, group: storage, level: 3 }
+  - { name: AWS Glue, group: cloud, level: 4 }
+  - { name: Amazon S3, group: cloud, level: 4 }
+  - { name: Microsoft Fabric, group: cloud, level: 4 }
+  - { name: Azure, group: cloud, level: 3 }
+  - { name: PostgreSQL, group: database, level: 4 }
+  - { name: SQL Server, group: database, level: 4 }
+  - { name: DuckDB, group: database, level: 4 }
+  - { name: MySQL, group: database, level: 3 }
+  - { name: Docker, group: platform, level: 4 }
+  - { name: Linux, group: platform, level: 4 }
+  - { name: Power BI, group: analytics, level: 4 }
+
+certifications:
+  - { name: Fabric Data Engineer Associate, issuer: Microsoft, date: 2025-06-21 }
+  - { name: Docker from Zero to Hero, issuer: Udemy, date: 2025-05-08 }
+  - { name: Databases and SQL, issuer: Coursera, date: 2023-06-01 }

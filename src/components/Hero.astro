@@ -1,0 +1,158 @@
+---
+import { person, skills, experience } from '../lib/data';
+
+const current = experience.find((e) => e.is_current);
+const records = skills.map((s) => ({ skill: s.name, group: s.group }));
+---
+
+<section id="source" class="hero" data-records={JSON.stringify(records)}>
+  <canvas id="stream" aria-hidden="true"></canvas>
+
+  <div class="wrap hero-inner">
+    <ol class="strip mono" aria-label="Pipeline that renders this page">
+      <li data-step="0"><span class="faint">source&nbsp;</span>kafka://cv</li>
+      <li data-step="1">parse</li>
+      <li data-step="2">validate</li>
+      <li data-step="3">enrich</li>
+      <li data-step="4">materialize&nbsp;<span class="faint">view&nbsp;</span>ahmed_gameel</li>
+    </ol>
+
+    <div class="name-row">
+      <h1 class="name" id="hero-name">
+        <span class="line">Ahmed</span>
+        <span class="line">Gameel</span>
+      </h1>
+      <aside class="record mono" aria-hidden="true">
+        <div class="record-head"><span>last record</span><span id="rec-offset">offset 0</span></div>
+        <pre id="rec-body">&#123; &#125;</pre>
+      </aside>
+    </div>
+
+    <div class="hero-grid">
+      <p class="lede">
+        <span class="serif">Data Engineer</span> building batch and streaming pipelines
+        {current && <> at <strong>{current.company}</strong></>}. Spark, Kafka, Flink, Airflow and AWS,
+        with contracts and quality checks so the numbers can be trusted.
+      </p>
+      <div class="cta">
+        <a class="btn" href="#serving">Query my resume <span aria-hidden="true">&#8595;</span></a>
+        <a class="btn ghost" href="#gold">See the pipelines</a>
+      </div>
+    </div>
+
+
+    <dl class="ticker mono">
+      <div><dt>records</dt><dd id="m-records">0</dd></div>
+      <div><dt>throughput</dt><dd id="m-tput">0 /s</dd></div>
+      <div><dt>p99 latency</dt><dd id="m-lat">0 ms</dd></div>
+      <div><dt>consumer lag</dt><dd id="m-lag">0</dd></div>
+      <div class="loc"><dt>location</dt><dd>{person.location}</dd></div>
+    </dl>
+  </div>
+</section>
+
+<style>
+  .hero {
+    position: relative;
+    min-height: 100svh;
+    display: flex;
+    align-items: center;
+    padding: 96px 0 40px;
+    overflow: hidden;
+  }
+  #stream {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+  }
+  .hero-inner { width: 100%; }
+
+  .strip {
+    list-style: none;
+    margin: 0 0 clamp(20px, 4vw, 40px);
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 0;
+    font-size: 12px;
+    color: var(--ink-3);
+  }
+  .strip li { display: inline-flex; align-items: center; transition: color 0.3s; }
+  .strip li + li::before {
+    content: '';
+    width: 22px; height: 1px;
+    margin: 0 10px;
+    background: var(--line-strong);
+    transition: background-color 0.3s;
+  }
+  .strip li.on { color: var(--ink); }
+  .strip li.on::before { background: var(--ink); }
+  .strip li.live { color: var(--signal); }
+  .strip li.done::after { content: ' ok'; color: var(--ok); margin-left: 6px; }
+
+  .name {
+    margin: 0;
+    font-family: var(--sans);
+    font-weight: 800;
+    font-size: clamp(64px, 20.5vw, 232px);
+    line-height: 0.86;
+    letter-spacing: -0.045em;
+  }
+  .name .line { display: block; width: max-content; }
+  .name .line + .line { margin-left: 0.62em; }
+  :global(html.js) .name.drawn { color: transparent; }
+
+  .hero-grid {
+    display: grid;
+    gap: 24px;
+    margin-top: clamp(28px, 4vw, 48px);
+    align-items: end;
+  }
+  @media (min-width: 900px) { .hero-grid { grid-template-columns: minmax(0, 560px) auto; justify-content: space-between; } }
+  .lede { margin: 0; font-size: clamp(17px, 1.6vw, 20px); color: var(--ink-2); max-width: 560px; }
+  .lede .serif { font-size: 1.35em; font-style: italic; color: var(--ink); }
+  .lede strong { color: var(--ink); font-weight: 600; }
+  .cta { display: flex; flex-wrap: wrap; gap: 10px; }
+
+  .name-row { position: relative; }
+  .record {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 0.4em;
+    width: 270px;
+    font-size: 11.5px;
+    border: 1px solid var(--line);
+    background: color-mix(in srgb, var(--paper) 88%, transparent);
+    border-radius: var(--radius);
+  }
+  @media (min-width: 1280px) { .record { display: block; } }
+  .record-head {
+    display: flex; justify-content: space-between;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--line);
+    color: var(--ink-3);
+  }
+  .record pre { margin: 0; padding: 10px 12px; min-height: 64px; color: var(--ink-2); white-space: pre-wrap; }
+
+  .ticker {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px 36px;
+    margin: clamp(36px, 6vw, 72px) 0 0;
+    padding-top: 16px;
+    border-top: 1px solid var(--line);
+    font-size: 12px;
+  }
+  .ticker div { display: flex; flex-direction: column; gap: 2px; min-width: 96px; }
+  .ticker dt { color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.08em; font-size: 10px; }
+  .ticker dd { margin: 0; color: var(--ink); font-variant-numeric: tabular-nums; }
+  @media (max-width: 560px) { .ticker .loc { display: none; } }
+</style>
+
+<script>
+  import { startStream } from '../scripts/stream';
+  startStream();
+</script>

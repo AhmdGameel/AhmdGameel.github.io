@@ -1,0 +1,195 @@
+---
+import SectionHead from './SectionHead.astro';
+import { pipelineRun } from '../lib/data';
+
+const presets = [
+  { label: 'Who is Ahmed?', sql: 'SELECT name, title, location, status\nFROM person;' },
+  {
+    label: 'Months in each role',
+    sql: "SELECT role, company,\n       date_diff('month', strptime(start_month, '%Y-%m'),\n         coalesce(strptime(end_month, '%Y-%m'), current_date)) + 1 AS months\nFROM experience\nORDER BY start_month DESC;",
+  },
+  {
+    label: 'Streaming work',
+    sql: "SELECT name, kind, array_to_string(stack, ', ') AS stack\nFROM projects\nWHERE kind = 'streaming' OR list_contains(stack, 'Kafka');",
+  },
+  {
+    label: 'Skills by group',
+    sql: 'SELECT "group", count(*) AS skills, round(avg(level), 1) AS avg_level,\n       string_agg(name, \', \') AS names\nFROM skills\nGROUP BY "group"\nORDER BY avg_level DESC, skills DESC;',
+  },
+  {
+    label: 'GitHub languages',
+    sql: 'SELECT language, count(*) AS repos, round(avg(share) * 100, 1) AS avg_share_pct\nFROM repo_languages\nGROUP BY language\nORDER BY repos DESC, avg_share_pct DESC;',
+  },
+  {
+    label: 'Should we hire him?',
+    sql: "SELECT CASE WHEN count(*) >= 3 THEN 'yes' ELSE 'also yes' END AS should_you_hire_ahmed,\n       (SELECT email FROM person) AS next_step\nFROM projects\nWHERE featured;",
+  },
+];
+const tables = Object.entries(pipelineRun.rows as Record<string, number>);
+---
+
+<section id="serving" class="stage">
+  <div class="wrap">
+    <SectionHead index="04" table="serving.sql" meta="engine: duckdb-wasm, runs in your browser">
+      Don't read my resume. <em>Query it.</em>
+    </SectionHead>
+
+    <div class="console reveal" data-tables={JSON.stringify(tables.map(([t]) => t))}>
+      <aside class="schema">
+        <div class="label">tables</div>
+        <ul id="schema-list">
+          {tables.map(([t, n]) => (
+            <li>
+              <button type="button" class="tbl mono" data-table={t}>
+                <span>{t}</span><span class="faint">{n}</span>
+              </button>
+              <div class="cols mono faint" data-cols={t}></div>
+            </li>
+          ))}
+        </ul>
+        <p class="hint mono faint">Click a table to preview it.</p>
+      </aside>
+
+      <div class="main">
+        <div class="presets" role="list">
+          {presets.map((p, i) => (
+            <button type="button" class:list={['preset', 'mono', i === 0 && 'active']} data-sql={p.sql} role="listitem">{p.label}</button>
+          ))}
+        </div>
+
+        <div class="editor">
+          <pre class="hl mono" aria-hidden="true"><code id="sql-hl"></code></pre>
+          <textarea id="sql" class="mono" spellcheck="false" autocapitalize="off" autocomplete="off" aria-label="SQL query">{presets[0].sql}</textarea>
+        </div>
+
+        <div class="bar">
+          <div class="status mono" id="sql-status" aria-live="polite">
+            <span class="state-dot" data-state="cold"></span>
+            <span id="sql-state">engine cold, loads when you get here</span>
+          </div>
+          <button class="btn" id="sql-run" type="button">Run <span class="kbd">Ctrl Enter</span></button>
+        </div>
+
+        <div class="results" id="sql-results">
+          <p class="empty mono faint">Results show up here.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .console {
+    display: grid;
+    border: 1px solid var(--line);
+    background: color-mix(in srgb, var(--paper) 94%, transparent);
+    min-width: 0;
+  }
+  @media (min-width: 960px) { .console { grid-template-columns: 220px minmax(0, 1fr); } }
+
+  .schema { padding: 16px; border-bottom: 1px solid var(--line); }
+  @media (min-width: 960px) { .schema { border-bottom: 0; border-right: 1px solid var(--line); } }
+  .schema ul { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 2px; }
+  @media (max-width: 959px) {
+    .schema ul { display: flex; flex-wrap: wrap; gap: 6px; }
+    .cols, .hint { display: none !important; }
+  }
+  .tbl {
+    display: flex; justify-content: space-between; gap: 10px;
+    width: 100%;
+    padding: 6px 8px;
+    border: 1px solid transparent;
+    background: transparent;
+    font-size: 12.5px;
+    cursor: pointer;
+    border-radius: 2px;
+    text-align: left;
+  }
+  @media (max-width: 959px) { .tbl { border-color: var(--line); } }
+  .tbl:hover { border-color: var(--line-strong); }
+  .cols { font-size: 11px; padding: 0 8px 6px 18px; line-height: 1.7; display: none; }
+  .cols.open { display: block; }
+  .hint { font-size: 11px; margin: 14px 0 0; }
+
+  .main { padding: 16px; min-width: 0; display: flex; flex-direction: column; gap: 14px; }
+  .presets { display: flex; flex-wrap: wrap; gap: 6px; }
+  .preset {
+    font-size: 12px;
+    padding: 7px 11px;
+    border: 1px solid var(--line);
+    background: transparent;
+    border-radius: 999px;
+    cursor: pointer;
+    color: var(--ink-2);
+  }
+  .preset:hover { border-color: var(--ink); color: var(--ink); }
+  .preset.active { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+
+  .editor { position: relative; border: 1px solid var(--line); background: var(--paper-2); border-radius: var(--radius); }
+  .editor:focus-within { border-color: var(--ink-3); }
+  .hl, textarea {
+    margin: 0;
+    padding: 16px;
+    font-size: 14px;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-break: break-word;
+    tab-size: 2;
+    font-family: var(--mono);
+    letter-spacing: 0;
+  }
+  .hl { pointer-events: none; color: var(--ink); min-height: 150px; }
+  textarea {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    resize: none;
+    border: 0;
+    background: transparent;
+    color: transparent;
+    caret-color: var(--signal);
+    outline: none;
+    overflow: hidden;
+  }
+  :global(.tok-k) { color: var(--signal); }
+  :global(.tok-s) { color: var(--ok); }
+  :global(.tok-n) { color: #3b82f6; }
+  :global(.tok-c) { color: var(--ink-3); }
+  :global(.tok-f) { color: var(--ink-2); font-style: italic; }
+
+  .bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .status { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; color: var(--ink-2); }
+  .state-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--line-strong); flex: none; }
+  .state-dot[data-state='loading'] { background: var(--signal); animation: pulse 1s infinite; }
+  .state-dot[data-state='ready'] { background: var(--ok); }
+  .state-dot[data-state='error'] { background: #d33; }
+  .kbd { font-size: 10px; opacity: 0.6; border: 1px solid currentColor; border-radius: 3px; padding: 1px 5px; }
+  @media (hover: none) { .kbd { display: none; } }
+
+  .results { border: 1px solid var(--line); border-radius: var(--radius); max-height: 380px; overflow: auto; min-height: 120px; }
+  .empty { margin: 0; padding: 20px; font-size: 12px; }
+  .results :global(table) { border-collapse: collapse; width: 100%; font-size: 13px; }
+  .results :global(th) {
+    position: sticky; top: 0;
+    background: var(--paper-2);
+    text-align: left;
+    font-family: var(--mono);
+    font-weight: 400;
+    font-size: 11px;
+    color: var(--ink-3);
+    padding: 9px 12px;
+    border-bottom: 1px solid var(--line);
+    white-space: nowrap;
+  }
+  .results :global(th small) { display: block; color: var(--ink-3); opacity: 0.7; font-size: 10px; }
+  .results :global(td) { padding: 9px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  .results :global(td.num) { font-family: var(--mono); text-align: right; font-variant-numeric: tabular-nums; }
+  .results :global(td.null) { color: var(--ink-3); font-family: var(--mono); font-size: 12px; }
+  .results :global(.err) { margin: 0; padding: 16px; color: #d33; font-family: var(--mono); font-size: 12px; white-space: pre-wrap; }
+  .results :global(tr.fresh td) { animation: rowin 0.5s ease both; }
+  @keyframes rowin { from { background: var(--signal-soft); } to { background: transparent; } }
+</style>
+
+<script>
+  import { initConsole } from '../scripts/query';
+  initConsole();
+</script>

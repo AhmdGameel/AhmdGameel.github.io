@@ -1,0 +1,79 @@
+---
+import { pipelineRun as run, person } from '../lib/data';
+
+const passed = run.checks.filter((c) => c.passed).length;
+const when = new Date(run.started_at);
+const fmt = when.toISOString().replace('T', ' ').slice(0, 16) + ' UTC';
+const repo = 'https://github.com/AhmdGameel/AhmdGameel.github.io';
+const stats: [string, string][] = [
+  ['last run', fmt],
+  ['run id', run.run_id],
+  ['trigger', run.trigger],
+  ['duration', `${(run.duration_ms / 1000).toFixed(1)} s`],
+  ['rows loaded', String(run.rows_total)],
+  ['checks', `${passed} / ${run.checks.length} passed`],
+];
+const year = when.getUTCFullYear();
+---
+
+<footer class="obs" id="observability">
+  <div class="wrap">
+    <div class="o-head mono">
+      <span class="idx">06</span>
+      <span>observability.pipeline_runs</span>
+      <span class="rule"></span>
+      <span class="live"><span class="dot"></span> healthy</span>
+    </div>
+
+    <p class="claim serif">
+      This page is a build artifact. A pipeline pulls my GitHub, validates every field against a data contract,
+      writes Parquet, and redeploys the site every morning.
+    </p>
+
+    <dl class="stats mono">
+      {stats.map(([k, v]) => <div><dt>{k}</dt><dd>{v}</dd></div>)}
+    </dl>
+
+    <ul class="checks mono">
+      {run.checks.map((c) => <li class={c.passed ? 'pass' : 'fail'}>{c.passed ? 'pass' : 'fail'} {c.name}</li>)}
+    </ul>
+
+    <div class="bottom mono">
+      <span>&copy; {year} {person.name}</span>
+      <span class="faint">Astro, DuckDB, Python, GitHub Actions</span>
+      <a href={repo} target="_blank" rel="noopener">View the pipeline source &#8599;</a>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .obs { position: relative; border-top: 1px solid var(--line); padding: clamp(64px, 9vw, 110px) 0 32px; background: var(--paper-2); }
+  .o-head { display: flex; align-items: center; gap: 12px; font-size: 12px; }
+  .idx { color: var(--signal); }
+  .rule { flex: 1; height: 1px; background: var(--line-strong); }
+  .live { display: inline-flex; align-items: center; gap: 8px; color: var(--ok); }
+  .claim { font-size: clamp(26px, 3.4vw, 44px); line-height: 1.12; max-width: 30ch; margin: 28px 0 40px; }
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    margin: 0;
+    border-top: 1px solid var(--line-strong);
+    border-left: 1px solid var(--line-strong);
+  }
+  .stats div { padding: 14px 16px; border-right: 1px solid var(--line-strong); border-bottom: 1px solid var(--line-strong); }
+  .stats dt { font-size: 10.5px; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.08em; }
+  .stats dd { margin: 4px 0 0; font-size: 14px; }
+  .checks { list-style: none; padding: 0; margin: 20px 0 0; display: flex; flex-wrap: wrap; gap: 6px; font-size: 11px; }
+  .checks li { padding: 4px 8px; border-radius: 2px; }
+  .checks .pass { color: var(--ok); background: var(--ok-soft); }
+  .checks .fail { color: var(--signal); background: var(--signal-soft); }
+  .bottom {
+    display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px 24px;
+    margin-top: clamp(56px, 8vw, 96px);
+    padding-top: 20px;
+    border-top: 1px solid var(--line-strong);
+    font-size: 12px;
+  }
+  .bottom a { text-decoration: none; }
+  .bottom a:hover { color: var(--signal); }
+</style>

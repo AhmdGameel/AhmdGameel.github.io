@@ -1,0 +1,12 @@
+dist/
+.astro/
+node_modules/
+__pycache__/
+*.pyc
+.env
+.env.*
+.DS_Store
+.claude/
+# originals, the site serves copies from public/
+/Ahmed_Gameel.PDF
+/download.png

@@ -1,0 +1,135 @@
+---
+import SectionHead from './SectionHead.astro';
+import { person } from '../lib/data';
+
+const channels = [
+  { k: 'email', v: person.email, href: `mailto:${person.email}` },
+  { k: 'linkedin', v: 'in/AhmdGameel', href: person.linkedin },
+  { k: 'github', v: '@AhmdGameel', href: person.github },
+  { k: 'resume', v: 'Ahmed_Gameel.pdf', href: person.cv, download: true },
+];
+---
+
+<section id="sink" class="stage">
+  <div class="wrap">
+    <SectionHead index="05" table="sink.hire_ahmed" meta="topic: hire-ahmed, consumers: 1">
+      Produce a message. <em>I am subscribed.</em>
+    </SectionHead>
+
+    <div class="grid">
+      <form class="producer reveal" id="producer" novalidate data-email={person.email}>
+        <div class="cmd mono">
+          <span class="faint">$</span> kafka-console-producer <span class="faint">--topic</span> hire-ahmed
+        </div>
+        <label class="field">
+          <span class="mono k">key</span>
+          <input name="key" type="text" placeholder="your name, company" autocomplete="organization" required maxlength="120" />
+        </label>
+        <label class="field">
+          <span class="mono k">header</span>
+          <select name="intent">
+            <option>Full time role</option>
+            <option>Contract or freelance</option>
+            <option>Collaboration</option>
+            <option>Just saying hi</option>
+          </select>
+        </label>
+        <label class="field">
+          <span class="mono k">value</span>
+          <textarea name="value" rows="4" placeholder="What are you building, and where does the data hurt?" required maxlength="2000"></textarea>
+        </label>
+        <div class="send">
+          <button class="btn" type="submit">Produce message <span aria-hidden="true">&#8594;</span></button>
+          <span class="mono faint note">Opens your email client. No data leaves this page otherwise.</span>
+        </div>
+        <ol class="log mono" id="producer-log" aria-live="polite"></ol>
+      </form>
+
+      <div class="direct reveal">
+        <div class="label">or consume directly</div>
+        <a class="big serif" href={`mailto:${person.email}`}>{person.email}</a>
+        <ul>
+          {channels.map((c) => (
+            <li>
+              <span class="mono faint">{c.k}</span>
+              <a href={c.href} target={c.download ? undefined : '_blank'} rel="noopener" download={c.download ? '' : undefined}>
+                {c.v} <span aria-hidden="true">&#8599;</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .grid { display: grid; gap: clamp(32px, 5vw, 64px); }
+  @media (min-width: 960px) { .grid { grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); align-items: start; } }
+
+  .producer { border: 1px solid var(--line); background: color-mix(in srgb, var(--paper) 94%, transparent); }
+  .cmd { padding: 14px 16px; font-size: 12.5px; border-bottom: 1px solid var(--line); background: var(--paper-2); overflow-wrap: anywhere; }
+  .field { display: grid; grid-template-columns: 74px 1fr; align-items: start; border-bottom: 1px solid var(--line); }
+  .k { font-size: 12px; color: var(--signal); padding: 15px 0 0 16px; }
+  input, select, textarea {
+    font: inherit;
+    font-size: 15px;
+    width: 100%;
+    padding: 13px 16px 13px 0;
+    border: 0;
+    background: transparent;
+    color: var(--ink);
+    outline: none;
+    resize: vertical;
+  }
+  select { cursor: pointer; appearance: none; }
+  select option { background: var(--paper); color: var(--ink); }
+  input::placeholder, textarea::placeholder { color: var(--ink-3); }
+  .field:focus-within { background: var(--paper-2); }
+  .send { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 16px; padding: 16px; }
+  .note { font-size: 11px; }
+  .log { list-style: none; margin: 0; padding: 0 16px; font-size: 12px; }
+  .log :global(li) { padding: 8px 0; border-top: 1px dashed var(--line); color: var(--ink-2); }
+  .log :global(li .ok) { color: var(--ok); }
+  .log :global(li .bad) { color: var(--signal); }
+
+  .direct .big {
+    display: inline-block;
+    margin: 12px 0 28px;
+    font-size: clamp(28px, 3.6vw, 48px);
+    line-height: 1.05;
+    text-decoration: none;
+    overflow-wrap: anywhere;
+    border-bottom: 1px solid var(--line-strong);
+  }
+  .direct .big:hover { color: var(--signal); border-color: var(--signal); }
+  .direct ul { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
+  .direct li { display: grid; grid-template-columns: 96px 1fr; gap: 12px; padding: 13px 0; border-bottom: 1px solid var(--line); font-size: 15px; }
+  .direct li span { font-size: 12px; padding-top: 3px; }
+  .direct li a { text-decoration: none; }
+  .direct li a:hover { color: var(--signal); }
+</style>
+
+<script>
+  const form = document.getElementById('producer') as HTMLFormElement | null;
+  const log = document.getElementById('producer-log');
+  let offset = 0;
+  form?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const fd = new FormData(form);
+    const key = String(fd.get('key') || '').trim();
+    const value = String(fd.get('value') || '').trim();
+    const intent = String(fd.get('intent') || '');
+    const li = document.createElement('li');
+    if (!key || !value) {
+      li.innerHTML = '<span class="bad">rejected</span> schema validation failed: key and value are required';
+      log?.prepend(li);
+      return;
+    }
+    const subject = `[hire-ahmed] ${intent} from ${key}`;
+    const body = `${value}\n\n${key}`;
+    window.location.href = `mailto:${form.dataset.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    li.innerHTML = `<span class="ok">ack</span> produced to hire-ahmed [partition 0] at offset ${offset++}. Your mail client is the broker now.`;
+    log?.prepend(li);
+  });
+</script>

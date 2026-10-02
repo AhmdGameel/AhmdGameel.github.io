@@ -1,0 +1,136 @@
+---
+import SectionHead from './SectionHead.astro';
+import Topology from './Topology.astro';
+import { projects } from '../lib/data';
+
+const featured = projects.filter((p) => p.featured);
+const rest = projects.filter((p) => !p.featured);
+const snake = (s: string) => s.replace(/-/g, '_');
+---
+
+<section id="gold" class="stage">
+  <div class="wrap">
+    <SectionHead index="03" table="gold.projects" meta={`${projects.length} tables published`}>
+      Shipped with a contract, <em>not a screenshot.</em>
+    </SectionHead>
+
+    <div class="contracts">
+      {featured.map((p, i) => (
+        <article class="contract reveal">
+          <div class="c-head mono">
+            <span><span class="faint">contract</span> gold.{snake(p.id)}</span>
+            <span><span class="faint">kind</span> {p.kind}</span>
+            <span class="hide-sm"><span class="faint">owner</span> ahmed</span>
+            {p.last_push && <span class="hide-sm"><span class="faint">last push</span> {p.last_push}</span>}
+            <span class="spacer"></span>
+            <span class="ok-pill">contract valid</span>
+          </div>
+
+          <div class="c-body">
+            <div class="c-text">
+              <span class="num mono">{String(i + 1).padStart(2, '0')}</span>
+              <h3 class="serif">{p.name}</h3>
+              <p class="sum">{p.summary}</p>
+              <a class="repo mono" href={p.repo_url} target="_blank" rel="noopener">
+                Read the source <span aria-hidden="true">&#8599;</span>
+              </a>
+            </div>
+            <div class="c-sla">
+              <dl class="sla">
+                {p.metrics.map((m) => (
+                  <div><dt class="mono">{m.label}</dt><dd class="mono">{m.value}</dd></div>
+                ))}
+              </dl>
+              <div class="stack">{p.stack.map((s) => <span class="chip">{s}</span>)}</div>
+            </div>
+          </div>
+
+          <div class="c-topo">
+            <div class="label">topology, live</div>
+            <div class="t-h"><Topology id={p.id} nodes={p.topology} edges={p.edges} /></div>
+            <div class="t-v"><Topology id={p.id} nodes={p.topology} edges={p.edges} vertical /></div>
+          </div>
+        </article>
+      ))}
+    </div>
+
+    <div class="more reveal">
+      <div class="q mono">
+        <span class="signal">SELECT</span> name, kind, stack{' '}<span class="signal">FROM</span> gold.projects{' '}<span class="signal">WHERE</span> featured = false;
+      </div>
+      <table>
+        <thead class="mono"><tr><th>name</th><th>kind</th><th class="hide-sm">stack</th><th></th></tr></thead>
+        <tbody>
+          {rest.map((p) => (
+            <tr>
+              <td>
+                <strong>{p.name}</strong>
+                <span class="muted d">{p.summary}</span>
+              </td>
+              <td class="mono">{p.kind}</td>
+              <td class="mono hide-sm muted">{p.stack.join(', ')}</td>
+              <td><a class="mono" href={p.repo_url} target="_blank" rel="noopener" aria-label={`${p.name} on GitHub`}>repo &#8599;</a></td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <div class="foot mono faint">{rest.length} rows returned</div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .contracts { display: grid; gap: clamp(28px, 4vw, 48px); }
+  .contract { border: 1px solid var(--line); background: color-mix(in srgb, var(--paper) 92%, transparent); }
+  .c-head {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 6px 22px;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--line);
+    font-size: 12px;
+  }
+  .spacer { flex: 1; }
+  .ok-pill { color: var(--ok); background: var(--ok-soft); padding: 3px 8px; border-radius: 2px; font-size: 11px; }
+  @media (max-width: 640px) { .hide-sm { display: none; } }
+
+  .c-body { display: grid; gap: 28px; padding: clamp(20px, 3vw, 36px); }
+  @media (min-width: 960px) { .c-body { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 48px; } }
+  .c-text { position: relative; }
+  .num { font-size: 12px; color: var(--signal); }
+  .c-text h3 { margin: 8px 0 14px; font-size: clamp(36px, 4.4vw, 60px); line-height: 1; letter-spacing: -0.01em; }
+  .sum { margin: 0 0 24px; color: var(--ink-2); max-width: 52ch; }
+  .sla {
+    margin: 0 0 20px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    border-top: 1px solid var(--line);
+    border-left: 1px solid var(--line);
+  }
+  .sla div { padding: 12px 14px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+  .sla dt { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-3); }
+  .sla dd { margin: 4px 0 0; font-size: clamp(18px, 2vw, 24px); color: var(--ink); letter-spacing: -0.02em; }
+  .stack { display: flex; flex-wrap: wrap; gap: 6px; }
+  .repo { font-size: 13px; text-decoration: none; border-bottom: 1px solid var(--ink); padding-bottom: 2px; }
+  .repo:hover { color: var(--signal); border-color: var(--signal); }
+
+  .c-topo {
+    padding: clamp(20px, 3vw, 36px);
+    border-top: 1px solid var(--line);
+    display: flex; flex-direction: column; gap: 12px;
+    background:
+      radial-gradient(circle at 1px 1px, var(--line) 1px, transparent 0) 0 0 / 16px 16px;
+  }
+  .t-h { max-width: 980px; width: 100%; margin: 0 auto; }
+  .t-v { display: none; }
+  @media (max-width: 640px) { .t-h { display: none; } .t-v { display: block; max-width: 420px; margin: 0 auto; width: 100%; } }
+
+  .more { margin-top: clamp(48px, 6vw, 72px); border: 1px solid var(--line); background: color-mix(in srgb, var(--paper) 92%, transparent); }
+  .q { padding: 14px 16px; font-size: 13px; border-bottom: 1px solid var(--line); background: var(--paper-2); }
+  table { width: 100%; border-collapse: collapse; }
+  th { text-align: left; font-weight: 400; font-size: 11px; color: var(--ink-3); padding: 10px 16px; border-bottom: 1px solid var(--line); }
+  td { padding: 14px 16px; border-bottom: 1px solid var(--line); vertical-align: top; font-size: 14px; }
+  td.mono { font-size: 12px; }
+  td strong { font-weight: 600; display: block; }
+  td .d { display: block; font-size: 13px; margin-top: 2px; }
+  td a { white-space: nowrap; font-size: 12px; }
+  .foot { padding: 10px 16px; font-size: 11px; }
+</style>

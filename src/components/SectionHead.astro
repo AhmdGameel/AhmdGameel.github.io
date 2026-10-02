@@ -1,0 +1,32 @@
+---
+interface Props { index: string; table: string; meta?: string }
+const { index, table, meta } = Astro.props;
+---
+
+<header class="head reveal">
+  <div class="bar mono">
+    <span class="idx">{index}</span>
+    <span class="table">{table}</span>
+    <span class="rule" aria-hidden="true"></span>
+    {meta && <span class="meta faint">{meta}</span>}
+  </div>
+  <h2 class="title serif"><slot /></h2>
+</header>
+
+<style>
+  .head { margin-bottom: clamp(40px, 6vw, 72px); }
+  .bar { display: flex; align-items: center; gap: 12px; font-size: 12px; }
+  .idx { color: var(--signal); }
+  .table { color: var(--ink); }
+  .rule { flex: 1; height: 1px; background: var(--line); min-width: 24px; }
+  .meta { white-space: nowrap; }
+  @media (max-width: 560px) { .meta { display: none; } }
+  .title {
+    margin: 22px 0 0;
+    font-size: clamp(40px, 6.4vw, 88px);
+    line-height: 0.98;
+    letter-spacing: -0.02em;
+    max-width: 15ch;
+  }
+  .title :global(em) { color: var(--ink-3); }
+</style>
