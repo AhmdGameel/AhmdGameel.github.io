@@ -30,7 +30,12 @@ const tables = Object.entries(pipelineRun.rows as Record<string, number>);
 
 <section id="serving" class="stage">
   <div class="wrap">
-    <SectionHead index="04" table="serving.sql" meta="engine: duckdb-wasm, runs in your browser">
+    <SectionHead
+      index="04"
+      label="Ask my data"
+      table="serving.sql"
+      intro="This is a real database (DuckDB) running inside your browser, loaded with my profile as Parquet tables. Tap a question, or write your own SQL."
+    >
       Don't read my resume. <em>Query it.</em>
     </SectionHead>
 

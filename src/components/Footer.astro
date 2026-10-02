@@ -20,7 +20,8 @@ const year = when.getUTCFullYear();
   <div class="wrap">
     <div class="o-head mono">
       <span class="idx">06</span>
-      <span>observability.pipeline_runs</span>
+      <span class="plain">How this site is built</span>
+      <span class="faint">observability.pipeline_runs</span>
       <span class="rule"></span>
       <span class="live"><span class="dot"></span> healthy</span>
     </div>
@@ -50,6 +51,7 @@ const year = when.getUTCFullYear();
   .obs { position: relative; border-top: 1px solid var(--line); padding: clamp(64px, 9vw, 110px) 0 32px; background: var(--paper-2); }
   .o-head { display: flex; align-items: center; gap: 12px; font-size: 12px; }
   .idx { color: var(--signal); }
+  .plain { font-family: var(--sans); font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.02em; }
   .rule { flex: 1; height: 1px; background: var(--line-strong); }
   .live { display: inline-flex; align-items: center; gap: 8px; color: var(--ok); }
   .claim { font-size: clamp(26px, 3.4vw, 44px); line-height: 1.12; max-width: 30ch; margin: 28px 0 40px; }

@@ -21,6 +21,9 @@ export interface Project {
   kind: string;
   featured: boolean;
   summary: string;
+  problem: string;
+  built: string;
+  result: string;
   stack: string[];
   repo_url: string;
   stars: number;

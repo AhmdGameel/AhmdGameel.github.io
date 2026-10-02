@@ -7,10 +7,10 @@ pipeline that builds it.
 
 | Stage | Section | What happens |
 |---|---|---|
-| `source` | Hero | Records stream through Kafka style partitions at 2,038 events per second and materialize the name. |
-| `bronze` | About | The raw profile record. The portrait is stored as a halftone and decodes on hover. |
-| `silver` | Experience | An Airflow style grid view. One row per role, one cell per month, the current role is still running. |
-| `gold` | Projects | Each project is published as a data contract with SLAs and a live architecture topology. |
+| `source` | Intro | Name, role and proof numbers in the first seconds. The name is a dot matrix written by a stream of records, column by column, and it reacts to the cursor. |
+| `bronze` | About | Who I am, how I work, and my toolbox with hands on depth. |
+| `silver` | Experience | An Airflow style grid view (one square per month) above a plain list of every role. |
+| `gold` | Projects | Case studies: problem, what I built, result, SLA numbers, and a live diagram of how the data flows. |
 | `serving` | Query | DuckDB compiled to WebAssembly runs real SQL over the Parquet files in your browser. |
 | `sink` | Contact | A Kafka producer form that publishes to the `hire-ahmed` topic (your mail client is the broker). |
 | `observability` | Footer | Real stats from the pipeline run that built the page. |
@@ -44,6 +44,11 @@ A second check scans the built site for the same copy rules.
 - **SQL engine:** `@duckdb/duckdb-wasm`, lazy loaded when the visitor reaches the console.
 - **Pipeline:** Python and DuckDB, writing ZSTD compressed Parquet.
 - **CI/CD:** GitHub Actions to GitHub Pages.
+
+## Asset tools
+
+`pipeline/tools/` holds one off scripts: `icons.py` (dot matrix AG favicon), `og.py` (share card)
+and `portrait.py` (background removal and white outline, needs `rembg`).
 
 ## Edit the content
 

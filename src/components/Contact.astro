@@ -12,7 +12,12 @@ const channels = [
 
 <section id="sink" class="stage">
   <div class="wrap">
-    <SectionHead index="05" table="sink.hire_ahmed" meta="topic: hire-ahmed, consumers: 1">
+    <SectionHead
+      index="05"
+      label="Contact"
+      table="sink.hire_ahmed"
+      intro="Hiring, a project, or a question about data? Send a message below or reach me directly. I usually reply within a day."
+    >
       Produce a message. <em>I am subscribed.</em>
     </SectionHead>
 
@@ -22,11 +27,11 @@ const channels = [
           <span class="faint">$</span> kafka-console-producer <span class="faint">--topic</span> hire-ahmed
         </div>
         <label class="field">
-          <span class="mono k">key</span>
-          <input name="key" type="text" placeholder="your name, company" autocomplete="organization" required maxlength="120" />
+          <span class="k"><span class="plain">Name</span><span class="mono tech">key</span></span>
+          <input name="key" type="text" placeholder="Your name and company" autocomplete="organization" required maxlength="120" />
         </label>
         <label class="field">
-          <span class="mono k">header</span>
+          <span class="k"><span class="plain">Topic</span><span class="mono tech">header</span></span>
           <select name="intent">
             <option>Full time role</option>
             <option>Contract or freelance</option>
@@ -35,11 +40,11 @@ const channels = [
           </select>
         </label>
         <label class="field">
-          <span class="mono k">value</span>
+          <span class="k"><span class="plain">Message</span><span class="mono tech">value</span></span>
           <textarea name="value" rows="4" placeholder="What are you building, and where does the data hurt?" required maxlength="2000"></textarea>
         </label>
         <div class="send">
-          <button class="btn" type="submit">Produce message <span aria-hidden="true">&#8594;</span></button>
+          <button class="btn" type="submit">Send message <span aria-hidden="true">&#8594;</span></button>
           <span class="mono faint note">Opens your email client. No data leaves this page otherwise.</span>
         </div>
         <ol class="log mono" id="producer-log" aria-live="polite"></ol>
@@ -69,8 +74,10 @@ const channels = [
 
   .producer { border: 1px solid var(--line); background: color-mix(in srgb, var(--paper) 94%, transparent); }
   .cmd { padding: 14px 16px; font-size: 12.5px; border-bottom: 1px solid var(--line); background: var(--paper-2); overflow-wrap: anywhere; }
-  .field { display: grid; grid-template-columns: 74px 1fr; align-items: start; border-bottom: 1px solid var(--line); }
-  .k { font-size: 12px; color: var(--signal); padding: 15px 0 0 16px; }
+  .field { display: grid; grid-template-columns: 96px 1fr; align-items: start; border-bottom: 1px solid var(--line); }
+  .k { display: flex; flex-direction: column; padding: 13px 0 0 16px; line-height: 1.2; }
+  .k .plain { font-size: 13px; font-weight: 600; }
+  .k .tech { font-size: 10.5px; color: var(--signal); margin-top: 2px; }
   input, select, textarea {
     font: inherit;
     font-size: 15px;

@@ -84,6 +84,16 @@ projects:
     summary: >
       Real time network intelligence for 10,192 real Egyptian cell towers. Detects tower
       degradation before customers notice, and tells weather from technical faults.
+    problem: >
+      Telecom monitoring is usually reactive. Engineers hear about a weak tower only after
+      customers start complaining.
+    built: >
+      A streaming pipeline where Kafka carries tower telemetry, Flink validates every event
+      and detects anomalies in 10 minute windows, a Python service enriches alerts with live
+      weather, Iceberg keeps history, and Grafana shows it live. Airflow and dbt run the batch side.
+    result: >
+      Sustained 2,038 events per second with alerts in under 150 ms, and each alert explains
+      whether weather or a technical fault is the likely cause.
     metrics:
       - { label: throughput, value: "2,038 ev/s" }
       - { label: events per hour, value: "7.3M" }
@@ -109,6 +119,13 @@ projects:
     summary: >
       Airflow and PySpark pipeline that turns 3.5 GB of raw web server logs into clean,
       enriched Parquet and analytics reports, with automatic detection of new files.
+    problem: >
+      Millions of raw access log lines are unreadable for analysts and expensive to store as text.
+    built: >
+      Modular Airflow DAGs that split logs by date, parse them with PySpark, join 258K hostname
+      lookups, run data quality rules, and publish analytics reports. New files are picked up automatically.
+    result: >
+      10M+ records processed, storage cut by 93% with Parquet, and reports that rebuild themselves.
     metrics:
       - { label: records, value: "10M+" }
       - { label: raw size, value: "3.5 GB" }
@@ -132,6 +149,13 @@ projects:
     summary: >
       CRM and ERP sales data unified in SQL Server with a Bronze, Silver, Gold medallion
       design and a star schema data mart for analytics.
+    problem: >
+      Sales data lived in two systems that disagreed on customers, products and formats.
+    built: >
+      SSIS loads raw files into a Bronze layer, stored procedures clean and conform them in Silver,
+      and Gold exposes a star schema with fact_sales, dim_customers and dim_products.
+    result: >
+      One trusted model for sales reporting, with every number traceable back to its source row.
     metrics:
       - { label: sources, value: "2 systems" }
       - { label: layers, value: "3" }

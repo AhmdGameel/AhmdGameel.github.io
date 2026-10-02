@@ -10,13 +10,18 @@ const snake = (s: string) => s.replace(/-/g, '_');
 
 <section id="gold" class="stage">
   <div class="wrap">
-    <SectionHead index="03" table="gold.projects" meta={`${projects.length} tables published`}>
+    <SectionHead
+      index="03"
+      label="Projects"
+      table="gold.projects"
+      intro="Each project is written as a short case study: the problem, what I built, and what it achieved. The diagram shows how the data flows, live."
+    >
       Shipped with a contract, <em>not a screenshot.</em>
     </SectionHead>
 
     <div class="contracts">
       {featured.map((p, i) => (
-        <article class="contract reveal">
+        <article class="contract reveal" data-spotlight>
           <div class="c-head mono">
             <span><span class="faint">contract</span> gold.{snake(p.id)}</span>
             <span><span class="faint">kind</span> {p.kind}</span>
@@ -30,7 +35,11 @@ const snake = (s: string) => s.replace(/-/g, '_');
             <div class="c-text">
               <span class="num mono">{String(i + 1).padStart(2, '0')}</span>
               <h3 class="serif">{p.name}</h3>
-              <p class="sum">{p.summary}</p>
+              <dl class="case">
+                <div><dt class="mono">Problem</dt><dd>{p.problem}</dd></div>
+                <div><dt class="mono">What I built</dt><dd>{p.built}</dd></div>
+                <div><dt class="mono">Result</dt><dd>{p.result}</dd></div>
+              </dl>
               <a class="repo mono" href={p.repo_url} target="_blank" rel="noopener">
                 Read the source <span aria-hidden="true">&#8599;</span>
               </a>
@@ -46,7 +55,7 @@ const snake = (s: string) => s.replace(/-/g, '_');
           </div>
 
           <div class="c-topo">
-            <div class="label">topology, live</div>
+            <div class="label">How the data flows</div>
             <div class="t-h"><Topology id={p.id} nodes={p.topology} edges={p.edges} /></div>
             <div class="t-v"><Topology id={p.id} nodes={p.topology} edges={p.edges} vertical /></div>
           </div>
@@ -55,6 +64,7 @@ const snake = (s: string) => s.replace(/-/g, '_');
     </div>
 
     <div class="more reveal">
+      <div class="label more-label">More projects</div>
       <div class="q mono">
         <span class="signal">SELECT</span> name, kind, stack{' '}<span class="signal">FROM</span> gold.projects{' '}<span class="signal">WHERE</span> featured = false;
       </div>
@@ -97,7 +107,22 @@ const snake = (s: string) => s.replace(/-/g, '_');
   .c-text { position: relative; }
   .num { font-size: 12px; color: var(--signal); }
   .c-text h3 { margin: 8px 0 14px; font-size: clamp(36px, 4.4vw, 60px); line-height: 1; letter-spacing: -0.01em; }
-  .sum { margin: 0 0 24px; color: var(--ink-2); max-width: 52ch; }
+  .case { margin: 0 0 24px; display: grid; gap: 14px; }
+  .case div { display: grid; gap: 2px; }
+  .case dt { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--signal); }
+  .case dd { margin: 0; color: var(--ink-2); max-width: 58ch; }
+  .contract { position: relative; overflow: hidden; }
+  .contract::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: radial-gradient(520px circle at var(--mx, -999px) var(--my, -999px), var(--signal-soft), transparent 60%);
+    opacity: 0;
+    transition: opacity 0.4s;
+  }
+  .contract:hover::before { opacity: 1; }
+  .contract > * { position: relative; }
   .sla {
     margin: 0 0 20px;
     display: grid;
@@ -123,6 +148,7 @@ const snake = (s: string) => s.replace(/-/g, '_');
   .t-v { display: none; }
   @media (max-width: 640px) { .t-h { display: none; } .t-v { display: block; max-width: 420px; margin: 0 auto; width: 100%; } }
 
+  .more-label { padding: 14px 16px 0; }
   .more { margin-top: clamp(48px, 6vw, 72px); border: 1px solid var(--line); background: color-mix(in srgb, var(--paper) 92%, transparent); }
   .q { padding: 14px 16px; font-size: 13px; border-bottom: 1px solid var(--line); background: var(--paper-2); }
   table { width: 100%; border-collapse: collapse; }
@@ -134,3 +160,13 @@ const snake = (s: string) => s.replace(/-/g, '_');
   td a { white-space: nowrap; font-size: 12px; }
   .foot { padding: 10px 16px; font-size: 11px; }
 </style>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-spotlight]').forEach((el) => {
+    el.addEventListener('pointermove', (e) => {
+      const r = el.getBoundingClientRect();
+      el.style.setProperty('--mx', `${e.clientX - r.left}px`);
+      el.style.setProperty('--my', `${e.clientY - r.top}px`);
+    });
+  });
+</script>
