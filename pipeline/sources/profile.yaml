@@ -1,35 +1,43 @@
 # Source of truth for the portfolio. Edit this file, the pipeline does the rest.
+#
+# Every metric shown on a project carries its lineage: where the number comes from
+# (a file in the project repo, the README, or a calculation) and how it was measured.
+# The quality gate fails the build if a featured metric has no source.
 
 person:
   name: Ahmed Gameel
   handle: AhmdGameel
   title: Data Engineer
+  headline: Batch and streaming pipelines, on AWS and in the open
   location: Cairo, Egypt
+  timezone: Africa/Cairo
   email: ahmed0gameel@gmail.com
   github: https://github.com/AhmdGameel
   linkedin: https://www.linkedin.com/in/AhmdGameel
   youtube: https://www.youtube.com/@AhmdGameel
   x: https://x.com/AhmdGameel
   cv: /Ahmed_Gameel.pdf
-  status: Open to Data Engineering opportunities
+  status: Open to Data Engineering roles
   intro: >
-    I build ETL pipelines with Python, SQL and PySpark, currently on AWS Glue at DigitalH.
-    I graduated in Artificial Intelligence from Kafrelsheikh University in 2026.
+    I ship AWS Glue and PySpark jobs at DigitalH. On the side I built Tower Health Stream,
+    a Kafka and Flink pipeline that watches 10,192 Egyptian cell towers and flags trouble in
+    under 150 ms.
   about:
     - >
-      I work as a Data Engineer at DigitalH, where I help build ETL pipelines on AWS Glue with
-      PySpark and Python, moving and cleaning data stored in Amazon S3.
+      I care about the boring parts that make data trustworthy: contracts at the edges, quality
+      checks before anything is published, and numbers that can be traced back to where they came from.
     - >
-      Outside work I learn by building complete projects: a streaming pipeline with Kafka and
-      Flink, batch pipelines orchestrated with Airflow, and a SQL Server warehouse modeled as a
-      star schema. Each one has a README that explains the design and how to run it.
+      At DigitalH I build ETL jobs on AWS Glue with PySpark and Python over data in Amazon S3.
+      Outside work I learn by building complete systems end to end: a streaming pipeline with Kafka
+      and Flink, batch pipelines orchestrated with Airflow, and a SQL Server warehouse modeled as a
+      star schema.
     - >
-      I am early in my career and looking to grow in a team that cares about reliable,
-      well documented data.
+      I am early in my career and I want to grow in a team that ships reliable, well documented data.
   community: Microsoft Student Ambassador
 
 experience:
   - id: digitalh
+    type: work
     role: Data Engineer
     company: DigitalH
     mode: Remote
@@ -42,39 +50,43 @@ experience:
       - Work with the data engineering team to deliver production workflows for enterprise projects.
 
   - id: depi-powerbi
-    role: Microsoft Power BI Specialist
+    type: training
+    role: Microsoft Power BI Specialist track
     company: Digital Egypt Pioneers Initiative
+    context: A training program run by Egypt's Ministry of Communications and IT.
     mode: Remote
     start: 2025-06
     end: 2025-12
     stack: [Power BI, DAX, Power Query]
     highlights:
       - Collected, cleaned and modeled data from multiple sources with Power BI, DAX and Power Query.
-      - Designed and published interactive dashboards and reports.
-      - Completed a real world capstone project applying data governance and visualization practices.
+      - Designed and published interactive dashboards and a real world capstone project.
 
   - id: odc
+    type: training
     role: Big Data Trainee
     company: Orange Digital Center Egypt
+    context: Orange Egypt's technical training hub.
     mode: Hybrid
     start: 2024-08
     end: 2024-09
     stack: [Hadoop, Spark, Hive, NiFi, Docker, PostgreSQL, MongoDB]
     highlights:
-      - Set up reproducible environments with Docker and used Hadoop for distributed storage.
-      - Processed data in memory with Spark and built warehouse tables on Hadoop with Hive.
-      - Automated data flows with Apache NiFi across PostgreSQL and MongoDB.
+      - Set up reproducible Hadoop environments with Docker and built warehouse tables with Hive.
+      - Processed data in memory with Spark and automated flows with NiFi across PostgreSQL and MongoDB.
 
   - id: depi-de
+    type: training
     role: Data Engineer Trainee
     company: Digital Egypt Pioneers Initiative
+    context: A training program run by Egypt's Ministry of Communications and IT.
     mode: Hybrid
     start: 2024-06
     end: 2024-09
     stack: [SSIS, SQL Server, Data Modeling]
     highlights:
       - Built ETL processes with SQL Server Integration Services (SSIS).
-      - Learned data warehouse architecture, implementation and dimensional modeling.
+      - Learned data warehouse architecture and dimensional modeling.
 
 education:
   - school: Kafrelsheikh University
@@ -90,22 +102,52 @@ projects:
     kind: Streaming
     featured: true
     repo: tower-health-stream
-    summary: A streaming pipeline that monitors simulated telemetry from 10,192 real Egyptian cell tower locations.
+    summary: A streaming pipeline that watches simulated telemetry from 10,192 real Egyptian cell tower locations.
     problem: >
-      Telecom teams often learn about a weak tower only after customers complain. I wanted to
-      see how early a streaming pipeline could flag it.
+      Telecom teams often learn about a weak tower only after customers complain. I wanted to see
+      how early a streaming pipeline could flag it, and whether it could tell a hardware fault from bad weather.
     built: >
-      Kafka carries tower events, Flink validates them and detects anomalies in 10 minute windows,
-      a Python service adds live weather to each alert, Iceberg stores history, and Grafana shows
-      the results. Airflow and dbt handle the batch side.
+      Kafka carries tower events. One Flink job validates them and routes bad records to a dead letter
+      queue, a second classifies anomalies and rolls them up per area in 10 minute tumbling windows.
+      A Python service adds live weather to each alert, Iceberg keeps the history, and Grafana shows
+      it all. Airflow and dbt on DuckDB handle the batch side.
     result: >
-      In local tests on Docker it handled about 2,000 events per second and raised alerts in
-      under 150 ms.
+      On a local Docker stack it kept up with 2,038 events per second and raised alerts in under 150 ms.
     metrics:
-      - { label: towers, value: "10,192" }
-      - { label: events per second, value: "~2,000" }
-      - { label: alert latency, value: "< 150 ms" }
-      - { label: services, value: "9 in Docker" }
+      - label: towers
+        value: "10,192"
+        kind: code
+        source: simulator/data_cleaner.py
+        how: OpenCelliD export for Egypt (MCC 602), kept the four national operators and dropped rows with missing coordinates or zero range.
+      - label: events per second
+        value: "2,038"
+        kind: derived
+        source: simulator/tower_simulator.py
+        how: The simulator sends one event per tower every 5 seconds, so 10,192 / 5 = 2,038 events per second, sustained on a local Docker stack.
+      - label: alert latency
+        value: "< 150 ms"
+        kind: readme
+        source: README.md#latency-breakdown
+        how: Sum of the measured stage latencies from the simulator to the regional_alerts topic (10 + 50 + 20 + 50 + 20 ms upper bounds).
+      - label: Compose services
+        value: "8"
+        kind: code
+        source: docker/docker-compose.yml
+        how: Kafka, Kafka UI, Flink jobmanager and taskmanager, Iceberg REST catalog, PostgreSQL, Airflow and Grafana.
+    decisions:
+      - title: Tumbling windows for regional outages
+        body: Fixed 10 minute buckets give one clean result per window, so an outage is never double counted and the logic stays deterministic.
+      - title: A dead letter queue, not a silent drop
+        body: Events outside the valid range go to their own topic, so bad data stays visible and can be replayed.
+      - title: Weather as context
+        body: Every alert is enriched with live Open-Meteo weather, so the team can tell a hardware fault from a storm and respond differently.
+      - title: Kafka in KRaft mode
+        body: No ZooKeeper to run, one less moving part in a local stack that already has eight services.
+    next:
+      - Move the Python sinks into Flink so delivery to PostgreSQL is checkpointed.
+      - Add a schema registry so a producer change cannot break consumers.
+      - Run it on managed services with infrastructure as code.
+    media: { src: /media/tower-architecture.mp4, poster: /media/tower-architecture.jpg, caption: Architecture animation from the project README }
     stack: [Kafka, Flink, Iceberg, Airflow, dbt, DuckDB, PostgreSQL, Grafana, Docker, Python]
     topology:
       - { id: sim, label: Tower Simulator, sub: OpenCelliD, x: 0, y: 1 }
@@ -123,20 +165,47 @@ projects:
     kind: Batch
     featured: true
     repo: airflow-pyspark-etl-pipeline
-    summary: An Airflow and PySpark pipeline that turns raw web server logs into clean Parquet and reports.
+    summary: An Airflow and PySpark pipeline that turns 3.5 GB of raw web server logs into clean Parquet and reports.
     problem: >
-      3.5 GB of raw access logs are hard to analyze and expensive to keep as text.
+      Raw access logs are slow to query and expensive to keep as text. The questions people ask of
+      them (who is hitting us, what fails, how much is bots) need structure first.
     built: >
-      Airflow DAGs that split the logs by date, parse them with PySpark, add hostnames from a
-      258K row lookup, apply data quality rules, and generate analytics reports. New files are
-      picked up automatically.
+      Airflow DAGs split the log by date, parse each day with PySpark, join hostnames from a 258K row
+      lookup, apply quality rules and write daily analytics reports. New files are picked up automatically.
     result: >
-      Processed more than 10 million records, and Parquet reduced the data from 3.5 GB to about 240 MB.
+      10.36 million records processed end to end in about 5 minutes, and Parquet cut the data from 3.5 GB to 235 MB.
     metrics:
-      - { label: records, value: "10M+" }
-      - { label: raw logs, value: "3.5 GB" }
-      - { label: as Parquet, value: "~240 MB" }
-      - { label: lookup rows, value: "258K" }
+      - label: records
+        value: "10.36M"
+        kind: readme
+        source: README.md#processing-performance
+        how: Rows parsed from the access log. 10,241,992 remain after cleaning, about 1.2% removed.
+      - label: raw to Parquet
+        value: "3.5 GB to 235 MB"
+        kind: readme
+        source: README.md#data-compression
+        how: Size of the raw text log against the parsed Parquet output, 93% smaller.
+      - label: end to end
+        value: "~5 min"
+        kind: readme
+        source: README.md#processing-performance
+        how: Wall clock time for all four stages on a local Docker setup.
+      - label: lookup rows
+        value: "258,445"
+        kind: code
+        source: lookup/client_hostname.csv
+        how: Rows in the IP to hostname lookup used by the enrichment DAG.
+    decisions:
+      - title: Split by date first
+        body: Daily files let Spark parse days independently and let Airflow pick up a new day as soon as it lands.
+      - title: Columnar storage early
+        body: Writing Parquet right after parsing means every later stage reads 93% less data.
+      - title: Quality as its own stage
+        body: Duplicates, malformed IPs, invalid status codes and nulls are handled in one DAG, so analytics only reads clean data.
+    next:
+      - Unit tests for the log parser with real sample lines.
+      - Incremental runs driven by data intervals instead of folder polling.
+      - Publish the daily reports as a small dashboard.
     stack: [Airflow, PySpark, Parquet, PostgreSQL, Docker, Python]
     topology:
       - { id: raw, label: Raw Logs, sub: 3.5 GB, x: 0, y: 1 }
@@ -152,19 +221,45 @@ projects:
     kind: Warehouse
     featured: true
     repo: unified-sales-warehouse
-    summary: A SQL Server data warehouse that combines CRM and ERP sales data.
+    summary: A SQL Server warehouse that combines CRM and ERP sales data into one star schema.
     problem: >
-      Sales data came from two systems with different formats for customers and products.
+      Sales data lived in two systems with different keys and formats for the same customers and products.
     built: >
-      SSIS loads the raw files into a Bronze layer, stored procedures clean and standardize them
-      in Silver, and Gold exposes a star schema with fact_sales, dim_customers and dim_products.
+      SSIS loads six raw source tables into a Bronze layer, stored procedures clean and standardize them
+      in Silver, and Gold exposes a star schema with fact_sales, dim_customers and dim_products as views.
     result: >
-      One consistent model for sales reporting, where each number can be traced back to its source.
+      One consistent model for sales reporting, where each number can be traced back a layer at a time.
     metrics:
-      - { label: sources, value: "CRM + ERP" }
-      - { label: layers, value: "Bronze, Silver, Gold" }
-      - { label: model, value: "Star schema" }
-      - { label: tools, value: "SSIS, T-SQL" }
+      - label: source tables
+        value: "6"
+        kind: code
+        source: scripts/bronze/ddl_bronze.sql
+        how: Three CRM tables (sales, customers, products) and three ERP tables (customers, locations, categories).
+      - label: customer rows
+        value: "18,494"
+        kind: code
+        source: data/crm/cust_info.csv
+        how: Raw CRM customer rows before deduplication in Silver.
+      - label: layers
+        value: "Bronze, Silver, Gold"
+        kind: code
+        source: scripts/init_database.sql
+        how: One schema per layer in SQL Server.
+      - label: Gold model
+        value: "1 fact, 2 dims"
+        kind: code
+        source: scripts/gold/ddl_gold.sql
+        how: fact_sales with dim_customers and dim_products, created as views.
+    decisions:
+      - title: Medallion layers
+        body: Bronze keeps files as they arrived, Silver applies the business rules, Gold is what analysts query.
+      - title: Gold as views
+        body: The star schema is views over Silver, so a model change needs no reload.
+      - title: Full reload in Silver
+        body: TRUNCATE and INSERT keeps the procedures simple at this size. Incremental loads are the next step.
+    next:
+      - Slowly changing dimensions for customer history.
+      - Data tests on keys and row counts between layers.
     stack: [SQL Server, SSIS, T-SQL, Data Modeling]
     topology:
       - { id: crm, label: CRM, sub: sales, x: 0, y: 0 }
@@ -188,7 +283,7 @@ projects:
     featured: false
     repo: scalable-airflow-social-etl
     summary: API collectors for X and YouTube orchestrated by Airflow in Docker, landing in PostgreSQL.
-    stack: [Airflow, PostgreSQL, Python, REST APIs, Docker]
+    stack: [Airflow, PostgreSQL, Python, REST APIs, Docker, Git, Bash]
 
 skills:
   - { group: Languages, items: [Python, SQL, Bash, C++] }
@@ -199,7 +294,26 @@ skills:
   - { group: Cloud and tools, items: [AWS Glue, Amazon S3, Microsoft Fabric, Azure, Docker, Linux, Git] }
   - { group: Analytics, items: [Power BI, DAX, Grafana] }
 
+# Names used in stacks that mean the same skill.
+skill_aliases:
+  Kafka: Apache Kafka
+  Flink: Apache Flink
+  Iceberg: Apache Iceberg
+  Airflow: Apache Airflow
+  NiFi: Apache NiFi
+  Spark: Apache Spark
+  T-SQL: SQL
+  SSIS: SQL Server
+
+# Evidence that is not visible in a stack, such as certifications and workshop repos.
+skill_evidence:
+  - { skill: Microsoft Fabric, id: cert-fabric, label: Microsoft certification }
+  - { skill: Microsoft Fabric, id: repo-fabric-workshops, label: Fabric workshop repos }
+  - { skill: Docker, id: cert-docker, label: Udemy course }
+  - { skill: SQL, id: cert-sql, label: Coursera course }
+  - { skill: Power BI, id: repo-uk-train-rides, label: UK Train Rides dashboard }
+
 certifications:
-  - { name: Fabric Data Engineer Associate, issuer: Microsoft, date: 2025-06-21 }
-  - { name: Docker from Zero to Hero, issuer: Udemy, date: 2025-05-08 }
-  - { name: Databases and SQL, issuer: Coursera, date: 2023-06-01 }
+  - { name: Fabric Data Engineer Associate, issuer: Microsoft, date: 2025-06-21, url: null }
+  - { name: Docker from Zero to Hero, issuer: Udemy, date: 2025-05-08, url: null }
+  - { name: Databases and SQL, issuer: Coursera, date: 2023-06-01, url: null }

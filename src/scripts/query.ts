@@ -58,7 +58,7 @@ function typeName(t: unknown) {
 }
 
 export function initConsole() {
-  const root = document.querySelector<HTMLElement>('#demo .console');
+  const root = document.querySelector<HTMLElement>('#platform .console');
   if (!root) return;
   const ta = document.getElementById('sql') as HTMLTextAreaElement;
   const hl = document.getElementById('sql-hl')!;
@@ -84,7 +84,7 @@ export function initConsole() {
   function boot() {
     if (booting) return booting;
     booting = (async () => {
-      setState('loading', 'loading DuckDB, a few MB, only once');
+      setState('loading', 'loading DuckDB into your browser, only once');
       const t0 = performance.now();
       const duckdb = await import('@duckdb/duckdb-wasm');
       const bundle = await duckdb.selectBundle(duckdb.getJsDelivrBundles());
@@ -96,12 +96,15 @@ export function initConsole() {
       await db.instantiate(bundle.mainModule, bundle.pthreadWorker);
       URL.revokeObjectURL(workerUrl);
       conn = await db.connect();
-      setState('loading', 'attaching parquet tables');
-      for (const t of tables) {
-        const url = new URL(`/data/${t}.parquet`, location.href).href;
-        await db.registerFileURL(`${t}.parquet`, url, duckdb.DuckDBDataProtocol.HTTP, false);
-        await conn.query(`CREATE OR REPLACE VIEW ${t} AS SELECT * FROM '${t}.parquet'`);
-      }
+      setState('loading', `loading ${tables.length} tables`);
+      // Row JSON is read natively by DuckDB-WASM, no extension download needed.
+      await Promise.all(
+        tables.map(async (t) => {
+          const text = await (await fetch(new URL(`/data/${t}.json`, location.href))).text();
+          await db!.registerFileText(`${t}.json`, text);
+        }),
+      );
+      for (const t of tables) await conn.insertJSONFromPath(`${t}.json`, { name: t });
       const ver = await conn.query('SELECT version() AS v');
       const v = String(ver.toArray()[0]?.toJSON().v ?? '');
       setState('ready', `ready, duckdb ${v}, ${tables.length} tables, booted in ${Math.round(performance.now() - t0)} ms`);
@@ -208,20 +211,13 @@ export function initConsole() {
     }),
   );
 
-  // Download the engine in the background while the visitor reads the projects,
-  // so it is usually warm by the time they reach the console.
-  const warm = new IntersectionObserver(([e]) => {
-    if (e.isIntersecting) { warm.disconnect(); boot().catch(() => {}); }
-  });
-  const gold = document.getElementById('skills');
-  if (gold) warm.observe(gold);
-
-  // Run the first query as the visitor approaches the section.
+  // The engine is only fetched once the console is on screen, which only happens in the
+  // engineer view. Recruiters never download it.
   const io = new IntersectionObserver(
     ([e]) => {
       if (e.isIntersecting) { io.disconnect(); run(); }
     },
-    { rootMargin: '300px 0px' },
+    { rootMargin: '200px 0px' },
   );
   io.observe(root);
 }

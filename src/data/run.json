@@ -1,71 +1,165 @@
 {
- "run_id": "516c45ba",
- "started_at": "2026-10-02T12:32:15+00:00",
- "duration_ms": 10774,
+ "run_id": "b6f565b2",
+ "started_at": "2026-10-04T22:40:07+00:00",
+ "duration_ms": 110,
  "github_fetched_at": "2026-10-02T12:32:26+00:00",
  "rows": {
   "person": 1,
   "experience": 4,
   "projects": 5,
+  "metric_lineage": 12,
   "skills": 31,
+  "skill_evidence": 50,
   "certifications": 3,
   "education": 1,
   "repos": 11,
-  "repo_languages": 13
+  "repo_languages": 13,
+  "runs": 2,
+  "quality_checks": 15
  },
- "rows_total": 69,
+ "rows_total": 131,
  "checks": [
   {
    "name": "text_style",
    "passed": true,
-   "detail": ""
+   "detail": "",
+   "blocking": true
   },
   {
    "name": "text_language",
    "passed": true,
-   "detail": ""
+   "detail": "",
+   "blocking": true
   },
   {
    "name": "unique_ids_experience",
    "passed": true,
-   "detail": ""
+   "detail": "",
+   "blocking": true
   },
   {
    "name": "unique_ids_projects",
    "passed": true,
-   "detail": ""
+   "detail": "",
+   "blocking": true
   },
   {
    "name": "experience_date_order",
    "passed": true,
-   "detail": ""
+   "detail": "",
+   "blocking": true
+  },
+  {
+   "name": "experience_type_known",
+   "passed": true,
+   "detail": "",
+   "blocking": true
   },
   {
    "name": "single_current_role",
    "passed": true,
-   "detail": ""
+   "detail": "",
+   "blocking": true
   },
   {
    "name": "topology_edges_resolve",
    "passed": true,
-   "detail": ""
+   "detail": "",
+   "blocking": true
+  },
+  {
+   "name": "metrics_have_lineage",
+   "passed": true,
+   "detail": "",
+   "blocking": true
   },
   {
    "name": "project_repos_public",
    "passed": true,
-   "detail": ""
+   "detail": "",
+   "blocking": true
   },
   {
    "name": "skills_unique",
    "passed": true,
-   "detail": ""
+   "detail": "",
+   "blocking": true
+  },
+  {
+   "name": "towers_in_egypt_bbox",
+   "passed": true,
+   "detail": "0 outside",
+   "blocking": true
+  },
+  {
+   "name": "towers_operator_known",
+   "passed": true,
+   "detail": "0 unknown",
+   "blocking": true
+  },
+  {
+   "name": "certification_renewal",
+   "passed": false,
+   "detail": "Fabric Data Engineer Associate is older than a year, add the renewal link",
+   "blocking": false
+  },
+  {
+   "name": "skills_have_evidence",
+   "passed": false,
+   "detail": "C++, MySQL, Azure, Linux",
+   "blocking": false
   }
  ],
+ "towers": {
+  "source": "illustrative",
+  "count": 10192,
+  "operators": {
+   "Vodafone": 4791,
+   "e&": 2774,
+   "Orange": 2212,
+   "WE": 415
+  },
+  "radios": {
+   "GSM": 2068,
+   "LTE": 4959,
+   "UMTS": 3165
+  },
+  "bbox": [
+   24.6,
+   21.7,
+   37.0,
+   31.8
+  ]
+ },
  "github": {
   "followers": 81,
   "public_repos": 13,
   "bio": "Data Engineering Enthusiast | Student Ambassador @Microsoft"
  },
  "trigger": "local",
- "commit": "local"
+ "commit": "local",
+ "history": [
+  {
+   "run_id": "d7389b44",
+   "started_at": "2026-10-04T22:38:38+00:00",
+   "duration_ms": 108,
+   "rows_total": 131,
+   "checks_passed": 13,
+   "checks_total": 13,
+   "warnings": 2,
+   "trigger": "local",
+   "commit": "local"
+  },
+  {
+   "run_id": "b6f565b2",
+   "started_at": "2026-10-04T22:40:07+00:00",
+   "duration_ms": 110,
+   "rows_total": 131,
+   "checks_passed": 13,
+   "checks_total": 13,
+   "warnings": 2,
+   "trigger": "local",
+   "commit": "local"
+  }
+ ]
 }

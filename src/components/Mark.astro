@@ -1,0 +1,30 @@
+---
+interface Props { size?: number }
+const { size = 28 } = Astro.props;
+const gid = `mark-${Math.random().toString(36).slice(2, 8)}`;
+---
+
+<svg width={size} height={size} viewBox="0 0 32 32" aria-hidden="true" class="mark">
+<defs><radialGradient id={gid} cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#ffb648" stop-opacity=".55"/><stop offset="1" stop-color="#ffb648" stop-opacity="0"/></radialGradient></defs>
+<rect width="32" height="32" rx="8" fill="#08090c"/>
+<circle cx="16" cy="17.2" r="6" fill={`url(#${gid})`}/>
+<circle cx="8" cy="6.2" r="1.25" fill="#ffb648"/>
+<circle cx="12" cy="6.2" r="1.25" fill="#ffb648"/>
+<circle cx="16" cy="6.2" r="1.25" fill="#ffb648"/>
+<circle cx="20" cy="6.2" r="1.25" fill="#ffb648"/>
+<circle cx="24" cy="6.2" r="1.25" fill="#ffb648"/>
+<circle cx="10" cy="8.9" r="1.25" fill="#ffb648"/>
+<circle cx="14" cy="8.9" r="1.25" fill="#ffb648"/>
+<circle cx="18" cy="8.9" r="1.25" fill="#ffb648"/>
+<circle cx="22" cy="8.9" r="1.25" fill="#ffb648"/>
+<circle cx="12" cy="11.6" r="1.25" fill="#ffb648"/>
+<circle cx="16" cy="11.6" r="1.25" fill="#ffb648"/>
+<circle cx="20" cy="11.6" r="1.25" fill="#ffb648"/>
+<circle cx="14" cy="14.3" r="1.25" fill="#ffb648"/>
+<circle cx="18" cy="14.3" r="1.25" fill="#ffb648"/>
+<circle cx="15.6" cy="20.4" r="1.05" fill="#ffb648"/>
+<circle cx="15.2" cy="23.2" r="1.05" fill="#ffb648"/>
+<circle cx="16.2" cy="25.9" r="1.05" fill="#ffb648"/>
+<circle cx="17.4" cy="28.3" r="1.05" fill="#ffb648"/>
+<circle cx="16" cy="17.2" r="1.9" fill="#fff1d0"/>
+</svg>

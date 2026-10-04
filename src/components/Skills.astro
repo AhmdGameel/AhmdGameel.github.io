@@ -1,64 +1,177 @@
 ---
 import SectionHead from './SectionHead.astro';
-import { skillGroups, education, certifications, fmtMonth } from '../lib/data';
+import { skills, skillGroups, evidence, education, certifications, fmtMonth } from '../lib/data';
 
+const tiers = [
+  { id: 'work', title: 'Used at work', desc: 'In production at my current job' },
+  { id: 'built', title: 'Shipped in projects', desc: 'In a public repo you can read' },
+  { id: 'trained', title: 'Trained on', desc: 'Structured program or certificate' },
+  { id: 'listed', title: 'Familiar', desc: 'Used, but no public proof yet' },
+] as const;
+const evOf = (s: string) => evidence.filter((e) => e.skill === s);
+
+const KIND_ORDER: Record<string, number> = { work: 0, project: 1, repo: 2, training: 3, cert: 4 };
+const sources = [...new Map(evidence.map((e) => [e.evidence_id, { id: e.evidence_id, label: e.evidence, kind: e.kind }])).values()]
+  .sort((a, b) => KIND_ORDER[a.kind] - KIND_ORDER[b.kind]);
+const short = (s: string) =>
+  s.startsWith('Digital Egypt Pioneers Initiative') ? `DEPI ${s.includes('Power BI') ? 'Power BI' : 'Data Eng'}`
+  : s.startsWith('Orange Digital Center') ? 'ODC Big Data'
+  : s.replace('Microsoft certification', 'MS Fabric cert').replace('Fabric workshop repos', 'Fabric repos').replace('UK Train Rides dashboard', 'UK Trains');
+const has = new Set(evidence.map((e) => `${e.skill}|${e.evidence_id}`));
 const edu = education[0];
+const first = skills.find((s) => s.tier === 'work')!;
 ---
 
 <section id="skills" class="stage">
-  <div class="wrap grid">
-    <SectionHead index="04" title="Skills and education" intro="Tools I have used at work, in training programs, or in the projects above." />
-    <div>
-      <dl class="groups reveal">
-        {skillGroups.map((g) => (
-          <div class="group">
-            <dt class="mono">{g.group}</dt>
-            <dd>{g.items.map((s) => <span class="chip">{s}</span>)}</dd>
-          </div>
-        ))}
-      </dl>
+  <div class="wrap">
+    <SectionHead index="03" kicker="Skills" title="Ranked by <em>evidence</em>, not by stars" intro="No self ratings. Each skill sits in the strongest column it can prove: production work beats a public repo, a repo beats a course. Pick one to see the proof." />
 
-      <div class="edu">
-        <div class="block reveal">
-          <h3 class="label">Education</h3>
-          <p class="big serif">{edu.degree}</p>
-          <p>{edu.school}, {edu.start} to {edu.end}, GPA {edu.gpa}</p>
-          <p class="muted small">Relevant coursework: {edu.coursework.join(', ')}.</p>
-        </div>
-        <div class="block reveal">
-          <h3 class="label">Certifications</h3>
-          <ul class="certs">
-            {certifications.map((c) => (
-              <li>
-                <span class="cname">{c.name}</span>
-                <span class="mono faint">{c.issuer}, {fmtMonth(String(c.date).slice(0, 7))}</span>
-              </li>
+    <div class="tiers reveal">
+      {tiers.map((t) => {
+        const items = skills.filter((s) => s.tier === t.id);
+        return (
+          <div class:list={['tier', t.id]}>
+            <div class="th">
+              <h3>{t.title} <span class="mono">{items.length}</span></h3>
+              <p>{t.desc}</p>
+            </div>
+            <div class="chips">
+              {items.map((s) => (
+                <button type="button" class="sk" aria-pressed={s.skill === first.skill ? 'true' : 'false'} data-skill={s.skill} data-ev={JSON.stringify(evOf(s.skill).map((e) => [e.evidence, e.kind]))}>
+                  {s.skill}{s.evidence_count > 1 && <span class="mono c">{s.evidence_count}</span>}
+                </button>
+              ))}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+    <div class="proof reveal" aria-live="polite" id="skill-proof">
+      <p class="label">Proof for <b data-skill-name>{first.skill}</b></p>
+      <ul data-skill-ev>
+        {evOf(first.skill).map((e) => <li><span class:list={['k', e.kind]}>{e.kind}</span>{e.evidence}</li>)}
+      </ul>
+    </div>
+
+    <div class="matrix only-eng reveal">
+      <p class="label">Evidence matrix, {evidence.length} links between {skills.length} skills and {sources.length} sources</p>
+      <div class="mx-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col" class="sticky">Skill</th>
+              {sources.map((s) => <th scope="col" class:list={['src', s.kind]}><span>{short(s.label)}</span></th>)}
+            </tr>
+          </thead>
+          <tbody>
+            {skillGroups.map((g) => (
+              <>
+                <tr class="grp"><th colspan={sources.length + 1} scope="rowgroup">{g.group}</th></tr>
+                {g.items.map((sk) => (
+                  <tr>
+                    <th scope="row" class="sticky">{sk}</th>
+                    {sources.map((s) => <td class={s.kind}>{has.has(`${sk}|${s.id}`) ? <span class="hit" title={`${sk} in ${s.label}`}></span> : null}</td>)}
+                  </tr>
+                ))}
+              </>
             ))}
-          </ul>
-        </div>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="edu">
+      <div class="block reveal">
+        <h3 class="label">Education</h3>
+        <p class="big">{edu.degree}</p>
+        <p>{edu.school}, {edu.start} to {edu.end} <span class="gpa mono">GPA {edu.gpa}</span></p>
+        <p class="faint small">Coursework: {edu.coursework.join(', ')}.</p>
+      </div>
+      <div class="block reveal">
+        <h3 class="label">Certificates</h3>
+        <ul class="certs">
+          {certifications.map((c) => (
+            <li>
+              <span class="cname">{c.url ? <a href={c.url} target="_blank" rel="noopener">{c.name}</a> : c.name}</span>
+              <span class="mono faint">{c.issuer}, {fmtMonth(String(c.date).slice(0, 7))}</span>
+            </li>
+          ))}
+        </ul>
       </div>
     </div>
   </div>
 </section>
 
 <style>
-  .grid { display: grid; gap: 8px; }
-  @media (min-width: 900px) { .grid { grid-template-columns: 280px minmax(0, 1fr); gap: 48px; } }
-  .groups { margin: 0; border-top: 1px solid var(--line); }
-  .group { display: grid; gap: 10px 24px; padding: 16px 0; border-bottom: 1px solid var(--line); }
-  @media (min-width: 700px) { .group { grid-template-columns: 200px minmax(0, 1fr); align-items: baseline; } }
-  .group dt { font-size: 12px; color: var(--ink-2); }
-  .group dd { margin: 0; display: flex; flex-wrap: wrap; gap: 6px; }
-  .group .chip { font-family: var(--sans); font-size: 13.5px; color: var(--ink); padding: 6px 11px; }
+  .tiers { display: grid; gap: 12px; }
+  @media (min-width: 760px) { .tiers { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (min-width: 1100px) { .tiers { grid-template-columns: 1.1fr 1.4fr 1fr 0.8fr; } }
+  .tier { padding: 20px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--bg-1); display: grid; gap: 16px; align-content: start; }
+  .tier.work { border-color: color-mix(in srgb, var(--amber) 55%, var(--line)); background: linear-gradient(180deg, var(--amber-soft), var(--bg-1) 60%); }
+  .tier.listed { background: transparent; border-style: dashed; }
+  .th h3 { font-size: 16px; display: flex; align-items: baseline; gap: 8px; }
+  .th h3 span { font-size: 11px; color: var(--ink-3); font-weight: 400; }
+  .th p { font-size: 13px; color: var(--ink-3); margin-top: 4px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .sk {
+    display: inline-flex; align-items: center; gap: 6px; cursor: pointer;
+    padding: 8px 12px; border-radius: 999px; border: 1px solid var(--line-2); background: var(--bg);
+    font-size: 13.5px; color: var(--ink); transition: border-color 0.2s, background-color 0.2s, color 0.2s;
+  }
+  .sk:hover { border-color: var(--amber); }
+  .sk[aria-pressed='true'] { background: var(--amber); border-color: var(--amber); color: var(--on-amber); }
+  .sk .c { font-size: 9.5px; opacity: 0.7; }
+  .listed .sk { color: var(--ink-2); border-style: dashed; }
 
-  .edu { display: grid; gap: 32px; margin-top: clamp(40px, 6vw, 64px); }
+  .proof { margin-top: 12px; padding: 16px 20px; border-radius: var(--radius); border: 1px dashed var(--line-2); display: grid; gap: 10px; }
+  .proof b { color: var(--ink); font-weight: 500; }
+  .proof ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px 18px; }
+  .proof :global(li) { display: inline-flex; align-items: center; gap: 8px; font-size: 14.5px; }
+  .proof :global(.k) { font: 9.5px var(--mono); text-transform: uppercase; padding: 3px 7px; border-radius: 4px; background: var(--bg-3); color: var(--ink-2); }
+  .proof :global(.k.work) { background: var(--amber); color: var(--on-amber); }
+  .proof :global(.k.project), .proof :global(.k.repo) { background: color-mix(in srgb, var(--nile) 25%, var(--bg-2)); color: var(--ink); }
+
+  .matrix { margin-top: clamp(40px, 6vw, 64px); }
+  .mx-scroll { margin-top: 12px; overflow-x: auto; border: 1px solid var(--line); border-radius: var(--radius); }
+  table { border-collapse: collapse; width: 100%; min-width: 860px; font-size: 12.5px; }
+  th, td { border-bottom: 1px solid var(--line); padding: 7px 8px; text-align: center; }
+  thead th { font: 10px var(--mono); color: var(--ink-3); font-weight: 400; vertical-align: bottom; height: 120px; }
+  thead th.src span { display: inline-block; writing-mode: vertical-rl; transform: rotate(180deg); white-space: nowrap; }
+  thead th.work { color: var(--amber); }
+  .sticky { position: sticky; left: 0; background: var(--bg-1); text-align: left; font-weight: 500; white-space: nowrap; z-index: 1; }
+  tbody th.sticky { font-size: 13px; }
+  .grp th { text-align: left; font: 10px var(--mono); color: var(--amber); text-transform: uppercase; padding-top: 14px; background: var(--bg); }
+  .hit { display: inline-block; width: 9px; height: 9px; border-radius: 50%; background: var(--ink-3); }
+  td.work .hit { background: var(--amber); box-shadow: 0 0 8px var(--amber-glow); }
+  td.project .hit, td.repo .hit { background: var(--nile); }
+  tbody tr:hover th, tbody tr:hover td { background: var(--bg-2); }
+
+  .edu { display: grid; gap: 32px; margin-top: clamp(48px, 7vw, 80px); }
   @media (min-width: 760px) { .edu { grid-template-columns: 1fr 1fr; } }
   .block h3 { margin: 0 0 12px; font-weight: 400; }
   .block p { margin: 0 0 6px; }
-  .big { font-size: 26px; line-height: 1.2; }
+  .big { font-family: var(--display); font-stretch: 108%; font-weight: 750; font-size: 26px; letter-spacing: -0.02em; line-height: 1.15; }
+  .gpa { font-size: 11px; color: var(--amber); margin-left: 6px; }
   .small { font-size: 14px; }
   .certs { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
   .certs li { display: flex; flex-direction: column; gap: 2px; padding: 12px 0; border-bottom: 1px solid var(--line); }
   .cname { font-weight: 600; }
-  .certs .mono { font-size: 12px; }
+  .certs .mono { font-size: 11px; }
 </style>
+
+<script>
+  const btns = [...document.querySelectorAll<HTMLButtonElement>('#skills .sk')];
+  const name = document.querySelector<HTMLElement>('[data-skill-name]');
+  const list = document.querySelector<HTMLElement>('[data-skill-ev]');
+  const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]!);
+  btns.forEach((b) =>
+    b.addEventListener('click', () => {
+      btns.forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+      const ev: [string, string][] = JSON.parse(b.dataset.ev || '[]');
+      if (name) name.textContent = b.dataset.skill || '';
+      if (list) list.innerHTML = ev.length
+        ? ev.map(([e, k]) => `<li><span class="k ${k}">${k}</span>${esc(e)}</li>`).join('')
+        : '<li class="faint">No public proof yet. Ask me about it.</li>';
+    }),
+  );
+</script>

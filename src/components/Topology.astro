@@ -1,10 +1,10 @@
 ---
 import type { TopoNode } from '../lib/data';
 
-interface Props { id: string; nodes: TopoNode[]; edges: [string, string][]; vertical?: boolean }
-const { id, nodes, edges, vertical = false } = Astro.props;
+interface Props { id: string; nodes: (TopoNode & { state?: 'ok' | 'warn' | 'fail' })[]; edges: [string, string][]; vertical?: boolean; nw?: number }
+const { id, nodes, edges, vertical = false, nw = 128 } = Astro.props;
 
-const NW = 124, NH = 46, GX = vertical ? 150 : 152, GY = vertical ? 92 : 74, PAD = 8;
+const NW = nw, NH = 48, GX = vertical ? 150 : NW + 30, GY = vertical ? 92 : 74, PAD = 8;
 const pos = (n: TopoNode) => (vertical ? { c: n.y, r: n.x } : { c: n.x, r: n.y });
 const maxC = Math.max(...nodes.map((n) => pos(n).c));
 const maxR = Math.max(...nodes.map((n) => pos(n).r));
@@ -25,25 +25,26 @@ const paths = edges.map(([a, b], i) => {
     const mx = (x1 + x2) / 2;
     d = `M${x1},${y1} C${mx},${y1} ${mx},${y2} ${x2},${y2}`;
   }
-  return { d, key: `${id}-${vertical ? 'v' : 'h'}-${i}`, dur: 1.6 + ((i * 37) % 10) / 10 };
+  return { d, key: `${id}-${vertical ? 'v' : 'h'}-${i}`, dur: 1.8 + ((i * 37) % 10) / 10 };
 });
 ---
 
-<svg class:list={['topo', vertical ? 'v' : 'h']} viewBox={`0 0 ${W} ${H}`} role="img" aria-label={`Architecture: ${nodes.map((n) => n.label).join(', ')}`}>
+<svg class:list={['topo', vertical ? 'v' : 'h']} viewBox={`0 0 ${W} ${H}`} role="img" aria-label={`Data flow: ${nodes.map((n) => n.label).join(', ')}`}>
   {paths.map((p) => <path id={p.key} d={p.d} class="edge" />)}
   {paths.map((p, i) => (
     <g class="packets">
-      <circle r="3"><animateMotion dur={`${p.dur}s`} repeatCount="indefinite" begin={`${(i % 4) * 0.35}s`}><mpath href={`#${p.key}`} /></animateMotion></circle>
-      <circle r="2" class="trail"><animateMotion dur={`${p.dur}s`} repeatCount="indefinite" begin={`${(i % 4) * 0.35 + p.dur / 2}s`}><mpath href={`#${p.key}`} /></animateMotion></circle>
+      <circle r="2.6"><animateMotion dur={`${p.dur}s`} repeatCount="indefinite" begin={`${(i % 4) * 0.35}s`}><mpath href={`#${p.key}`} /></animateMotion></circle>
+      <circle r="1.6" class="trail"><animateMotion dur={`${p.dur}s`} repeatCount="indefinite" begin={`${(i % 4) * 0.35 + p.dur / 2}s`}><mpath href={`#${p.key}`} /></animateMotion></circle>
     </g>
   ))}
   {nodes.map((n) => {
     const b = box(n);
     return (
-      <g class="node" transform={`translate(${b.x},${b.y})`}>
-        <rect width={NW} height={NH} rx="3" />
-        <text x="12" y="20" class="nl">{n.label}</text>
-        <text x="12" y="35" class="ns">{n.sub}</text>
+      <g class:list={['node', n.state]} transform={`translate(${b.x},${b.y})`}>
+        <rect width={NW} height={NH} rx="9" />
+        {n.state && <circle class="st" cx={NW - 12} cy="12" r="3" />}
+        <text x="12" y="21" class="nl">{n.label}</text>
+        <text x="12" y="36" class="ns">{n.sub}</text>
       </g>
     );
   })}
@@ -51,12 +52,15 @@ const paths = edges.map(([a, b], i) => {
 
 <style>
   .topo { width: 100%; height: auto; overflow: visible; }
-  .edge { fill: none; stroke: var(--line-strong); stroke-width: 1.2; }
-  .packets circle { fill: var(--signal); }
-  .packets .trail { fill: var(--ink-3); }
-  .node rect { fill: var(--paper); stroke: var(--line-strong); stroke-width: 1; transition: stroke 0.2s; }
-  .node:hover rect { stroke: var(--signal); }
+  .edge { fill: none; stroke: var(--line-2); stroke-width: 1.2; }
+  .packets circle { fill: var(--amber); filter: drop-shadow(0 0 3px var(--amber)); }
+  .packets .trail { fill: var(--ink-3); filter: none; }
+  .node rect { fill: var(--bg-1); stroke: var(--line-2); stroke-width: 1; transition: stroke 0.2s; }
+  .node:hover rect { stroke: var(--amber); }
   .nl { font: 600 12.5px var(--sans); fill: var(--ink); }
-  .ns { font: 10.5px var(--mono); fill: var(--ink-3); }
+  .ns { font: 9.5px var(--mono); fill: var(--ink-3); }
+  .st { fill: var(--ok); }
+  .warn .st { fill: var(--amber); }
+  .fail .st { fill: var(--alert); }
   @media (prefers-reduced-motion: reduce) { .packets { display: none; } }
 </style>

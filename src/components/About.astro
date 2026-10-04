@@ -1,24 +1,59 @@
 ---
-import SectionHead from './SectionHead.astro';
-import { person } from '../lib/data';
+import { person, pipelineRun } from '../lib/data';
+
+const blocking = pipelineRun.checks.filter((c) => c.blocking).length;
+const principles = [
+  { n: '01', title: 'Contracts at the edges', body: 'Records that break the rules go to a dead letter queue, where they stay visible, instead of leaking into the tables people trust.', proof: 'See it in Tower Health Stream', href: '/projects/tower-health-stream/#decisions' },
+  { n: '02', title: 'Quality before publishing', body: `This site cannot deploy if any of its ${blocking} blocking checks fails. A bad run publishes nothing.`, proof: 'Inspect the quality gate', href: '#platform' },
+  { n: '03', title: 'Every number traceable', body: 'Each metric on this page links to the file it came from and explains how it was measured.', proof: 'Try it on a project', href: '#projects' },
+];
 ---
 
-<section id="about" class="stage">
-  <div class="wrap grid">
-    <SectionHead index="01" title="About" />
-    <div class="text reveal">
-      {person.about.map((p: string, i: number) => <p class:list={[i === 0 && 'lead']}>{p}</p>)}
-      <p class="community mono"><span class="dot-sq"></span>{person.community}</p>
+<section id="about" class="stage about">
+  <div class="wrap">
+    <p class="kicker reveal"><span class="mono">00</span> How I work</p>
+    <p class="statement reveal">
+      I care about the boring parts that make data <em>trustworthy</em>, and I show my work.
+    </p>
+    <ol class="principles">
+      {principles.map((p, i) => (
+        <li class="reveal" style={`transition-delay:${i * 90}ms`}>
+          <span class="n mono">{p.n}</span>
+          <h3>{p.title}</h3>
+          <p>{p.body}</p>
+          <a href={p.href} class="mono">{p.proof} <span aria-hidden="true">&rarr;</span></a>
+        </li>
+      ))}
+    </ol>
+    <div class="more reveal">
+      {person.about.slice(1).map((t: string) => <p>{t}</p>)}
+      <p class="community mono"><span class="sq"></span>{person.community}</p>
     </div>
   </div>
 </section>
 
 <style>
-  .grid { display: grid; gap: 8px; }
-  @media (min-width: 900px) { .grid { grid-template-columns: 280px minmax(0, 1fr); gap: 48px; } }
-  .text { max-width: 64ch; }
-  .text p { margin: 0 0 18px; color: var(--ink-2); font-size: 17px; }
-  .text .lead { font-family: var(--serif); font-size: clamp(24px, 2.4vw, 30px); line-height: 1.25; color: var(--ink); }
-  .community { display: inline-flex; align-items: center; gap: 10px; font-size: 13px !important; margin-top: 8px !important; }
-  .dot-sq { width: 8px; height: 8px; background: var(--signal); display: inline-block; }
+  .about { background: radial-gradient(70% 60% at 85% 0%, var(--amber-soft), transparent 70%); }
+  .statement {
+    margin: 22px 0 0;
+    font-family: var(--display); font-stretch: 110%; font-weight: 700;
+    font-size: clamp(30px, 4.4vw, 60px); line-height: 1.04; letter-spacing: -0.03em;
+    max-width: 22ch; text-wrap: balance;
+  }
+  .statement em { font-style: normal; color: var(--amber); }
+  .principles { list-style: none; margin: clamp(48px, 7vw, 80px) 0 0; padding: 0; display: grid; gap: 14px; }
+  @media (min-width: 860px) { .principles { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  .principles li {
+    position: relative; display: flex; flex-direction: column; gap: 10px;
+    padding: 24px; border: 1px solid var(--line); border-radius: var(--radius);
+    background: linear-gradient(180deg, var(--bg-1), transparent);
+  }
+  .n { font-size: 11px; color: var(--amber); }
+  .principles h3 { font-size: 20px; letter-spacing: -0.01em; }
+  .principles p { color: var(--ink-2); font-size: 15px; flex: 1; }
+  .principles a { font-size: 11.5px; color: var(--amber); text-decoration: none; margin-top: 6px; }
+  .principles a:hover { text-decoration: underline; }
+  .more { margin-top: clamp(40px, 6vw, 64px); display: grid; gap: 14px; max-width: 70ch; color: var(--ink-2); font-size: 16.5px; }
+  .community { display: inline-flex; align-items: center; gap: 10px; font-size: 11.5px; color: var(--ink); }
+  .sq { width: 8px; height: 8px; background: var(--amber); box-shadow: 0 0 10px var(--amber); }
 </style>

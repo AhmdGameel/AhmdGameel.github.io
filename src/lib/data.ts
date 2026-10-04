@@ -3,8 +3,10 @@ import run from '../data/run.json';
 
 export interface Experience {
   id: string;
+  type: 'work' | 'training';
   role: string;
   company: string;
+  context: string;
   mode: string;
   start_month: string;
   end_month: string | null;
@@ -15,6 +17,15 @@ export interface Experience {
 
 export interface TopoNode { id: string; label: string; sub: string; x: number; y: number }
 
+export interface Metric {
+  label: string;
+  value: string;
+  kind: 'code' | 'readme' | 'derived' | null;
+  source: string | null;
+  source_url: string | null;
+  how: string;
+}
+
 export interface Project {
   id: string;
   name: string;
@@ -24,23 +35,34 @@ export interface Project {
   problem: string;
   built: string;
   result: string;
+  decisions: { title: string; body: string }[];
+  next: string[];
+  media: { src: string; poster: string; caption: string } | null;
   stack: string[];
+  repo: string;
   repo_url: string;
-  stars: number;
+  created: string | null;
   last_push: string | null;
-  metrics: { label: string; value: string }[];
+  metrics: Metric[];
   topology: TopoNode[];
   edges: [string, string][];
 }
 
+export interface Skill { skill: string; category: string; tier: 'work' | 'built' | 'trained' | 'listed'; evidence_count: number }
+export interface Evidence { skill: string; category: string; evidence_id: string; evidence: string; kind: string }
+export interface Check { name: string; passed: boolean; detail: string; blocking: boolean }
+export interface RunSummary { run_id: string; started_at: string; duration_ms: number; rows_total: number; checks_passed: number; checks_total: number; trigger: string; commit: string }
+
 export const person = warehouse.person[0];
 export const experience = warehouse.experience as Experience[];
-export const projects = warehouse.projects as Project[];
+export const projects = warehouse.projects as unknown as Project[];
+export const skills = warehouse.skills as Skill[];
 export const skillGroups = warehouse.skill_groups as { group: string; items: string[] }[];
-export const certifications = warehouse.certifications;
+export const evidence = warehouse.skill_evidence as Evidence[];
+export const certifications = warehouse.certifications as { name: string; issuer: string; date: string; url: string | null }[];
 export const education = warehouse.education;
 export const repos = warehouse.repos;
-export const pipelineRun = run;
+export const pipelineRun = run as typeof run & { checks: Check[]; history: RunSummary[] };
 
 /** Month keys (YYYY-MM) from start to end inclusive. */
 export function monthRange(start: string, end: string): string[] {
@@ -66,3 +88,12 @@ export function fmtMonth(key: string | null): string {
   const [y, m] = key.split('-').map(Number);
   return `${MONTHS[m - 1]} ${y}`;
 }
+
+export function duration(start: string, end: string | null): string {
+  const n = monthRange(start, end ?? currentMonth()).length;
+  if (n < 12) return n === 1 ? '1 month' : `${n} months`;
+  const y = Math.floor(n / 12), r = n % 12;
+  return `${y} yr${y > 1 ? 's' : ''}${r ? ` ${r} mo` : ''}`;
+}
+
+export const KIND_LABEL: Record<string, string> = { code: 'from code', readme: 'from README', derived: 'calculated' };

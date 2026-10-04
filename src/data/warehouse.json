@@ -4,19 +4,21 @@
    "name": "Ahmed Gameel",
    "handle": "AhmdGameel",
    "title": "Data Engineer",
+   "headline": "Batch and streaming pipelines, on AWS and in the open",
    "location": "Cairo, Egypt",
+   "timezone": "Africa/Cairo",
    "email": "ahmed0gameel@gmail.com",
    "github": "https://github.com/AhmdGameel",
    "linkedin": "https://www.linkedin.com/in/AhmdGameel",
    "youtube": "https://www.youtube.com/@AhmdGameel",
    "x": "https://x.com/AhmdGameel",
    "cv": "/Ahmed_Gameel.pdf",
-   "status": "Open to Data Engineering opportunities",
-   "intro": "I build ETL pipelines with Python, SQL and PySpark, currently on AWS Glue at DigitalH. I graduated in Artificial Intelligence from Kafrelsheikh University in 2026.\n",
+   "status": "Open to Data Engineering roles",
+   "intro": "I ship AWS Glue and PySpark jobs at DigitalH. On the side I built Tower Health Stream, a Kafka and Flink pipeline that watches 10,192 Egyptian cell towers and flags trouble in under 150 ms.\n",
    "about": [
-    "I work as a Data Engineer at DigitalH, where I help build ETL pipelines on AWS Glue with PySpark and Python, moving and cleaning data stored in Amazon S3.\n",
-    "Outside work I learn by building complete projects: a streaming pipeline with Kafka and Flink, batch pipelines orchestrated with Airflow, and a SQL Server warehouse modeled as a star schema. Each one has a README that explains the design and how to run it.\n",
-    "I am early in my career and looking to grow in a team that cares about reliable, well documented data.\n"
+    "I care about the boring parts that make data trustworthy: contracts at the edges, quality checks before anything is published, and numbers that can be traced back to where they came from.\n",
+    "At DigitalH I build ETL jobs on AWS Glue with PySpark and Python over data in Amazon S3. Outside work I learn by building complete systems end to end: a streaming pipeline with Kafka and Flink, batch pipelines orchestrated with Airflow, and a SQL Server warehouse modeled as a star schema.\n",
+    "I am early in my career and I want to grow in a team that ships reliable, well documented data.\n"
    ],
    "community": "Microsoft Student Ambassador"
   }
@@ -24,8 +26,10 @@
  "experience": [
   {
    "id": "digitalh",
+   "type": "work",
    "role": "Data Engineer",
    "company": "DigitalH",
+   "context": "",
    "mode": "Remote",
    "start_month": "2026-05",
    "end_month": null,
@@ -44,8 +48,10 @@
   },
   {
    "id": "depi-powerbi",
-   "role": "Microsoft Power BI Specialist",
+   "type": "training",
+   "role": "Microsoft Power BI Specialist track",
    "company": "Digital Egypt Pioneers Initiative",
+   "context": "A training program run by Egypt's Ministry of Communications and IT.",
    "mode": "Remote",
    "start_month": "2025-06",
    "end_month": "2025-12",
@@ -57,14 +63,15 @@
    ],
    "highlights": [
     "Collected, cleaned and modeled data from multiple sources with Power BI, DAX and Power Query.",
-    "Designed and published interactive dashboards and reports.",
-    "Completed a real world capstone project applying data governance and visualization practices."
+    "Designed and published interactive dashboards and a real world capstone project."
    ]
   },
   {
    "id": "odc",
+   "type": "training",
    "role": "Big Data Trainee",
    "company": "Orange Digital Center Egypt",
+   "context": "Orange Egypt's technical training hub.",
    "mode": "Hybrid",
    "start_month": "2024-08",
    "end_month": "2024-09",
@@ -79,15 +86,16 @@
     "MongoDB"
    ],
    "highlights": [
-    "Set up reproducible environments with Docker and used Hadoop for distributed storage.",
-    "Processed data in memory with Spark and built warehouse tables on Hadoop with Hive.",
-    "Automated data flows with Apache NiFi across PostgreSQL and MongoDB."
+    "Set up reproducible Hadoop environments with Docker and built warehouse tables with Hive.",
+    "Processed data in memory with Spark and automated flows with NiFi across PostgreSQL and MongoDB."
    ]
   },
   {
    "id": "depi-de",
+   "type": "training",
    "role": "Data Engineer Trainee",
    "company": "Digital Egypt Pioneers Initiative",
+   "context": "A training program run by Egypt's Ministry of Communications and IT.",
    "mode": "Hybrid",
    "start_month": "2024-06",
    "end_month": "2024-09",
@@ -99,7 +107,7 @@
    ],
    "highlights": [
     "Built ETL processes with SQL Server Integration Services (SSIS).",
-    "Learned data warehouse architecture, implementation and dimensional modeling."
+    "Learned data warehouse architecture and dimensional modeling."
    ]
   }
  ],
@@ -109,10 +117,38 @@
    "name": "Tower Health Stream",
    "kind": "Streaming",
    "featured": true,
-   "summary": "A streaming pipeline that monitors simulated telemetry from 10,192 real Egyptian cell tower locations.",
-   "problem": "Telecom teams often learn about a weak tower only after customers complain. I wanted to see how early a streaming pipeline could flag it.",
-   "built": "Kafka carries tower events, Flink validates them and detects anomalies in 10 minute windows, a Python service adds live weather to each alert, Iceberg stores history, and Grafana shows the results. Airflow and dbt handle the batch side.",
-   "result": "In local tests on Docker it handled about 2,000 events per second and raised alerts in under 150 ms.",
+   "summary": "A streaming pipeline that watches simulated telemetry from 10,192 real Egyptian cell tower locations.",
+   "problem": "Telecom teams often learn about a weak tower only after customers complain. I wanted to see how early a streaming pipeline could flag it, and whether it could tell a hardware fault from bad weather.",
+   "built": "Kafka carries tower events. One Flink job validates them and routes bad records to a dead letter queue, a second classifies anomalies and rolls them up per area in 10 minute tumbling windows. A Python service adds live weather to each alert, Iceberg keeps the history, and Grafana shows it all. Airflow and dbt on DuckDB handle the batch side.",
+   "result": "On a local Docker stack it kept up with 2,038 events per second and raised alerts in under 150 ms.",
+   "decisions": [
+    {
+     "title": "Tumbling windows for regional outages",
+     "body": "Fixed 10 minute buckets give one clean result per window, so an outage is never double counted and the logic stays deterministic."
+    },
+    {
+     "title": "A dead letter queue, not a silent drop",
+     "body": "Events outside the valid range go to their own topic, so bad data stays visible and can be replayed."
+    },
+    {
+     "title": "Weather as context",
+     "body": "Every alert is enriched with live Open-Meteo weather, so the team can tell a hardware fault from a storm and respond differently."
+    },
+    {
+     "title": "Kafka in KRaft mode",
+     "body": "No ZooKeeper to run, one less moving part in a local stack that already has eight services."
+    }
+   ],
+   "next": [
+    "Move the Python sinks into Flink so delivery to PostgreSQL is checkpointed.",
+    "Add a schema registry so a producer change cannot break consumers.",
+    "Run it on managed services with infrastructure as code."
+   ],
+   "media": {
+    "src": "/media/tower-architecture.mp4",
+    "poster": "/media/tower-architecture.jpg",
+    "caption": "Architecture animation from the project README"
+   },
    "stack": [
     "Kafka",
     "Flink",
@@ -125,25 +161,42 @@
     "Docker",
     "Python"
    ],
+   "repo": "tower-health-stream",
    "repo_url": "https://github.com/AhmdGameel/tower-health-stream",
-   "stars": 3,
+   "created": "2026-03-09",
    "last_push": "2026-03-22",
    "metrics": [
     {
      "label": "towers",
-     "value": "10,192"
+     "value": "10,192",
+     "kind": "code",
+     "source": "simulator/data_cleaner.py",
+     "source_url": "https://github.com/AhmdGameel/tower-health-stream/blob/HEAD/simulator/data_cleaner.py",
+     "how": "OpenCelliD export for Egypt (MCC 602), kept the four national operators and dropped rows with missing coordinates or zero range."
     },
     {
      "label": "events per second",
-     "value": "~2,000"
+     "value": "2,038",
+     "kind": "derived",
+     "source": "simulator/tower_simulator.py",
+     "source_url": "https://github.com/AhmdGameel/tower-health-stream/blob/HEAD/simulator/tower_simulator.py",
+     "how": "The simulator sends one event per tower every 5 seconds, so 10,192 / 5 = 2,038 events per second, sustained on a local Docker stack."
     },
     {
      "label": "alert latency",
-     "value": "< 150 ms"
+     "value": "< 150 ms",
+     "kind": "readme",
+     "source": "README.md#latency-breakdown",
+     "source_url": "https://github.com/AhmdGameel/tower-health-stream/blob/HEAD/README.md#latency-breakdown",
+     "how": "Sum of the measured stage latencies from the simulator to the regional_alerts topic (10 + 50 + 20 + 50 + 20 ms upper bounds)."
     },
     {
-     "label": "services",
-     "value": "9 in Docker"
+     "label": "Compose services",
+     "value": "8",
+     "kind": "code",
+     "source": "docker/docker-compose.yml",
+     "source_url": "https://github.com/AhmdGameel/tower-health-stream/blob/HEAD/docker/docker-compose.yml",
+     "how": "Kafka, Kafka UI, Flink jobmanager and taskmanager, Iceberg REST catalog, PostgreSQL, Airflow and Grafana."
     }
    ],
    "topology": [
@@ -244,10 +297,30 @@
    "name": "Log Analytics ETL",
    "kind": "Batch",
    "featured": true,
-   "summary": "An Airflow and PySpark pipeline that turns raw web server logs into clean Parquet and reports.",
-   "problem": "3.5 GB of raw access logs are hard to analyze and expensive to keep as text.",
-   "built": "Airflow DAGs that split the logs by date, parse them with PySpark, add hostnames from a 258K row lookup, apply data quality rules, and generate analytics reports. New files are picked up automatically.",
-   "result": "Processed more than 10 million records, and Parquet reduced the data from 3.5 GB to about 240 MB.",
+   "summary": "An Airflow and PySpark pipeline that turns 3.5 GB of raw web server logs into clean Parquet and reports.",
+   "problem": "Raw access logs are slow to query and expensive to keep as text. The questions people ask of them (who is hitting us, what fails, how much is bots) need structure first.",
+   "built": "Airflow DAGs split the log by date, parse each day with PySpark, join hostnames from a 258K row lookup, apply quality rules and write daily analytics reports. New files are picked up automatically.",
+   "result": "10.36 million records processed end to end in about 5 minutes, and Parquet cut the data from 3.5 GB to 235 MB.",
+   "decisions": [
+    {
+     "title": "Split by date first",
+     "body": "Daily files let Spark parse days independently and let Airflow pick up a new day as soon as it lands."
+    },
+    {
+     "title": "Columnar storage early",
+     "body": "Writing Parquet right after parsing means every later stage reads 93% less data."
+    },
+    {
+     "title": "Quality as its own stage",
+     "body": "Duplicates, malformed IPs, invalid status codes and nulls are handled in one DAG, so analytics only reads clean data."
+    }
+   ],
+   "next": [
+    "Unit tests for the log parser with real sample lines.",
+    "Incremental runs driven by data intervals instead of folder polling.",
+    "Publish the daily reports as a small dashboard."
+   ],
+   "media": null,
    "stack": [
     "Airflow",
     "PySpark",
@@ -256,25 +329,42 @@
     "Docker",
     "Python"
    ],
+   "repo": "airflow-pyspark-etl-pipeline",
    "repo_url": "https://github.com/AhmdGameel/airflow-pyspark-etl-pipeline",
-   "stars": 1,
+   "created": "2025-12-09",
    "last_push": "2025-12-09",
    "metrics": [
     {
      "label": "records",
-     "value": "10M+"
+     "value": "10.36M",
+     "kind": "readme",
+     "source": "README.md#processing-performance",
+     "source_url": "https://github.com/AhmdGameel/airflow-pyspark-etl-pipeline/blob/HEAD/README.md#processing-performance",
+     "how": "Rows parsed from the access log. 10,241,992 remain after cleaning, about 1.2% removed."
     },
     {
-     "label": "raw logs",
-     "value": "3.5 GB"
+     "label": "raw to Parquet",
+     "value": "3.5 GB to 235 MB",
+     "kind": "readme",
+     "source": "README.md#data-compression",
+     "source_url": "https://github.com/AhmdGameel/airflow-pyspark-etl-pipeline/blob/HEAD/README.md#data-compression",
+     "how": "Size of the raw text log against the parsed Parquet output, 93% smaller."
     },
     {
-     "label": "as Parquet",
-     "value": "~240 MB"
+     "label": "end to end",
+     "value": "~5 min",
+     "kind": "readme",
+     "source": "README.md#processing-performance",
+     "source_url": "https://github.com/AhmdGameel/airflow-pyspark-etl-pipeline/blob/HEAD/README.md#processing-performance",
+     "how": "Wall clock time for all four stages on a local Docker setup."
     },
     {
      "label": "lookup rows",
-     "value": "258K"
+     "value": "258,445",
+     "kind": "code",
+     "source": "lookup/client_hostname.csv",
+     "source_url": "https://github.com/AhmdGameel/airflow-pyspark-etl-pipeline/blob/HEAD/lookup/client_hostname.csv",
+     "how": "Rows in the IP to hostname lookup used by the enrichment DAG."
     }
    ],
    "topology": [
@@ -349,35 +439,71 @@
    "name": "Unified Sales Warehouse",
    "kind": "Warehouse",
    "featured": true,
-   "summary": "A SQL Server data warehouse that combines CRM and ERP sales data.",
-   "problem": "Sales data came from two systems with different formats for customers and products.",
-   "built": "SSIS loads the raw files into a Bronze layer, stored procedures clean and standardize them in Silver, and Gold exposes a star schema with fact_sales, dim_customers and dim_products.",
-   "result": "One consistent model for sales reporting, where each number can be traced back to its source.",
+   "summary": "A SQL Server warehouse that combines CRM and ERP sales data into one star schema.",
+   "problem": "Sales data lived in two systems with different keys and formats for the same customers and products.",
+   "built": "SSIS loads six raw source tables into a Bronze layer, stored procedures clean and standardize them in Silver, and Gold exposes a star schema with fact_sales, dim_customers and dim_products as views.",
+   "result": "One consistent model for sales reporting, where each number can be traced back a layer at a time.",
+   "decisions": [
+    {
+     "title": "Medallion layers",
+     "body": "Bronze keeps files as they arrived, Silver applies the business rules, Gold is what analysts query."
+    },
+    {
+     "title": "Gold as views",
+     "body": "The star schema is views over Silver, so a model change needs no reload."
+    },
+    {
+     "title": "Full reload in Silver",
+     "body": "TRUNCATE and INSERT keeps the procedures simple at this size. Incremental loads are the next step."
+    }
+   ],
+   "next": [
+    "Slowly changing dimensions for customer history.",
+    "Data tests on keys and row counts between layers."
+   ],
+   "media": null,
    "stack": [
     "SQL Server",
     "SSIS",
     "T-SQL",
     "Data Modeling"
    ],
+   "repo": "unified-sales-warehouse",
    "repo_url": "https://github.com/AhmdGameel/unified-sales-warehouse",
-   "stars": 0,
+   "created": "2025-07-01",
    "last_push": "2025-07-01",
    "metrics": [
     {
-     "label": "sources",
-     "value": "CRM + ERP"
+     "label": "source tables",
+     "value": "6",
+     "kind": "code",
+     "source": "scripts/bronze/ddl_bronze.sql",
+     "source_url": "https://github.com/AhmdGameel/unified-sales-warehouse/blob/HEAD/scripts/bronze/ddl_bronze.sql",
+     "how": "Three CRM tables (sales, customers, products) and three ERP tables (customers, locations, categories)."
+    },
+    {
+     "label": "customer rows",
+     "value": "18,494",
+     "kind": "code",
+     "source": "data/crm/cust_info.csv",
+     "source_url": "https://github.com/AhmdGameel/unified-sales-warehouse/blob/HEAD/data/crm/cust_info.csv",
+     "how": "Raw CRM customer rows before deduplication in Silver."
     },
     {
      "label": "layers",
-     "value": "Bronze, Silver, Gold"
+     "value": "Bronze, Silver, Gold",
+     "kind": "code",
+     "source": "scripts/init_database.sql",
+     "source_url": "https://github.com/AhmdGameel/unified-sales-warehouse/blob/HEAD/scripts/init_database.sql",
+     "how": "One schema per layer in SQL Server."
     },
     {
-     "label": "model",
-     "value": "Star schema"
-    },
-    {
-     "label": "tools",
-     "value": "SSIS, T-SQL"
+     "label": "Gold model",
+     "value": "1 fact, 2 dims",
+     "kind": "code",
+     "source": "scripts/gold/ddl_gold.sql",
+     "source_url": "https://github.com/AhmdGameel/unified-sales-warehouse/blob/HEAD/scripts/gold/ddl_gold.sql",
+     "how": "fact_sales with dim_customers and dim_products, created as views."
     }
    ],
    "topology": [
@@ -445,6 +571,9 @@
    "problem": "",
    "built": "",
    "result": "",
+   "decisions": [],
+   "next": [],
+   "media": null,
    "stack": [
     "Airflow",
     "Hadoop",
@@ -453,8 +582,9 @@
     "Redis",
     "Docker"
    ],
+   "repo": "RealEstate-ETL-Pipeline",
    "repo_url": "https://github.com/AhmdGameel/RealEstate-ETL-Pipeline",
-   "stars": 0,
+   "created": "2025-10-06",
    "last_push": "2025-10-06",
    "metrics": [],
    "topology": [],
@@ -469,145 +599,323 @@
    "problem": "",
    "built": "",
    "result": "",
+   "decisions": [],
+   "next": [],
+   "media": null,
    "stack": [
     "Airflow",
     "PostgreSQL",
     "Python",
     "REST APIs",
-    "Docker"
+    "Docker",
+    "Git",
+    "Bash"
    ],
+   "repo": "scalable-airflow-social-etl",
    "repo_url": "https://github.com/AhmdGameel/scalable-airflow-social-etl",
-   "stars": 0,
+   "created": "2025-08-22",
    "last_push": "2025-08-26",
    "metrics": [],
    "topology": [],
    "edges": []
   }
  ],
+ "metric_lineage": [
+  {
+   "project": "tower-health-stream",
+   "label": "towers",
+   "value": "10,192",
+   "kind": "code",
+   "source": "simulator/data_cleaner.py",
+   "source_url": "https://github.com/AhmdGameel/tower-health-stream/blob/HEAD/simulator/data_cleaner.py",
+   "how": "OpenCelliD export for Egypt (MCC 602), kept the four national operators and dropped rows with missing coordinates or zero range."
+  },
+  {
+   "project": "tower-health-stream",
+   "label": "events per second",
+   "value": "2,038",
+   "kind": "derived",
+   "source": "simulator/tower_simulator.py",
+   "source_url": "https://github.com/AhmdGameel/tower-health-stream/blob/HEAD/simulator/tower_simulator.py",
+   "how": "The simulator sends one event per tower every 5 seconds, so 10,192 / 5 = 2,038 events per second, sustained on a local Docker stack."
+  },
+  {
+   "project": "tower-health-stream",
+   "label": "alert latency",
+   "value": "< 150 ms",
+   "kind": "readme",
+   "source": "README.md#latency-breakdown",
+   "source_url": "https://github.com/AhmdGameel/tower-health-stream/blob/HEAD/README.md#latency-breakdown",
+   "how": "Sum of the measured stage latencies from the simulator to the regional_alerts topic (10 + 50 + 20 + 50 + 20 ms upper bounds)."
+  },
+  {
+   "project": "tower-health-stream",
+   "label": "Compose services",
+   "value": "8",
+   "kind": "code",
+   "source": "docker/docker-compose.yml",
+   "source_url": "https://github.com/AhmdGameel/tower-health-stream/blob/HEAD/docker/docker-compose.yml",
+   "how": "Kafka, Kafka UI, Flink jobmanager and taskmanager, Iceberg REST catalog, PostgreSQL, Airflow and Grafana."
+  },
+  {
+   "project": "airflow-pyspark-etl",
+   "label": "records",
+   "value": "10.36M",
+   "kind": "readme",
+   "source": "README.md#processing-performance",
+   "source_url": "https://github.com/AhmdGameel/airflow-pyspark-etl-pipeline/blob/HEAD/README.md#processing-performance",
+   "how": "Rows parsed from the access log. 10,241,992 remain after cleaning, about 1.2% removed."
+  },
+  {
+   "project": "airflow-pyspark-etl",
+   "label": "raw to Parquet",
+   "value": "3.5 GB to 235 MB",
+   "kind": "readme",
+   "source": "README.md#data-compression",
+   "source_url": "https://github.com/AhmdGameel/airflow-pyspark-etl-pipeline/blob/HEAD/README.md#data-compression",
+   "how": "Size of the raw text log against the parsed Parquet output, 93% smaller."
+  },
+  {
+   "project": "airflow-pyspark-etl",
+   "label": "end to end",
+   "value": "~5 min",
+   "kind": "readme",
+   "source": "README.md#processing-performance",
+   "source_url": "https://github.com/AhmdGameel/airflow-pyspark-etl-pipeline/blob/HEAD/README.md#processing-performance",
+   "how": "Wall clock time for all four stages on a local Docker setup."
+  },
+  {
+   "project": "airflow-pyspark-etl",
+   "label": "lookup rows",
+   "value": "258,445",
+   "kind": "code",
+   "source": "lookup/client_hostname.csv",
+   "source_url": "https://github.com/AhmdGameel/airflow-pyspark-etl-pipeline/blob/HEAD/lookup/client_hostname.csv",
+   "how": "Rows in the IP to hostname lookup used by the enrichment DAG."
+  },
+  {
+   "project": "unified-sales-warehouse",
+   "label": "source tables",
+   "value": "6",
+   "kind": "code",
+   "source": "scripts/bronze/ddl_bronze.sql",
+   "source_url": "https://github.com/AhmdGameel/unified-sales-warehouse/blob/HEAD/scripts/bronze/ddl_bronze.sql",
+   "how": "Three CRM tables (sales, customers, products) and three ERP tables (customers, locations, categories)."
+  },
+  {
+   "project": "unified-sales-warehouse",
+   "label": "customer rows",
+   "value": "18,494",
+   "kind": "code",
+   "source": "data/crm/cust_info.csv",
+   "source_url": "https://github.com/AhmdGameel/unified-sales-warehouse/blob/HEAD/data/crm/cust_info.csv",
+   "how": "Raw CRM customer rows before deduplication in Silver."
+  },
+  {
+   "project": "unified-sales-warehouse",
+   "label": "layers",
+   "value": "Bronze, Silver, Gold",
+   "kind": "code",
+   "source": "scripts/init_database.sql",
+   "source_url": "https://github.com/AhmdGameel/unified-sales-warehouse/blob/HEAD/scripts/init_database.sql",
+   "how": "One schema per layer in SQL Server."
+  },
+  {
+   "project": "unified-sales-warehouse",
+   "label": "Gold model",
+   "value": "1 fact, 2 dims",
+   "kind": "code",
+   "source": "scripts/gold/ddl_gold.sql",
+   "source_url": "https://github.com/AhmdGameel/unified-sales-warehouse/blob/HEAD/scripts/gold/ddl_gold.sql",
+   "how": "fact_sales with dim_customers and dim_products, created as views."
+  }
+ ],
  "skills": [
   {
    "skill": "Python",
-   "category": "Languages"
+   "category": "Languages",
+   "tier": "work",
+   "evidence_count": 4
   },
   {
    "skill": "SQL",
-   "category": "Languages"
+   "category": "Languages",
+   "tier": "built",
+   "evidence_count": 2
   },
   {
    "skill": "Bash",
-   "category": "Languages"
+   "category": "Languages",
+   "tier": "built",
+   "evidence_count": 1
   },
   {
    "skill": "C++",
-   "category": "Languages"
+   "category": "Languages",
+   "tier": "listed",
+   "evidence_count": 0
   },
   {
    "skill": "Apache Spark",
-   "category": "Processing"
+   "category": "Processing",
+   "tier": "trained",
+   "evidence_count": 1
   },
   {
    "skill": "PySpark",
-   "category": "Processing"
+   "category": "Processing",
+   "tier": "work",
+   "evidence_count": 2
   },
   {
    "skill": "Apache Flink",
-   "category": "Processing"
+   "category": "Processing",
+   "tier": "built",
+   "evidence_count": 1
   },
   {
    "skill": "Apache Airflow",
-   "category": "Orchestration and streaming"
+   "category": "Orchestration and streaming",
+   "tier": "built",
+   "evidence_count": 4
   },
   {
    "skill": "Apache Kafka",
-   "category": "Orchestration and streaming"
+   "category": "Orchestration and streaming",
+   "tier": "built",
+   "evidence_count": 1
   },
   {
    "skill": "Apache NiFi",
-   "category": "Orchestration and streaming"
+   "category": "Orchestration and streaming",
+   "tier": "trained",
+   "evidence_count": 1
   },
   {
    "skill": "dbt",
-   "category": "Orchestration and streaming"
+   "category": "Orchestration and streaming",
+   "tier": "built",
+   "evidence_count": 1
   },
   {
    "skill": "Apache Iceberg",
-   "category": "Storage and warehousing"
+   "category": "Storage and warehousing",
+   "tier": "built",
+   "evidence_count": 1
   },
   {
    "skill": "Parquet",
-   "category": "Storage and warehousing"
+   "category": "Storage and warehousing",
+   "tier": "built",
+   "evidence_count": 1
   },
   {
    "skill": "Hadoop",
-   "category": "Storage and warehousing"
+   "category": "Storage and warehousing",
+   "tier": "built",
+   "evidence_count": 2
   },
   {
    "skill": "Hive",
-   "category": "Storage and warehousing"
+   "category": "Storage and warehousing",
+   "tier": "built",
+   "evidence_count": 2
   },
   {
    "skill": "Data Modeling",
-   "category": "Storage and warehousing"
+   "category": "Storage and warehousing",
+   "tier": "built",
+   "evidence_count": 2
   },
   {
    "skill": "PostgreSQL",
-   "category": "Databases"
+   "category": "Databases",
+   "tier": "built",
+   "evidence_count": 5
   },
   {
    "skill": "SQL Server",
-   "category": "Databases"
+   "category": "Databases",
+   "tier": "built",
+   "evidence_count": 2
   },
   {
    "skill": "MySQL",
-   "category": "Databases"
+   "category": "Databases",
+   "tier": "listed",
+   "evidence_count": 0
   },
   {
    "skill": "DuckDB",
-   "category": "Databases"
+   "category": "Databases",
+   "tier": "built",
+   "evidence_count": 1
   },
   {
    "skill": "MongoDB",
-   "category": "Databases"
+   "category": "Databases",
+   "tier": "trained",
+   "evidence_count": 1
   },
   {
    "skill": "AWS Glue",
-   "category": "Cloud and tools"
+   "category": "Cloud and tools",
+   "tier": "work",
+   "evidence_count": 1
   },
   {
    "skill": "Amazon S3",
-   "category": "Cloud and tools"
+   "category": "Cloud and tools",
+   "tier": "work",
+   "evidence_count": 1
   },
   {
    "skill": "Microsoft Fabric",
-   "category": "Cloud and tools"
+   "category": "Cloud and tools",
+   "tier": "built",
+   "evidence_count": 2
   },
   {
    "skill": "Azure",
-   "category": "Cloud and tools"
+   "category": "Cloud and tools",
+   "tier": "listed",
+   "evidence_count": 0
   },
   {
    "skill": "Docker",
-   "category": "Cloud and tools"
+   "category": "Cloud and tools",
+   "tier": "built",
+   "evidence_count": 6
   },
   {
    "skill": "Linux",
-   "category": "Cloud and tools"
+   "category": "Cloud and tools",
+   "tier": "listed",
+   "evidence_count": 0
   },
   {
    "skill": "Git",
-   "category": "Cloud and tools"
+   "category": "Cloud and tools",
+   "tier": "built",
+   "evidence_count": 1
   },
   {
    "skill": "Power BI",
-   "category": "Analytics"
+   "category": "Analytics",
+   "tier": "built",
+   "evidence_count": 2
   },
   {
    "skill": "DAX",
-   "category": "Analytics"
+   "category": "Analytics",
+   "tier": "trained",
+   "evidence_count": 1
   },
   {
    "skill": "Grafana",
-   "category": "Analytics"
+   "category": "Analytics",
+   "tier": "built",
+   "evidence_count": 1
   }
  ],
  "skill_groups": [
@@ -678,21 +986,376 @@
    ]
   }
  ],
+ "skill_evidence": [
+  {
+   "skill": "Python",
+   "category": "Languages",
+   "evidence_id": "digitalh",
+   "evidence": "DigitalH",
+   "kind": "work"
+  },
+  {
+   "skill": "Python",
+   "category": "Languages",
+   "evidence_id": "tower-health-stream",
+   "evidence": "Tower Health Stream",
+   "kind": "project"
+  },
+  {
+   "skill": "Python",
+   "category": "Languages",
+   "evidence_id": "airflow-pyspark-etl",
+   "evidence": "Log Analytics ETL",
+   "kind": "project"
+  },
+  {
+   "skill": "Python",
+   "category": "Languages",
+   "evidence_id": "social-etl",
+   "evidence": "Social Media ETL",
+   "kind": "project"
+  },
+  {
+   "skill": "SQL",
+   "category": "Languages",
+   "evidence_id": "unified-sales-warehouse",
+   "evidence": "Unified Sales Warehouse",
+   "kind": "project"
+  },
+  {
+   "skill": "Bash",
+   "category": "Languages",
+   "evidence_id": "social-etl",
+   "evidence": "Social Media ETL",
+   "kind": "project"
+  },
+  {
+   "skill": "Apache Spark",
+   "category": "Processing",
+   "evidence_id": "odc",
+   "evidence": "Orange Digital Center Egypt, Big Data Trainee",
+   "kind": "training"
+  },
+  {
+   "skill": "PySpark",
+   "category": "Processing",
+   "evidence_id": "digitalh",
+   "evidence": "DigitalH",
+   "kind": "work"
+  },
+  {
+   "skill": "PySpark",
+   "category": "Processing",
+   "evidence_id": "airflow-pyspark-etl",
+   "evidence": "Log Analytics ETL",
+   "kind": "project"
+  },
+  {
+   "skill": "Apache Flink",
+   "category": "Processing",
+   "evidence_id": "tower-health-stream",
+   "evidence": "Tower Health Stream",
+   "kind": "project"
+  },
+  {
+   "skill": "Apache Airflow",
+   "category": "Orchestration and streaming",
+   "evidence_id": "tower-health-stream",
+   "evidence": "Tower Health Stream",
+   "kind": "project"
+  },
+  {
+   "skill": "Apache Airflow",
+   "category": "Orchestration and streaming",
+   "evidence_id": "airflow-pyspark-etl",
+   "evidence": "Log Analytics ETL",
+   "kind": "project"
+  },
+  {
+   "skill": "Apache Airflow",
+   "category": "Orchestration and streaming",
+   "evidence_id": "realestate-etl",
+   "evidence": "Real Estate ETL",
+   "kind": "project"
+  },
+  {
+   "skill": "Apache Airflow",
+   "category": "Orchestration and streaming",
+   "evidence_id": "social-etl",
+   "evidence": "Social Media ETL",
+   "kind": "project"
+  },
+  {
+   "skill": "Apache Kafka",
+   "category": "Orchestration and streaming",
+   "evidence_id": "tower-health-stream",
+   "evidence": "Tower Health Stream",
+   "kind": "project"
+  },
+  {
+   "skill": "Apache NiFi",
+   "category": "Orchestration and streaming",
+   "evidence_id": "odc",
+   "evidence": "Orange Digital Center Egypt, Big Data Trainee",
+   "kind": "training"
+  },
+  {
+   "skill": "dbt",
+   "category": "Orchestration and streaming",
+   "evidence_id": "tower-health-stream",
+   "evidence": "Tower Health Stream",
+   "kind": "project"
+  },
+  {
+   "skill": "Apache Iceberg",
+   "category": "Storage and warehousing",
+   "evidence_id": "tower-health-stream",
+   "evidence": "Tower Health Stream",
+   "kind": "project"
+  },
+  {
+   "skill": "Parquet",
+   "category": "Storage and warehousing",
+   "evidence_id": "airflow-pyspark-etl",
+   "evidence": "Log Analytics ETL",
+   "kind": "project"
+  },
+  {
+   "skill": "Hadoop",
+   "category": "Storage and warehousing",
+   "evidence_id": "odc",
+   "evidence": "Orange Digital Center Egypt, Big Data Trainee",
+   "kind": "training"
+  },
+  {
+   "skill": "Hadoop",
+   "category": "Storage and warehousing",
+   "evidence_id": "realestate-etl",
+   "evidence": "Real Estate ETL",
+   "kind": "project"
+  },
+  {
+   "skill": "Hive",
+   "category": "Storage and warehousing",
+   "evidence_id": "odc",
+   "evidence": "Orange Digital Center Egypt, Big Data Trainee",
+   "kind": "training"
+  },
+  {
+   "skill": "Hive",
+   "category": "Storage and warehousing",
+   "evidence_id": "realestate-etl",
+   "evidence": "Real Estate ETL",
+   "kind": "project"
+  },
+  {
+   "skill": "Data Modeling",
+   "category": "Storage and warehousing",
+   "evidence_id": "depi-de",
+   "evidence": "Digital Egypt Pioneers Initiative, Data Engineer Trainee",
+   "kind": "training"
+  },
+  {
+   "skill": "Data Modeling",
+   "category": "Storage and warehousing",
+   "evidence_id": "unified-sales-warehouse",
+   "evidence": "Unified Sales Warehouse",
+   "kind": "project"
+  },
+  {
+   "skill": "PostgreSQL",
+   "category": "Databases",
+   "evidence_id": "odc",
+   "evidence": "Orange Digital Center Egypt, Big Data Trainee",
+   "kind": "training"
+  },
+  {
+   "skill": "PostgreSQL",
+   "category": "Databases",
+   "evidence_id": "tower-health-stream",
+   "evidence": "Tower Health Stream",
+   "kind": "project"
+  },
+  {
+   "skill": "PostgreSQL",
+   "category": "Databases",
+   "evidence_id": "airflow-pyspark-etl",
+   "evidence": "Log Analytics ETL",
+   "kind": "project"
+  },
+  {
+   "skill": "PostgreSQL",
+   "category": "Databases",
+   "evidence_id": "realestate-etl",
+   "evidence": "Real Estate ETL",
+   "kind": "project"
+  },
+  {
+   "skill": "PostgreSQL",
+   "category": "Databases",
+   "evidence_id": "social-etl",
+   "evidence": "Social Media ETL",
+   "kind": "project"
+  },
+  {
+   "skill": "SQL Server",
+   "category": "Databases",
+   "evidence_id": "depi-de",
+   "evidence": "Digital Egypt Pioneers Initiative, Data Engineer Trainee",
+   "kind": "training"
+  },
+  {
+   "skill": "SQL Server",
+   "category": "Databases",
+   "evidence_id": "unified-sales-warehouse",
+   "evidence": "Unified Sales Warehouse",
+   "kind": "project"
+  },
+  {
+   "skill": "DuckDB",
+   "category": "Databases",
+   "evidence_id": "tower-health-stream",
+   "evidence": "Tower Health Stream",
+   "kind": "project"
+  },
+  {
+   "skill": "MongoDB",
+   "category": "Databases",
+   "evidence_id": "odc",
+   "evidence": "Orange Digital Center Egypt, Big Data Trainee",
+   "kind": "training"
+  },
+  {
+   "skill": "AWS Glue",
+   "category": "Cloud and tools",
+   "evidence_id": "digitalh",
+   "evidence": "DigitalH",
+   "kind": "work"
+  },
+  {
+   "skill": "Amazon S3",
+   "category": "Cloud and tools",
+   "evidence_id": "digitalh",
+   "evidence": "DigitalH",
+   "kind": "work"
+  },
+  {
+   "skill": "Docker",
+   "category": "Cloud and tools",
+   "evidence_id": "odc",
+   "evidence": "Orange Digital Center Egypt, Big Data Trainee",
+   "kind": "training"
+  },
+  {
+   "skill": "Docker",
+   "category": "Cloud and tools",
+   "evidence_id": "tower-health-stream",
+   "evidence": "Tower Health Stream",
+   "kind": "project"
+  },
+  {
+   "skill": "Docker",
+   "category": "Cloud and tools",
+   "evidence_id": "airflow-pyspark-etl",
+   "evidence": "Log Analytics ETL",
+   "kind": "project"
+  },
+  {
+   "skill": "Docker",
+   "category": "Cloud and tools",
+   "evidence_id": "realestate-etl",
+   "evidence": "Real Estate ETL",
+   "kind": "project"
+  },
+  {
+   "skill": "Docker",
+   "category": "Cloud and tools",
+   "evidence_id": "social-etl",
+   "evidence": "Social Media ETL",
+   "kind": "project"
+  },
+  {
+   "skill": "Git",
+   "category": "Cloud and tools",
+   "evidence_id": "social-etl",
+   "evidence": "Social Media ETL",
+   "kind": "project"
+  },
+  {
+   "skill": "Power BI",
+   "category": "Analytics",
+   "evidence_id": "depi-powerbi",
+   "evidence": "Digital Egypt Pioneers Initiative, Microsoft Power BI Specialist track",
+   "kind": "training"
+  },
+  {
+   "skill": "DAX",
+   "category": "Analytics",
+   "evidence_id": "depi-powerbi",
+   "evidence": "Digital Egypt Pioneers Initiative, Microsoft Power BI Specialist track",
+   "kind": "training"
+  },
+  {
+   "skill": "Grafana",
+   "category": "Analytics",
+   "evidence_id": "tower-health-stream",
+   "evidence": "Tower Health Stream",
+   "kind": "project"
+  },
+  {
+   "skill": "Microsoft Fabric",
+   "category": "Cloud and tools",
+   "evidence_id": "cert-fabric",
+   "evidence": "Microsoft certification",
+   "kind": "cert"
+  },
+  {
+   "skill": "Microsoft Fabric",
+   "category": "Cloud and tools",
+   "evidence_id": "repo-fabric-workshops",
+   "evidence": "Fabric workshop repos",
+   "kind": "repo"
+  },
+  {
+   "skill": "Docker",
+   "category": "Cloud and tools",
+   "evidence_id": "cert-docker",
+   "evidence": "Udemy course",
+   "kind": "cert"
+  },
+  {
+   "skill": "SQL",
+   "category": "Languages",
+   "evidence_id": "cert-sql",
+   "evidence": "Coursera course",
+   "kind": "cert"
+  },
+  {
+   "skill": "Power BI",
+   "category": "Analytics",
+   "evidence_id": "repo-uk-train-rides",
+   "evidence": "UK Train Rides dashboard",
+   "kind": "repo"
+  }
+ ],
  "certifications": [
   {
    "name": "Fabric Data Engineer Associate",
    "issuer": "Microsoft",
-   "date": "2025-06-21"
+   "date": "2025-06-21",
+   "url": null
   },
   {
    "name": "Docker from Zero to Hero",
    "issuer": "Udemy",
-   "date": "2025-05-08"
+   "date": "2025-05-08",
+   "url": null
   },
   {
    "name": "Databases and SQL",
    "issuer": "Coursera",
-   "date": "2023-06-01"
+   "date": "2023-06-01",
+   "url": null
   }
  ],
  "education": [

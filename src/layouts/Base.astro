@@ -1,50 +1,92 @@
 ---
 import '../styles/global.css';
-import { person } from '../lib/data';
+import { person, experience, education, skills } from '../lib/data';
+import CommandPalette from '../components/CommandPalette.astro';
 
-const title = `${person.name} | ${person.title}`;
-const description = `${person.name}, ${person.title} in ${person.location}. ETL pipelines with Python, SQL, PySpark, Airflow and AWS Glue. Experience, projects, skills and resume.`;
-const url = 'https://ahmdgameel.github.io/';
+interface Props { title?: string; description?: string; path?: string; noindex?: boolean; map?: boolean }
+const site = 'https://ahmdgameel.github.io';
+const {
+  title = `${person.name} | ${person.title}`,
+  description = `${person.name}, ${person.title} in ${person.location}. Batch and streaming pipelines with Python, SQL, PySpark, Kafka, Flink, Airflow and AWS Glue. Projects, experience and resume.`,
+  path = '/',
+  noindex = false,
+  map = true,
+} = Astro.props;
+const url = new URL(path, site).href;
+const current = experience.find((e) => e.is_current);
+const ld = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: person.name,
+  jobTitle: person.title,
+  email: `mailto:${person.email}`,
+  url: `${site}/`,
+  image: `${site}/og.png`,
+  sameAs: [person.github, person.linkedin, person.youtube, person.x],
+  address: { '@type': 'PostalAddress', addressLocality: 'Cairo', addressCountry: 'EG' },
+  ...(current && { worksFor: { '@type': 'Organization', name: current.company } }),
+  alumniOf: { '@type': 'CollegeOrUniversity', name: education[0].school },
+  knowsAbout: skills.filter((s) => s.tier !== 'listed').map((s) => s.skill),
+};
 ---
 
 <!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>{title}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={url} />
+    {noindex && <meta name="robots" content="noindex" />}
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="icon" type="image/png" sizes="512x512" href="/icon-512.png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-    <meta name="theme-color" content="#f3f0e8" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#0f0f0d" media="(prefers-color-scheme: dark)" />
-    <meta property="og:type" content="website" />
+    <link rel="sitemap" href="/sitemap.xml" />
+    <meta name="theme-color" content="#08090c" />
+    <meta name="author" content={person.name} />
+    <meta property="og:type" content="profile" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={url} />
-    <meta property="og:image" content={`${url}og.png`} />
+    <meta property="og:image" content={`${site}/og.png`} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
     <meta name="twitter:card" content="summary_large_image" />
-    <script is:inline type="application/ld+json" set:html={JSON.stringify({
-      '@context': 'https://schema.org',
-      '@type': 'Person',
-      name: person.name,
-      jobTitle: person.title,
-      email: `mailto:${person.email}`,
-      url,
-      sameAs: [person.github, person.linkedin, person.youtube, person.x],
-      address: { '@type': 'PostalAddress', addressLocality: 'Cairo', addressCountry: 'EG' },
-    })} />
+    {map && <link rel="preload" href="/data/towers.bin" as="fetch" type="application/octet-stream" crossorigin />}
+    <script is:inline type="application/ld+json" set:html={JSON.stringify(ld)} />
     <script is:inline>
-      try {
-        const t = localStorage.getItem('theme');
-        if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t;
-      } catch (e) {}
-      document.documentElement.classList.add('js');
+      (function () {
+        var d = document.documentElement;
+        d.classList.add('js');
+        try {
+          var t = localStorage.getItem('theme');
+          if (t === 'day') d.dataset.theme = 'day';
+          var q = new URLSearchParams(location.search).get('lens');
+          var l = q || localStorage.getItem('lens');
+          if (l === 'engineer') d.dataset.lens = 'engineer';
+        } catch (e) {}
+      })();
     </script>
   </head>
   <body>
     <slot />
+    <CommandPalette />
+    <script>
+      // Reveal blocks as they enter the viewport.
+      const io = new IntersectionObserver(
+        (entries) => entries.forEach((e) => e.isIntersecting && (e.target.classList.add('in'), io.unobserve(e.target))),
+        { rootMargin: '0px 0px -6% 0px' },
+      );
+      document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
+      // Printing should never meet a half revealed page.
+      addEventListener('beforeprint', () => document.querySelectorAll('.reveal').forEach((el) => el.classList.add('in')));
+
+      console.log(
+        '%cHello, engineer.%c\nEverything on this page is generated by a pipeline.\nThe tables are public: /data/*.parquet, the run history: /data/runs.json.\nPress Ctrl K for the command palette.',
+        'font: 700 14px monospace; color: #ffb648',
+        'font: 12px monospace',
+      );
+    </script>
   </body>
 </html>

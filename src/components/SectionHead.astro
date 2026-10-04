@@ -1,20 +1,16 @@
 ---
-interface Props { index: string; title: string; intro?: string }
-const { index, title, intro } = Astro.props;
+interface Props { index: string; kicker: string; title: string; intro?: string }
+const { index, kicker, title, intro } = Astro.props;
 ---
 
 <header class="head reveal">
-  <span class="idx mono">{index}</span>
-  <h2 class="title serif">{title}</h2>
-  {intro && <p class="intro">{intro}</p>}
+  <p class="kicker"><span class="mono">{index}</span> {kicker}</p>
+  <h2 class="h2" set:html={title} />
+  {intro && <p class="lede">{intro}</p>}
+  <slot />
 </header>
 
 <style>
-  .head { margin-bottom: clamp(32px, 5vw, 52px); display: grid; gap: 10px; align-content: start; align-self: start; }
-  @media (min-width: 900px) {
-    :global(.grid) > .head { position: sticky; top: 96px; margin-bottom: 0; }
-  }
-  .idx { font-size: 12px; color: var(--signal); }
-  .title { margin: 0; font-size: clamp(38px, 5vw, 64px); line-height: 1; letter-spacing: -0.02em; }
-  .intro { margin: 6px 0 0; max-width: 60ch; font-size: clamp(16px, 1.3vw, 17px); color: var(--ink-2); }
+  .head { display: grid; gap: 18px; margin-bottom: clamp(40px, 6vw, 72px); max-width: 980px; }
+  .head :global(em) { font-style: normal; color: var(--amber); }
 </style>

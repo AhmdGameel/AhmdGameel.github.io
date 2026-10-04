@@ -1,0 +1,220 @@
+---
+import Base from '../../layouts/Base.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import Topology from '../../components/Topology.astro';
+import Icon from '../../components/Icon.astro';
+import { projects, person, KIND_LABEL, type Project } from '../../lib/data';
+
+export function getStaticPaths() {
+  return projects.filter((p) => p.featured).map((p) => ({ params: { id: p.id }, props: { p } }));
+}
+const { p } = Astro.props as { p: Project };
+const featured = projects.filter((x) => x.featured);
+const i = featured.findIndex((x) => x.id === p.id);
+const prev = featured[(i - 1 + featured.length) % featured.length];
+const next = featured[(i + 1) % featured.length];
+
+// Excerpts copied from the project repos, so the page shows the real rules.
+const code: Record<string, { file: string; lang: string; body: string }> = {
+  'tower-health-stream': {
+    file: 'flink_jobs/anomaly_detection.py',
+    lang: 'Flink SQL',
+    body: `CASE
+    WHEN signal_strength < -90 AND connected_users > 800 THEN 'OVERLOADED'
+    WHEN signal_strength < -90 THEN 'WEAK_SIGNAL'
+    WHEN call_drop_rate > 0.05 THEN 'HIGH_DROP_RATE'
+    WHEN latency_ms > 200 THEN 'HIGH_LATENCY'
+    ELSE 'DEGRADED'
+END AS alert_type
+
+-- regional roll up
+TUMBLE(event_time, INTERVAL '10' MINUTE)
+GROUP BY area, operator
+HAVING COUNT(DISTINCT tower_id) >= 3   -- REGIONAL_OUTAGE`,
+  },
+  'airflow-pyspark-etl': {
+    file: 'README.md',
+    lang: 'Pipeline',
+    body: `Raw Logs (3.5 GB)
+  -> split by date          5 daily files
+  -> parse with PySpark     235 MB Parquet, 93% smaller
+  -> enrich with hostname   258,445 row lookup
+  -> quality and cleaning   10,241,992 rows kept
+  -> analytics              JSON reports per day`,
+  },
+  'unified-sales-warehouse': {
+    file: 'scripts/gold/ddl_gold.sql',
+    lang: 'T-SQL',
+    body: `CREATE VIEW gold.dim_customers AS ...
+CREATE VIEW gold.dim_products  AS ...
+CREATE VIEW gold.fact_sales    AS ...
+-- Gold is views over Silver: a model change needs no reload`,
+  },
+};
+const snippet = code[p.id];
+---
+
+<Base title={`${p.name} | ${person.name}`} description={`${p.summary} Case study: problem, design decisions, numbers with their sources, and what comes next.`} path={`/projects/${p.id}/`} map={false}>
+  <Header home={false} />
+  <main id="main" class="cs">
+    <section class="intro night" id="top">
+      <div class="wrap">
+        <a class="back mono" href="/#projects"><Icon name="back" size={14} /> All projects</a>
+        <p class="meta mono"><span class="tag">{p.kind}</span> Case study {String(i + 1).padStart(2, '0')} of {featured.length}</p>
+        <h1>{p.name}</h1>
+        <p class="sum">{p.summary}</p>
+        <div class="cta">
+          <a class="btn" href={p.repo_url} target="_blank" rel="noopener"><Icon name="github" size={15} /> Code on GitHub</a>
+          <a class="btn ghost" href={person.cv} download><Icon name="download" size={15} /> Resume</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="block">
+      <div class="wrap story">
+        <div><p class="label">Problem</p><p>{p.problem}</p></div>
+        <div><p class="label">What I built</p><p>{p.built}</p></div>
+        <div><p class="label">Result</p><p class="res">{p.result}</p></div>
+      </div>
+    </section>
+
+    <section class="block" id="numbers">
+      <div class="wrap">
+        <h2 class="h3">The numbers, and where each one comes from</h2>
+        <div class="table">
+          {p.metrics.map((m) => (
+            <div class="row">
+              <div class="v">{m.value}<span class="mono">{m.label}</span></div>
+              <p class="how">{m.how}</p>
+              <a class="src mono" href={m.source_url ?? p.repo_url} target="_blank" rel="noopener">
+                <span class="k">{m.kind ? KIND_LABEL[m.kind] : 'source'}</span>{m.source}<Icon name="external" size={12} />
+              </a>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section class="block">
+      <div class="wrap">
+        <h2 class="h3">Architecture</h2>
+        <div class="flow">
+          <div class="t-h"><Topology id={`cs-${p.id}`} nodes={p.topology} edges={p.edges} /></div>
+          <div class="t-v"><Topology id={`cs-${p.id}`} nodes={p.topology} edges={p.edges} vertical /></div>
+        </div>
+        {p.media && (
+          <figure class="media">
+            <video src={p.media.src} poster={p.media.poster} autoplay muted loop playsinline preload="metadata" aria-label={p.media.caption}></video>
+            <figcaption class="mono">{p.media.caption}</figcaption>
+          </figure>
+        )}
+        {snippet && (
+          <figure class="code">
+            <figcaption class="mono"><span>{snippet.lang}</span><a href={`${p.repo_url}/blob/HEAD/${snippet.file}`} target="_blank" rel="noopener">{snippet.file}</a></figcaption>
+            <pre class="mono"><code>{snippet.body}</code></pre>
+          </figure>
+        )}
+      </div>
+    </section>
+
+    {p.decisions.length > 0 && (
+      <section class="block" id="decisions">
+        <div class="wrap">
+          <h2 class="h3">Decisions and trade-offs</h2>
+          <ol class="dec">
+            {p.decisions.map((d, k) => (
+              <li><span class="mono n">{String(k + 1).padStart(2, '0')}</span><h3>{d.title}</h3><p>{d.body}</p></li>
+            ))}
+          </ol>
+        </div>
+      </section>
+    )}
+
+    {p.next.length > 0 && (
+      <section class="block">
+        <div class="wrap two">
+          <div>
+            <h2 class="h3">Next iteration</h2>
+            <ul class="next">{p.next.map((n) => <li>{n}</li>)}</ul>
+          </div>
+          <div>
+            <h2 class="h3">Stack</h2>
+            <div class="stack">{p.stack.map((s) => <span class="chip">{s}</span>)}</div>
+          </div>
+        </div>
+      </section>
+    )}
+
+    <nav class="block pager" aria-label="More case studies">
+      <div class="wrap pg">
+        <a href={`/projects/${prev.id}/`}><span class="mono">Previous</span>{prev.name}</a>
+        <a href={`/projects/${next.id}/`} class="r"><span class="mono">Next</span>{next.name}</a>
+      </div>
+    </nav>
+  </main>
+  <Footer />
+</Base>
+
+<style>
+  .intro { background: var(--bg); color: var(--ink); padding: calc(var(--head) + clamp(48px, 9vw, 110px)) 0 clamp(48px, 7vw, 80px); position: relative; overflow: hidden; }
+  .intro::before { content: ''; position: absolute; inset: 0; background: radial-gradient(60% 80% at 90% 0%, #ffb6481a, transparent 70%); pointer-events: none; }
+  .back { display: inline-flex; align-items: center; gap: 8px; font-size: 11.5px; color: var(--ink-2); text-decoration: none; }
+  .back:hover { color: var(--amber); }
+  .meta { margin-top: 36px; display: flex; align-items: center; gap: 12px; font-size: 11px; color: var(--ink-3); }
+  .tag { padding: 4px 9px; border: 1px solid var(--line-2); border-radius: 999px; color: var(--ink-2); }
+  h1 { margin-top: 18px; font-family: var(--display); font-stretch: 120%; font-weight: 800; font-size: clamp(44px, 8vw, 124px); line-height: 0.92; letter-spacing: -0.045em; max-width: 14ch; }
+  .sum { margin-top: 24px; max-width: 58ch; font-size: clamp(17px, 1.6vw, 20px); color: var(--ink-2); }
+  .cta { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 30px; }
+
+  .block { padding: clamp(56px, 8vw, 96px) 0; border-top: 1px solid var(--line); }
+  .h3 { font-family: var(--display); font-stretch: 110%; font-weight: 800; font-size: clamp(26px, 3.2vw, 40px); letter-spacing: -0.03em; margin-bottom: 28px; }
+  .story { display: grid; gap: 28px; }
+  @media (min-width: 900px) { .story { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 40px; } }
+  .story .label { color: var(--amber); margin-bottom: 8px; }
+  .story p:not(.label) { color: var(--ink-2); font-size: 16.5px; }
+  .story .res { color: var(--ink) !important; font-weight: 500; }
+
+  .table { border-top: 1px solid var(--line); }
+  .row { display: grid; gap: 8px 32px; padding: 22px 0; border-bottom: 1px solid var(--line); align-items: baseline; }
+  @media (min-width: 900px) { .row { grid-template-columns: 300px minmax(0, 1fr) 320px; } }
+  .v { font-family: var(--display); font-stretch: 110%; font-weight: 750; font-size: clamp(24px, 2.6vw, 34px); letter-spacing: -0.02em; display: grid; }
+  .v .mono { font-size: 11px; font-weight: 400; color: var(--ink-3); letter-spacing: 0; margin-top: 4px; }
+  .how { color: var(--ink-2); }
+  .src { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: 11px; color: var(--amber); text-decoration: none; word-break: break-all; }
+  .src:hover { text-decoration: underline; }
+  .k { background: var(--amber); color: var(--on-amber); border-radius: 4px; padding: 2px 6px; font-size: 9.5px; text-transform: uppercase; }
+
+  .flow { padding: 28px; border: 1px solid var(--line); border-radius: var(--radius); background: radial-gradient(circle at 1px 1px, var(--line) 1px, transparent 0) 0 0 / 18px 18px; }
+  .t-v { display: none; }
+  @media (max-width: 640px) { .t-h { display: none; } .t-v { display: block; max-width: 400px; margin: 0 auto; } }
+  .media { margin: 14px 0 0; border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; background: #070b12; }
+  .media video { width: 100%; height: auto; max-height: 720px; object-fit: contain; }
+  .media figcaption, .code figcaption { font-size: 10.5px; color: var(--ink-3); padding: 10px 14px; border-top: 1px solid var(--line); display: flex; justify-content: space-between; gap: 12px; }
+  .code { margin: 14px 0 0; border: 1px solid var(--line); border-radius: var(--radius); background: var(--bg-1); overflow: hidden; }
+  .code figcaption { border-top: 0; border-bottom: 1px solid var(--line); }
+  .code figcaption span { color: var(--amber); }
+  .code a { color: var(--ink-2); }
+  .code pre { margin: 0; padding: 20px; overflow-x: auto; font-size: 12px; line-height: 1.75; color: var(--ink); }
+
+  .dec { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+  @media (min-width: 800px) { .dec { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .dec li { padding: 24px; border: 1px solid var(--line); border-radius: var(--radius); background: linear-gradient(160deg, var(--amber-soft), transparent 50%), var(--bg-1); display: grid; gap: 8px; }
+  .dec .n { font-size: 11px; color: var(--amber); }
+  .dec h3 { font-size: 19px; }
+  .dec p { color: var(--ink-2); }
+
+  .two { display: grid; gap: 40px; }
+  @media (min-width: 900px) { .two { grid-template-columns: 1fr 1fr; gap: 64px; } }
+  .next { margin: 0; padding: 0; list-style: none; display: grid; gap: 10px; }
+  .next li { position: relative; padding-left: 22px; color: var(--ink-2); }
+  .next li::before { content: ''; position: absolute; left: 0; top: 0.7em; width: 10px; height: 1px; background: var(--amber); }
+  .stack { display: flex; flex-wrap: wrap; gap: 6px; }
+
+  .pg { display: grid; gap: 12px; }
+  @media (min-width: 700px) { .pg { grid-template-columns: 1fr 1fr; } }
+  .pg a { display: grid; gap: 6px; padding: 24px; border: 1px solid var(--line); border-radius: var(--radius); text-decoration: none; font-family: var(--display); font-stretch: 108%; font-weight: 750; font-size: 22px; letter-spacing: -0.02em; transition: border-color 0.2s; }
+  .pg a:hover { border-color: var(--amber); }
+  .pg a .mono { font-size: 10.5px; color: var(--ink-3); font-weight: 400; letter-spacing: 0; }
+  .pg .r { text-align: right; }
+</style>

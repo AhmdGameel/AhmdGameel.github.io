@@ -1,0 +1,134 @@
+---
+import { person, projects } from '../lib/data';
+
+const items = [
+  { group: 'Do', label: 'Download resume (PDF)', hint: 'file', act: 'download', arg: person.cv },
+  { group: 'Do', label: 'Copy email address', hint: person.email, act: 'copy', arg: person.email },
+  { group: 'Do', label: 'Write an email', hint: 'mailto', act: 'href', arg: `mailto:${person.email}` },
+  { group: 'Do', label: 'Switch to Engineer view', hint: 'lens', act: 'event', arg: 'setlens:engineer' },
+  { group: 'Do', label: 'Switch to Recruiter view', hint: 'lens', act: 'event', arg: 'setlens:recruiter' },
+  { group: 'Do', label: 'Toggle night and day', hint: 'theme', act: 'event', arg: 'toggletheme:' },
+  { group: 'Go', label: 'Work experience', hint: '#work', act: 'href', arg: '/#work' },
+  { group: 'Go', label: 'Projects', hint: '#projects', act: 'href', arg: '/#projects' },
+  { group: 'Go', label: 'Skills and evidence', hint: '#skills', act: 'href', arg: '/#skills' },
+  { group: 'Go', label: 'How this site is built', hint: '#platform', act: 'href', arg: '/#platform' },
+  { group: 'Go', label: 'Query my data with SQL', hint: '#console', act: 'href', arg: '/?lens=engineer#console' },
+  { group: 'Go', label: 'Contact', hint: '#contact', act: 'href', arg: '/#contact' },
+  ...projects.filter((p) => p.featured).map((p) => ({ group: 'Case studies', label: p.name, hint: p.kind.toLowerCase(), act: 'href', arg: `/projects/${p.id}/` })),
+  { group: 'Elsewhere', label: 'LinkedIn', hint: 'in/AhmdGameel', act: 'open', arg: person.linkedin },
+  { group: 'Elsewhere', label: 'GitHub', hint: '@AhmdGameel', act: 'open', arg: person.github },
+];
+---
+
+<dialog class="palette" id="palette" aria-label="Command palette">
+  <div class="box">
+    <div class="search">
+      <span class="mono prompt" aria-hidden="true">&gt;</span>
+      <input id="palette-q" type="text" placeholder="Type a command or search" autocomplete="off" spellcheck="false" aria-controls="palette-list" />
+      <kbd class="mono">Esc</kbd>
+    </div>
+    <ul id="palette-list" role="listbox" aria-label="Commands">
+      {items.map((it, i) => (
+        <li role="option" aria-selected={i === 0 ? 'true' : 'false'} data-act={it.act} data-arg={it.arg} data-group={it.group} data-text={`${it.label} ${it.hint} ${it.group}`.toLowerCase()}>
+          <span class="g mono">{it.group}</span>
+          <span class="l">{it.label}</span>
+          <span class="h mono">{it.hint}</span>
+        </li>
+      ))}
+    </ul>
+    <p class="foot mono"><span>Up Down to move</span><span>Enter to run</span><span id="palette-note" aria-live="polite"></span></p>
+  </div>
+</dialog>
+
+<style>
+  .palette {
+    width: min(620px, calc(100vw - 24px));
+    margin: 12vh auto auto;
+    padding: 0; border: 1px solid var(--line-2); border-radius: 16px;
+    background: var(--bg-1); color: var(--ink);
+    box-shadow: 0 40px 120px -20px #000c, 0 0 0 1px #ffffff08;
+  }
+  .palette::backdrop { background: #04050799; backdrop-filter: blur(4px); }
+  .search { display: flex; align-items: center; gap: 12px; padding: 16px 18px; border-bottom: 1px solid var(--line); }
+  .prompt { color: var(--amber); font-size: 14px; }
+  input { flex: 1; border: 0; outline: 0; background: transparent; color: var(--ink); font: 16px var(--sans); }
+  kbd { font-size: 10px; color: var(--ink-3); border: 1px solid var(--line-2); border-radius: 5px; padding: 3px 6px; }
+  ul { list-style: none; margin: 0; padding: 8px; max-height: min(420px, 55vh); overflow: auto; }
+  li {
+    display: grid; grid-template-columns: 92px 1fr auto; align-items: center; gap: 12px;
+    padding: 10px 12px; border-radius: 10px; cursor: pointer;
+  }
+  li[aria-selected='true'] { background: var(--bg-3); }
+  li[aria-selected='true'] .l { color: var(--amber); }
+  li[hidden] { display: none; }
+  .g { font-size: 10px; color: var(--ink-3); text-transform: uppercase; }
+  .l { font-size: 14.5px; }
+  .h { font-size: 10.5px; color: var(--ink-3); max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .foot { display: flex; gap: 16px; margin: 0; padding: 10px 18px; border-top: 1px solid var(--line); font-size: 10px; color: var(--ink-3); }
+  #palette-note { margin-left: auto; color: var(--ok); }
+  @media (max-width: 520px) { li { grid-template-columns: 1fr auto; } .g { display: none; } }
+</style>
+
+<script>
+  const dlg = document.getElementById('palette') as HTMLDialogElement;
+  const q = document.getElementById('palette-q') as HTMLInputElement;
+  const list = document.getElementById('palette-list')!;
+  const note = document.getElementById('palette-note')!;
+  const rows = [...list.querySelectorAll<HTMLLIElement>('li')];
+  let sel = 0;
+
+  const visible = () => rows.filter((r) => !r.hidden);
+  const select = (i: number) => {
+    const v = visible();
+    if (!v.length) return;
+    sel = (i + v.length) % v.length;
+    rows.forEach((r) => r.setAttribute('aria-selected', 'false'));
+    v[sel].setAttribute('aria-selected', 'true');
+    v[sel].scrollIntoView({ block: 'nearest' });
+  };
+  const open = () => {
+    if (dlg.open) return;
+    q.value = '';
+    rows.forEach((r) => (r.hidden = false));
+    note.textContent = '';
+    dlg.showModal();
+    select(0);
+    q.focus();
+  };
+  const run = async (li: HTMLLIElement) => {
+    const { act, arg = '' } = li.dataset;
+    if (act === 'copy') {
+      try { await navigator.clipboard.writeText(arg); note.textContent = 'Copied'; } catch { note.textContent = arg; }
+      setTimeout(() => dlg.close(), 700);
+      return;
+    }
+    dlg.close();
+    if (act === 'href') location.href = arg;
+    else if (act === 'open') window.open(arg, '_blank', 'noopener');
+    else if (act === 'download') { const a = document.createElement('a'); a.href = arg; a.download = ''; a.click(); }
+    else if (act === 'event') { const [name, detail] = arg.split(':'); window.dispatchEvent(new CustomEvent(name, { detail })); }
+  };
+
+  q.addEventListener('input', () => {
+    const terms = q.value.toLowerCase().trim().split(/\s+/).filter(Boolean);
+    rows.forEach((r) => (r.hidden = !terms.every((t) => r.dataset.text!.includes(t))));
+    select(0);
+  });
+  q.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowDown') { e.preventDefault(); select(sel + 1); }
+    if (e.key === 'ArrowUp') { e.preventDefault(); select(sel - 1); }
+    if (e.key === 'Enter') { e.preventDefault(); const v = visible()[sel]; if (v) run(v); }
+  });
+  rows.forEach((r) => {
+    r.addEventListener('click', () => run(r));
+    r.addEventListener('mousemove', () => select(visible().indexOf(r)));
+  });
+  dlg.addEventListener('click', (e) => { if (e.target === dlg) dlg.close(); });
+
+  addEventListener('keydown', (e) => {
+    const typing = /input|textarea|select/i.test((e.target as HTMLElement).tagName) || (e.target as HTMLElement).isContentEditable;
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); dlg.open ? dlg.close() : open(); }
+    else if (e.key === '/' && !typing && !dlg.open) { e.preventDefault(); open(); }
+  });
+  document.querySelectorAll('[data-palette-open]').forEach((b) => b.addEventListener('click', open));
+</script>

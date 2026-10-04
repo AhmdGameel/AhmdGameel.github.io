@@ -1,0 +1,38 @@
+---
+// Share card source. pipeline/tools/og.mjs screenshots this page at 1200 x 630.
+import Base from '../layouts/Base.astro';
+import Mark from '../components/Mark.astro';
+import { person, pipelineRun } from '../lib/data';
+---
+
+<Base title={`${person.name} share card`} path="/og/" noindex>
+  <div class="card night">
+    <figure class="map" id="egypt" data-source={pipelineRun.towers.source}><canvas aria-hidden="true"></canvas></figure>
+    <div class="txt">
+      <p class="mono top"><Mark size={34} /> ahmdgameel.github.io</p>
+      <h1>Ahmed<br />Gameel</h1>
+      <p class="role"><span class="mono tag">Data Engineer</span></p>
+      <p class="sub">Batch and streaming pipelines. Kafka, Flink, Airflow, PySpark, AWS Glue.</p>
+    </div>
+  </div>
+</Base>
+
+<style>
+  :global(body) { margin: 0; }
+  .card { position: relative; width: 1200px; height: 630px; background: var(--bg); color: var(--ink); overflow: hidden; }
+  .card::before { content: ''; position: absolute; inset: 0; background: radial-gradient(50% 60% at 75% 40%, #ffb6481c, transparent 70%); }
+  .map { position: absolute; top: 0; right: 0; width: 640px; height: 630px; margin: 0; }
+  .map canvas { width: 100%; height: 100%; }
+  .txt { position: absolute; left: 64px; top: 56px; bottom: 56px; display: flex; flex-direction: column; }
+  .top { display: flex; align-items: center; gap: 14px; font-size: 16px; color: var(--ink-2); margin: 0; }
+  h1 { margin-top: auto; font-family: var(--display); font-stretch: 125%; font-weight: 800; font-size: 118px; line-height: 0.86; letter-spacing: -0.045em; }
+  .role { margin: 28px 0 0; }
+  .tag { font-size: 18px; color: var(--on-amber); background: var(--amber); padding: 8px 14px; border-radius: 999px; }
+  .sub { margin-top: 18px; font-size: 22px; color: var(--ink-2); max-width: 30ch; }
+</style>
+
+<script>
+  import { startEgypt } from '../scripts/egypt';
+  const m = document.getElementById('egypt');
+  if (m) startEgypt(m);
+</script>

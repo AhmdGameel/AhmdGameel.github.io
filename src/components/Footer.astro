@@ -1,18 +1,39 @@
 ---
 import { person, pipelineRun as run } from '../lib/data';
+import Mark from './Mark.astro';
 
 const updated = new Date(run.started_at);
 const date = updated.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' });
+const real = run.towers.source === 'opencellid';
 ---
 
 <footer class="foot">
-  <div class="wrap row">
-    <span>&copy; {updated.getUTCFullYear()} {person.name}</span>
-    <span class="muted">Built with Astro and DuckDB. GitHub data refreshes daily. Last updated {date}.</span>
+  <div class="wrap">
+    <div class="row">
+      <div class="who">
+        <Mark size={26} />
+        <span>&copy; {updated.getUTCFullYear()} {person.name}</span>
+      </div>
+      <p class="mono meta">
+        Built by a pipeline. Run <span>{run.run_id}</span>, commit <span>{run.commit}</span>, {run.rows_total} rows, updated {date}.
+      </p>
+    </div>
+    <p class="mono note">
+      {real
+        ? <>Tower locations from <a href="https://opencellid.org" target="_blank" rel="noopener">OpenCelliD</a>, licensed CC BY-SA 4.0.</>
+        : <>Tower positions on the map are illustrative until the OpenCelliD export is added. Counts per operator are the real ones from the project.</>}
+      {' '}Press <kbd>Ctrl K</kbd> anywhere for the command palette.
+    </p>
   </div>
 </footer>
 
 <style>
-  .foot { border-top: 1px solid var(--line); padding: 28px 0 36px; font-size: 13px; }
-  .row { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 24px; }
+  .foot { border-top: 1px solid var(--line); padding: 30px 0 40px; font-size: 13px; }
+  .row { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px 24px; }
+  .who { display: inline-flex; align-items: center; gap: 12px; }
+  .meta { font-size: 10.5px; color: var(--ink-3); }
+  .meta span { color: var(--ink-2); }
+  .note { margin-top: 14px; font-size: 10px; color: var(--ink-3); line-height: 1.7; }
+  .note a { color: var(--ink-2); }
+  kbd { font: inherit; border: 1px solid var(--line-2); border-radius: 4px; padding: 1px 5px; color: var(--ink-2); }
 </style>

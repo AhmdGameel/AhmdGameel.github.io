@@ -11,6 +11,7 @@ permissions:
   contents: read
   pages: write
   id-token: write
+  actions: write
 
 concurrency:
   group: pages
@@ -49,6 +50,18 @@ jobs:
       - uses: actions/upload-pages-artifact@v4
         with:
           path: dist
+
+  # GitHub disables scheduled workflows in public repos after 60 days without a commit.
+  # Re-enabling the workflow through the API resets that timer, so the daily refresh never
+  # stops on its own. The status board on the site turns red if a run is ever missed.
+  keepalive:
+    if: github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Keep the schedule alive
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh api -X PUT "repos/${{ github.repository }}/actions/workflows/pipeline.yml/enable"
 
   deploy:
     needs: build

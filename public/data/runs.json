@@ -1,0 +1,1 @@
+[{"run_id":"d7389b44","started_at":"2026-10-04T22:38:38+00:00","duration_ms":108,"rows_total":131,"checks_passed":13,"checks_total":13,"warnings":2,"trigger":"local","commit":"local"},{"run_id":"b6f565b2","started_at":"2026-10-04T22:40:07+00:00","duration_ms":110,"rows_total":131,"checks_passed":13,"checks_total":13,"warnings":2,"trigger":"local","commit":"local"}]
