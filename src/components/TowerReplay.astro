@@ -10,7 +10,7 @@ const real = towers.source === 'opencellid';
   <div class="head">
     <p class="live mono"><span class="rec"></span>Live replay in your browser</p>
     <p class="note">
-      {towers.count.toLocaleString('en-US')} {real ? 'real tower locations from OpenCelliD' : 'tower points (illustrative positions)'}, each reporting every 5 seconds.
+      {towers.count.toLocaleString('en-US')} {real ? <>real tower locations from <a href="https://opencellid.org" target="_blank" rel="noopener">OpenCelliD</a> (CC BY-SA 4.0)</> : 'tower points (illustrative positions)'}, each reporting every 5 seconds.
       The event generator and alert rules are ported from the project code.
     </p>
     <button class="pause no-print" type="button" data-pause aria-pressed="false" aria-label="Pause the stream">

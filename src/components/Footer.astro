@@ -3,20 +3,12 @@ import { person, pipelineRun as run } from '../lib/data';
 
 const updated = new Date(run.started_at);
 const date = updated.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' });
-const real = run.towers.source === 'opencellid';
 ---
 
 <footer class="foot">
   <p>&copy; {updated.getUTCFullYear()} {person.name}. Updated {date}.</p>
-  <p class="faint">
-    Built with Astro and a small data pipeline that checks every number before it ships.{' '}
-    <a href="/platform/">See how this site is built</a>.
-    {real && <> Tower locations from <a href="https://opencellid.org" target="_blank" rel="noopener">OpenCelliD</a>, CC BY-SA 4.0.</>}
-  </p>
 </footer>
 
 <style>
   .foot { display: grid; gap: 6px; padding: 28px 0 48px; border-top: 1px solid var(--line); font-size: 13.5px; color: var(--ink-2); }
-  .foot a { color: var(--ink-2); }
-  .foot a:hover { color: var(--accent); }
 </style>
