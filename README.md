@@ -2,29 +2,29 @@
 
 The portfolio of **Ahmed Gameel**, Data Engineer. Live at **https://ahmdgameel.github.io**.
 
-It reads in 30 seconds for a recruiter and holds up for an hour with an engineer. A switch in the
-header changes the depth of the whole page:
+Built for the person deciding whether to reach out. The layout follows how recruiters actually read
+a portfolio: they decide in 15 to 30 seconds, so the name, role, current job, location, availability
+and the two actions that matter (email, resume) stay visible while the page scrolls.
 
-- **Recruiter view** (default): role, current company, education, certificate and resume in the
-  first screen, plain language everywhere.
-- **Engineer view**: design decisions, metric lineage, the evidence matrix, the quality gate, the
-  run history and a SQL console over the published tables.
+## What is on the page
 
-## What makes it different
+- **Identity column** (sticky on desktop): name, role, a two line pitch, availability, Email and Resume
+  buttons, quick facts (current role, location with local time, degree, certificate) and section links.
+  On mobile a slim bar keeps Email and Resume one tap away.
+- **Experience**: work and training programs listed separately, with dates and stack.
+- **Projects**: three case studies with equal weight (streaming, batch, warehouse). Each case study page
+  explains the problem, the design decisions and where every number comes from, linked to the file in
+  the project repo.
+- **Skills**: no ratings; each skill is marked by its strongest proof (used at work, in a public project,
+  or from training) and shows where it was used.
+- **Role fit check**: a recruiter pastes a job description or picks requirements and sees, for each one,
+  where I have used it and what I have not used yet. One click opens an email about the role, another
+  copies a summary for the hiring manager. It runs entirely in the browser.
+- **Contact**: email, LinkedIn, resume and a short form.
 
-- **A live map of Egypt drawn by 10,192 cell towers.** The hero replays my Tower Health Stream
-  project in the browser: a port of `tower_simulator.py` and of the Flink SQL rules in
-  `anomaly_detection.py`, running at the real rate of 2,038 events per second, with 10 minute
-  tumbling windows replayed 60x.
-- **Every number has lineage.** Each metric links to the file in the project repo it came from and
-  says how it was measured. The build fails if a featured metric has no source.
-- **Skills ranked by evidence, not by stars.** Each skill sits in the strongest column it can prove:
-  used at work, shipped in a public repo, or trained on.
-- **The site is a pipeline.** A daily GitHub Action extracts, transforms, runs blocking quality
-  checks and only then publishes. The status board judges freshness against a 26 hour SLA in the
-  visitor's browser, so a missed run is visible.
-- **Command palette** with Ctrl K, a night and a day theme, and a print stylesheet for recruiters
-  who save the page as PDF.
+Engineering depth lives one click away: the Tower Health Stream case study replays the project live on a
+map of the 10,192 real towers, and [/platform/](https://ahmdgameel.github.io/platform/) shows how the site
+itself is built, with its quality checks, run history and a SQL console over the published tables.
 
 ## Architecture
 
@@ -72,10 +72,11 @@ Without the CSV the map falls back to an illustrative model and says so on scree
 
 ## Stack
 
-- **Site:** Astro, TypeScript, plain CSS, Canvas and SVG. No UI framework.
-- **Fonts:** Archivo (variable width) for display, Geist for text, Martian Mono for data.
-- **SQL engine:** `@duckdb/duckdb-wasm`, fetched only when the console scrolls into view in the
-  engineer view. Tables load from row JSON, which DuckDB-WASM reads natively, so no extension is
+- **Site:** Astro, TypeScript, plain CSS, Canvas and SVG. No UI framework. Light by default, dark mode
+  follows the system.
+- **Fonts:** Geist and Geist Mono.
+- **SQL engine:** `@duckdb/duckdb-wasm` on the platform page, fetched only when the console scrolls
+  into view. Tables load from row JSON, which DuckDB-WASM reads natively, so no extension is
   downloaded at runtime.
 - **Pipeline:** Python and DuckDB, writing ZSTD compressed Parquet.
 - **CI/CD:** GitHub Actions to GitHub Pages, every push and every morning at 06:00 UTC, with a

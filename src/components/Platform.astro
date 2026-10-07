@@ -1,5 +1,4 @@
 ---
-import SectionHead from './SectionHead.astro';
 import Topology from './Topology.astro';
 import { pipelineRun as run } from '../lib/data';
 
@@ -46,15 +45,8 @@ const presets = [
 ];
 ---
 
-<section id="platform" class="stage">
-  <div class="wrap">
-    <SectionHead
-      index="04"
-      kicker="Platform"
-      title="This site is a <em>data pipeline</em>"
-      intro={`Every morning a GitHub Action extracts my profile and GitHub activity, links each skill to its evidence and each number to its source, then runs ${blocking.length} blocking checks. If one fails, nothing ships. You are reading its output.`}
-    />
-
+<section id="platform">
+  <div>
     <div class="board reveal" data-started={run.started_at}>
       <div class="tile">
         <p class="label">Last run</p>
@@ -83,12 +75,7 @@ const presets = [
       <div class="t-v"><Topology id="site" nodes={nodes.map((n) => ({ ...n, x: n.x, y: n.y }))} edges={edges} vertical nw={118} /></div>
     </div>
 
-    <p class="teaser only-rec reveal">
-      Engineers can inspect the checks, the run history and query the published tables with SQL.
-      <button type="button" class="btn small" data-to-engineer>Open the engineer view</button>
-    </p>
-
-    <div class="eng only-eng">
+    <div class="eng">
       <div class="two">
         <div class="panel reveal">
           <p class="label">Run history, duration per run</p>
@@ -155,36 +142,35 @@ const presets = [
 <style>
   .board { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
   @media (min-width: 900px) { .board { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
-  .tile { padding: 18px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--bg-1); display: grid; gap: 6px; }
-  .tile .v { font-family: var(--display); font-stretch: 108%; font-weight: 750; font-size: clamp(19px, 2vw, 25px); letter-spacing: -0.02em; display: flex; align-items: center; gap: 10px; }
+  .tile { padding: 18px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--card); display: grid; gap: 6px; }
+  .tile .v { font-weight: 700; font-size: clamp(19px, 2vw, 25px); letter-spacing: -0.02em; display: flex; align-items: center; gap: 10px; }
   .tile .s { font-size: 10px; color: var(--ink-3); }
   .unit { font-size: 0.6em; font-family: var(--sans); font-weight: 400; letter-spacing: 0; }
   .led { width: 10px; height: 10px; border-radius: 50%; background: var(--ok); box-shadow: 0 0 12px var(--ok); flex: none; }
-  [data-fresh].stale .led { background: var(--alert); box-shadow: 0 0 12px var(--alert); }
-  [data-fresh].stale .v { color: var(--alert); }
+  [data-fresh].stale .led { background: #c2410c; box-shadow: 0 0 12px #c2410c; }
+  [data-fresh].stale .v { color: #c2410c; }
 
-  .dag { margin-top: 14px; padding: 26px; border: 1px solid var(--line); border-radius: var(--radius); background: radial-gradient(circle at 1px 1px, var(--line) 1px, transparent 0) 0 0 / 18px 18px; }
+  .dag { margin-top: 14px; padding: 26px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--card); }
   .t-v { display: none; }
   @media (max-width: 760px) { .t-h { display: none; } .t-v { display: block; max-width: 380px; margin: 0 auto; } }
 
-  .teaser { margin-top: 24px; display: flex; flex-wrap: wrap; align-items: center; gap: 14px; color: var(--ink-2); }
-
+  
   .two { display: grid; gap: 14px; margin-top: 14px; }
   @media (min-width: 960px) { .two { grid-template-columns: 1fr 1fr; } }
-  .panel { padding: 20px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--bg-1); }
+  .panel { padding: 20px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--card); }
   .hist { width: 100%; height: auto; margin-top: 14px; }
-  .hist rect.ok { fill: var(--amber); }
-  .hist rect.bad { fill: var(--alert); }
+  .hist rect.ok { fill: var(--accent); }
+  .hist rect.bad { fill: #c2410c; }
   .hist line { stroke: var(--line-2); }
   .hist text { font: 9px var(--mono); fill: var(--ink-3); }
   .checks { list-style: none; margin: 14px 0 0; padding: 0; display: grid; gap: 6px; font-size: 11px; max-height: 360px; overflow: auto; }
   .checks li { display: grid; grid-template-columns: 42px 1fr; gap: 2px 10px; }
   .checks .st { color: var(--ok); }
-  .checks .warn .st { color: var(--amber); }
-  .checks .fail .st { color: var(--alert); }
+  .checks .warn .st { color: var(--accent); }
+  .checks .fail .st { color: #c2410c; }
   .checks .dt { grid-column: 2; color: var(--ink-3); font-size: 10px; }
 
-  .console { margin-top: 14px; display: grid; border: 1px solid var(--line-2); border-radius: var(--radius); background: var(--bg-1); min-width: 0; overflow: hidden; }
+  .console { margin-top: 14px; display: grid; border: 1px solid var(--line-2); border-radius: var(--radius); background: var(--card); min-width: 0; overflow: hidden; }
   @media (min-width: 960px) { .console { grid-template-columns: 230px minmax(0, 1fr); } }
   .schema { padding: 16px; border-bottom: 1px solid var(--line); }
   @media (min-width: 960px) { .schema { border-bottom: 0; border-right: 1px solid var(--line); } }
@@ -192,7 +178,7 @@ const presets = [
   @media (max-width: 959px) { .schema ul { display: flex; flex-wrap: wrap; gap: 6px; } .cols, .hint { display: none !important; } }
   .tbl { display: flex; justify-content: space-between; gap: 10px; width: 100%; padding: 6px 8px; border: 1px solid transparent; background: transparent; font-size: 11px; cursor: pointer; border-radius: 6px; text-align: left; }
   @media (max-width: 959px) { .tbl { border-color: var(--line); } }
-  .tbl:hover { border-color: var(--line-2); color: var(--amber); }
+  .tbl:hover { border-color: var(--line-2); color: var(--accent); }
   .cols { font-size: 10px; padding: 0 8px 6px 16px; line-height: 1.8; display: none; }
   .cols.open { display: block; }
   .hint { font-size: 10px; margin: 14px 0 0; line-height: 1.6; }
@@ -200,24 +186,24 @@ const presets = [
   .main { padding: 16px; min-width: 0; display: flex; flex-direction: column; gap: 14px; }
   .presets { display: flex; flex-wrap: wrap; gap: 6px; }
   .preset { font-size: 10.5px; padding: 7px 11px; border: 1px solid var(--line-2); background: transparent; border-radius: 999px; cursor: pointer; color: var(--ink-2); }
-  .preset:hover { border-color: var(--amber); color: var(--amber); }
-  .preset.active { background: var(--amber); color: var(--on-amber); border-color: var(--amber); }
+  .preset:hover { border-color: var(--accent); color: var(--accent); }
+  .preset.active { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
   .editor { position: relative; border: 1px solid var(--line); background: var(--bg); border-radius: 8px; }
-  .editor:focus-within { border-color: var(--amber); }
+  .editor:focus-within { border-color: var(--accent); }
   .hl, textarea { margin: 0; padding: 16px; font-size: 12.5px; line-height: 1.7; white-space: pre-wrap; word-break: break-word; tab-size: 2; font-family: var(--mono); letter-spacing: 0; }
   .hl { pointer-events: none; color: var(--ink); min-height: 150px; }
-  textarea { position: absolute; inset: 0; width: 100%; height: 100%; resize: none; border: 0; background: transparent; color: transparent; caret-color: var(--amber); outline: none; overflow: hidden; }
-  :global(.tok-k) { color: var(--amber); }
+  textarea { position: absolute; inset: 0; width: 100%; height: 100%; resize: none; border: 0; background: transparent; color: transparent; caret-color: var(--accent); outline: none; overflow: hidden; }
+  :global(.tok-k) { color: var(--accent); }
   :global(.tok-s) { color: var(--ok); }
-  :global(.tok-n) { color: var(--nile); }
+  :global(.tok-n) { color: var(--accent); }
   :global(.tok-c) { color: var(--ink-3); }
   :global(.tok-f) { color: var(--ink-2); font-style: italic; }
   .bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
   .status { display: inline-flex; align-items: center; gap: 8px; font-size: 10.5px; color: var(--ink-2); }
   .state-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--line-2); flex: none; }
-  .state-dot[data-state='loading'] { background: var(--amber); animation: pulse 1s infinite; }
+  .state-dot[data-state='loading'] { background: var(--accent); animation: pulse 1s infinite; }
   .state-dot[data-state='ready'] { background: var(--ok); }
-  .state-dot[data-state='error'] { background: var(--alert); }
+  .state-dot[data-state='error'] { background: #c2410c; }
   .kbd { font-size: 9.5px; opacity: 0.7; border: 1px solid currentColor; border-radius: 4px; padding: 1px 5px; }
   @media (hover: none) { .kbd { display: none; } }
   .results { border: 1px solid var(--line); border-radius: 8px; max-height: 380px; overflow: auto; min-height: 120px; }
@@ -228,9 +214,9 @@ const presets = [
   .results :global(td) { padding: 9px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
   .results :global(td.num) { font-family: var(--mono); font-size: 12px; text-align: right; font-variant-numeric: tabular-nums; }
   .results :global(td.null) { color: var(--ink-3); font-family: var(--mono); font-size: 11px; }
-  .results :global(.err) { margin: 0; padding: 16px; color: var(--alert); font-family: var(--mono); font-size: 11px; white-space: pre-wrap; }
+  .results :global(.err) { margin: 0; padding: 16px; color: #c2410c; font-family: var(--mono); font-size: 11px; white-space: pre-wrap; }
   .results :global(tr.fresh td) { animation: rowin 0.5s ease both; }
-  @keyframes rowin { from { background: var(--amber-soft); } to { background: transparent; } }
+  @keyframes rowin { from { background: var(--accent-soft); } to { background: transparent; } }
 </style>
 
 <script>
@@ -251,10 +237,4 @@ const presets = [
       if (t) t.textContent = 'stale, the daily run missed';
     }
   }
-  document.querySelectorAll('[data-to-engineer]').forEach((b) =>
-    b.addEventListener('click', () => {
-      window.dispatchEvent(new CustomEvent('setlens', { detail: 'engineer' }));
-      document.getElementById('platform')?.scrollIntoView({ behavior: 'smooth' });
-    }),
-  );
 </script>

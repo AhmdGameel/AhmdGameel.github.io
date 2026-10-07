@@ -1,6 +1,7 @@
 ---
 import Base from '../../layouts/Base.astro';
-import Header from '../../components/Header.astro';
+import TopBar from '../../components/TopBar.astro';
+import TowerReplay from '../../components/TowerReplay.astro';
 import Footer from '../../components/Footer.astro';
 import Topology from '../../components/Topology.astro';
 import Icon from '../../components/Icon.astro';
@@ -66,108 +67,100 @@ const noLte = batch.risk.filter((r) => r.lte_coverage_pct === 0);
 const fmt = (n: number) => n.toLocaleString('en-US');
 ---
 
-<Base title={`${p.name} | ${person.name}`} description={`${p.summary} Case study: problem, design decisions, numbers with their sources, and what comes next.`} path={`/projects/${p.id}/`} map={false}>
-  <Header home={false} />
-  <main id="main" class="cs">
-    <section class="intro night" id="top">
-      <div class="wrap">
-        <a class="back mono" href="/#projects"><Icon name="back" size={14} /> All projects</a>
-        <p class="meta mono"><span class="tag">{p.kind}</span> Case study {String(i + 1).padStart(2, '0')} of {featured.length}</p>
-        <h1>{p.name}</h1>
-        <p class="sum">{p.summary}</p>
-        <div class="cta">
-          <a class="btn" href={p.repo_url} target="_blank" rel="noopener"><Icon name="github" size={15} /> Code on GitHub</a>
-          <a class="btn ghost" href={person.cv} download><Icon name="download" size={15} /> Resume</a>
-        </div>
+<Base title={`${p.name} | ${person.name}`} description={`${p.summary} Case study: problem, design decisions, numbers with their sources.`} path={`/projects/${p.id}/`} map={p.id === 'tower-health-stream'}>
+  <TopBar />
+  <main id="content" class="cs">
+    <header class="intro">
+      <a class="back" href="/#projects"><Icon name="back" size={14} /> All projects</a>
+      <p class="label kind">{p.kind} project, {i + 1} of {featured.length}</p>
+      <h1>{p.name}</h1>
+      <p class="sum">{p.summary}</p>
+      <div class="cta">
+        <a class="btn" href={p.repo_url} target="_blank" rel="noopener"><Icon name="github" size={15} /> Code on GitHub</a>
+        <a class="btn ghost" href={person.cv} download><Icon name="download" size={15} /> Resume</a>
       </div>
-    </section>
+    </header>
 
-    <section class="block">
-      <div class="wrap story">
-        <div><p class="label">Problem</p><p>{p.problem}</p></div>
-        <div><p class="label">What I built</p><p>{p.built}</p></div>
-        <div><p class="label">Result</p><p class="res">{p.result}</p></div>
-      </div>
+    {p.id === 'tower-health-stream' && <section class="block"><TowerReplay /></section>}
+
+    <section class="block story">
+      <div><h2 class="label">Problem</h2><p>{p.problem}</p></div>
+      <div><h2 class="label">What I built</h2><p>{p.built}</p></div>
+      <div><h2 class="label">Result</h2><p class="res">{p.result}</p></div>
     </section>
 
     <section class="block" id="numbers">
-      <div class="wrap">
-        <h2 class="h3">The numbers, and where each one comes from</h2>
-        <div class="table">
-          {p.metrics.map((m) => (
-            <div class="row">
-              <div class="v">{m.value}<span class="mono">{m.label}</span></div>
-              <p class="how">{m.how}</p>
-              <a class="src mono" href={m.source_url ?? p.repo_url} target="_blank" rel="noopener">
-                <span class="k">{m.kind ? KIND_LABEL[m.kind] : 'source'}</span>{m.source}<Icon name="external" size={12} />
-              </a>
-            </div>
-          ))}
-        </div>
+      <h2 class="h2">The numbers, and where each one comes from</h2>
+      <div class="table">
+        {p.metrics.map((m) => (
+          <div class="row">
+            <div class="v">{m.value}<span>{m.label}</span></div>
+            <p class="how">{m.how}</p>
+            <a class="src mono" href={m.source_url ?? p.repo_url} target="_blank" rel="noopener">
+              <span class="k">{m.kind ? KIND_LABEL[m.kind] : 'source'}</span>{m.source}<Icon name="external" size={12} />
+            </a>
+          </div>
+        ))}
       </div>
     </section>
 
     <section class="block">
-      <div class="wrap">
-        <h2 class="h3">Architecture</h2>
-        <div class="flow">
-          <div class="t-h"><Topology id={`cs-${p.id}`} nodes={p.topology} edges={p.edges} /></div>
-          <div class="t-v"><Topology id={`cs-${p.id}`} nodes={p.topology} edges={p.edges} vertical /></div>
-        </div>
-        {p.media && (
-          <figure class="media">
-            <video src={p.media.src} poster={p.media.poster} autoplay muted loop playsinline preload="metadata" aria-label={p.media.caption}></video>
-            <figcaption class="mono">{p.media.caption}</figcaption>
-          </figure>
-        )}
-        {snippet && (
-          <figure class="code">
-            <figcaption class="mono"><span>{snippet.lang}</span><a href={`${p.repo_url}/blob/HEAD/${snippet.file}`} target="_blank" rel="noopener">{snippet.file}</a></figcaption>
-            <pre class="mono"><code>{snippet.body}</code></pre>
-          </figure>
-        )}
+      <h2 class="h2">Architecture</h2>
+      <div class="flow">
+        <div class="t-h"><Topology id={`cs-${p.id}`} nodes={p.topology} edges={p.edges} /></div>
+        <div class="t-v"><Topology id={`cs-${p.id}`} nodes={p.topology} edges={p.edges} vertical /></div>
       </div>
+      {p.media && (
+        <figure class="media">
+          <video src={p.media.src} poster={p.media.poster} muted loop playsinline controls preload="metadata" aria-label={p.media.caption}></video>
+          <figcaption>{p.media.caption}</figcaption>
+        </figure>
+      )}
+      {snippet && (
+        <figure class="code">
+          <figcaption><span>{snippet.lang}</span><a href={`${p.repo_url}/blob/HEAD/${snippet.file}`} target="_blank" rel="noopener">{snippet.file}</a></figcaption>
+          <pre class="mono"><code>{snippet.body}</code></pre>
+        </figure>
+      )}
     </section>
 
     {showBatch && (
       <section class="block" id="batch">
-        <div class="wrap">
-          <h2 class="h3">What the batch layer found</h2>
-          <p class="lead">
-            Output of the dbt models on DuckDB, run over the {fmt(totalTowers)} real towers. Every build of this site
-            reconciles these tables against the raw data and refuses to publish if the counts drift.
-          </p>
-          <div class="batch">
-            <figure class="bars" aria-labelledby="lte-title">
-              <p class="label" id="lte-title">Share of LTE towers by operator</p>
-              <ul>
-                {ops.map((o) => (
-                  <li title={`${o.operator}: ${fmt(o.lte_towers)} LTE, ${fmt(o.umts_towers)} UMTS, ${fmt(o.gsm_towers)} GSM across ${o.areas_covered} areas`} tabindex="0">
-                    <span class="op">{o.operator}<span class="mono">{fmt(o.total_towers)} towers</span></span>
-                    <span class="track" aria-hidden="true"><span class="fill" style={`width:${o.lte_pct}%`}></span></span>
-                    <span class="val mono">{o.lte_pct.toFixed(1)}%</span>
-                  </li>
-                ))}
-              </ul>
-              <figcaption class="mono">dbt model operator_performance. Hover a row for the full radio mix.</figcaption>
-            </figure>
-            <div class="risk">
-              <p class="label">Areas by legacy risk</p>
-              <div class="tiles">
-                {riskLevels.map((r) => (
-                  <div class:list={['tile', r.level.toLowerCase()]}>
-                    <span class="lvl mono">{r.level}</span>
-                    <span class="n">{fmt(r.areas)}<small> areas</small></span>
-                    <span class="mono t">{fmt(r.towers)} towers</span>
-                  </div>
-                ))}
-              </div>
-              <p class="note">
-                Risk rises with the share of non LTE towers in a location area. {noLte.length} areas
-                ({fmt(noLte.reduce((n, r) => n + r.total_towers, 0))} towers) have no LTE tower at all, a ready short list
-                for an upgrade plan. Source: dbt model regional_risk_index.
-              </p>
+        <h2 class="h2">What the batch layer found</h2>
+        <p class="lead">
+          Output of the dbt models on DuckDB over the {fmt(totalTowers)} real towers. Every build of this site reconciles
+          these tables with the raw data and refuses to publish if the counts drift.
+        </p>
+        <div class="batch">
+          <figure class="bars" aria-labelledby="lte-title">
+            <p class="label" id="lte-title">Share of LTE towers by operator</p>
+            <ul>
+              {ops.map((o) => (
+                <li title={`${o.operator}: ${fmt(o.lte_towers)} LTE, ${fmt(o.umts_towers)} UMTS, ${fmt(o.gsm_towers)} GSM across ${o.areas_covered} areas`} tabindex="0">
+                  <span class="op">{o.operator}<span>{fmt(o.total_towers)} towers</span></span>
+                  <span class="track" aria-hidden="true"><span class="fill" style={`width:${o.lte_pct}%`}></span></span>
+                  <span class="val mono">{o.lte_pct.toFixed(1)}%</span>
+                </li>
+              ))}
+            </ul>
+            <figcaption>dbt model operator_performance. Hover a row for the full radio mix.</figcaption>
+          </figure>
+          <div class="risk">
+            <p class="label">Areas by legacy risk</p>
+            <div class="tiles">
+              {riskLevels.map((r) => (
+                <div class:list={['tile', r.level.toLowerCase()]}>
+                  <span class="lvl mono">{r.level}</span>
+                  <span class="n">{fmt(r.areas)}<small> areas</small></span>
+                  <span class="t">{fmt(r.towers)} towers</span>
+                </div>
+              ))}
             </div>
+            <p class="note">
+              Risk rises with the share of non LTE towers in a location area. {noLte.length} areas
+              ({fmt(noLte.reduce((n, r) => n + r.total_towers, 0))} towers) have no LTE tower at all, a ready short list
+              for an upgrade plan. Source: dbt model regional_risk_index.
+            </p>
           </div>
         </div>
       </section>
@@ -175,129 +168,103 @@ const fmt = (n: number) => n.toLocaleString('en-US');
 
     {p.decisions.length > 0 && (
       <section class="block" id="decisions">
-        <div class="wrap">
-          <h2 class="h3">Decisions and trade-offs</h2>
-          <ol class="dec">
-            {p.decisions.map((d, k) => (
-              <li><span class="mono n">{String(k + 1).padStart(2, '0')}</span><h3>{d.title}</h3><p>{d.body}</p></li>
-            ))}
-          </ol>
-        </div>
+        <h2 class="h2">Decisions and trade-offs</h2>
+        <ol class="dec">
+          {p.decisions.map((d) => <li><h3>{d.title}</h3><p>{d.body}</p></li>)}
+        </ol>
       </section>
     )}
 
-    {p.next.length > 0 && (
-      <section class="block">
-        <div class="wrap two">
-          <div>
-            <h2 class="h3">Next iteration</h2>
-            <ul class="next">{p.next.map((n) => <li>{n}</li>)}</ul>
-          </div>
-          <div>
-            <h2 class="h3">Stack</h2>
-            <div class="stack">{p.stack.map((s) => <span class="chip">{s}</span>)}</div>
-          </div>
-        </div>
-      </section>
-    )}
+    <section class="block">
+      <h2 class="h2">Stack</h2>
+      <div class="stack">{p.stack.map((s) => <span class="chip">{s}</span>)}</div>
+    </section>
 
     <nav class="block pager" aria-label="More case studies">
-      <div class="wrap pg">
-        <a href={`/projects/${prev.id}/`}><span class="mono">Previous</span>{prev.name}</a>
-        <a href={`/projects/${next.id}/`} class="r"><span class="mono">Next</span>{next.name}</a>
-      </div>
+      <a href={`/projects/${prev.id}/`}><span class="label">Previous</span>{prev.name}</a>
+      <a href={`/projects/${next.id}/`} class="r"><span class="label">Next</span>{next.name}</a>
     </nav>
+    <Footer />
   </main>
-  <Footer />
 </Base>
 
 <style>
-  .intro { background: var(--bg); color: var(--ink); padding: calc(var(--head) + clamp(48px, 9vw, 110px)) 0 clamp(48px, 7vw, 80px); position: relative; overflow: hidden; }
-  .intro::before { content: ''; position: absolute; inset: 0; background: radial-gradient(60% 80% at 90% 0%, #ffb6481a, transparent 70%); pointer-events: none; }
-  .back { display: inline-flex; align-items: center; gap: 8px; font-size: 11.5px; color: var(--ink-2); text-decoration: none; }
-  .back:hover { color: var(--amber); }
-  .meta { margin-top: 36px; display: flex; align-items: center; gap: 12px; font-size: 11px; color: var(--ink-3); }
-  .tag { padding: 4px 9px; border: 1px solid var(--line-2); border-radius: 999px; color: var(--ink-2); }
-  h1 { margin-top: 18px; font-family: var(--display); font-stretch: 120%; font-weight: 800; font-size: clamp(44px, 8vw, 124px); line-height: 0.92; letter-spacing: -0.045em; max-width: 14ch; }
-  .sum { margin-top: 24px; max-width: 58ch; font-size: clamp(17px, 1.6vw, 20px); color: var(--ink-2); }
-  .cta { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 30px; }
+  .cs { max-width: 900px; margin: 0 auto; padding: 0 var(--gutter); }
+  .intro { padding: clamp(40px, 7vw, 72px) 0 8px; }
+  .back { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; color: var(--ink-2); text-decoration: none; }
+  .kind { margin-top: 28px; }
+  h1 { margin-top: 8px; font-size: clamp(32px, 5vw, 48px); font-weight: 700; letter-spacing: -0.03em; line-height: 1.05; }
+  .sum { margin-top: 14px; max-width: 62ch; font-size: 17.5px; color: var(--ink-2); }
+  .cta { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 22px; }
 
-  .block { padding: clamp(56px, 8vw, 96px) 0; border-top: 1px solid var(--line); }
-  .h3 { font-family: var(--display); font-stretch: 110%; font-weight: 800; font-size: clamp(26px, 3.2vw, 40px); letter-spacing: -0.03em; margin-bottom: 28px; }
-  .story { display: grid; gap: 28px; }
-  @media (min-width: 900px) { .story { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 40px; } }
-  .story .label { color: var(--amber); margin-bottom: 8px; }
-  .story p:not(.label) { color: var(--ink-2); font-size: 16.5px; }
-  .story .res { color: var(--ink) !important; font-weight: 500; }
+  .block { padding: clamp(28px, 4vw, 40px) 0; }
+  .block + .block { border-top: 1px solid var(--line); }
+  .h2 { font-size: 21px; font-weight: 650; margin-bottom: 18px; }
+  .lead { margin: -8px 0 20px; max-width: 70ch; color: var(--ink-2); }
 
-  .table { border-top: 1px solid var(--line); }
-  .row { display: grid; gap: 8px 32px; padding: 22px 0; border-bottom: 1px solid var(--line); align-items: baseline; }
-  @media (min-width: 900px) { .row { grid-template-columns: 300px minmax(0, 1fr) 320px; } }
-  .v { font-family: var(--display); font-stretch: 110%; font-weight: 750; font-size: clamp(24px, 2.6vw, 34px); letter-spacing: -0.02em; display: grid; }
-  .v .mono { font-size: 11px; font-weight: 400; color: var(--ink-3); letter-spacing: 0; margin-top: 4px; }
-  .how { color: var(--ink-2); }
-  .src { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: 11px; color: var(--amber); text-decoration: none; word-break: break-all; }
+  .story { display: grid; gap: 22px; }
+  @media (min-width: 760px) { .story { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px; } }
+  .story h2 { margin-bottom: 6px; font-weight: 400; }
+  .story p:not(.label) { color: var(--ink-2); font-size: 15.5px; }
+  .story .res { color: var(--ink) !important; font-weight: 550; }
+
+  .table { display: grid; }
+  .row { display: grid; gap: 4px 24px; padding: 16px 0; border-top: 1px solid var(--line); align-items: baseline; }
+  @media (min-width: 760px) { .row { grid-template-columns: 200px minmax(0, 1fr) 260px; } }
+  .v { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; display: grid; font-variant-numeric: tabular-nums; }
+  .v span { font-size: 12.5px; font-weight: 400; color: var(--ink-3); letter-spacing: 0; }
+  .how { color: var(--ink-2); font-size: 15px; }
+  .src { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 6px; font-size: 12px; color: var(--accent); text-decoration: none; word-break: break-all; }
   .src:hover { text-decoration: underline; }
-  .k { background: var(--amber); color: var(--on-amber); border-radius: 4px; padding: 2px 6px; font-size: 9.5px; text-transform: uppercase; }
+  .k { color: var(--ink-3); border: 1px solid var(--line-2); border-radius: 4px; padding: 1px 6px; font-size: 10.5px; text-transform: uppercase; }
 
-  .flow { padding: 28px; border: 1px solid var(--line); border-radius: var(--radius); background: radial-gradient(circle at 1px 1px, var(--line) 1px, transparent 0) 0 0 / 18px 18px; }
+  .flow { padding: 20px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--card); }
   .t-v { display: none; }
-  @media (max-width: 640px) { .t-h { display: none; } .t-v { display: block; max-width: 400px; margin: 0 auto; } }
+  @media (max-width: 640px) { .t-h { display: none; } .t-v { display: block; max-width: 380px; margin: 0 auto; } }
   .media { margin: 14px 0 0; border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; background: #070b12; }
-  .media video { width: 100%; height: auto; max-height: 720px; object-fit: contain; }
-  .media figcaption, .code figcaption { font-size: 10.5px; color: var(--ink-3); padding: 10px 14px; border-top: 1px solid var(--line); display: flex; justify-content: space-between; gap: 12px; }
-  .code { margin: 14px 0 0; border: 1px solid var(--line); border-radius: var(--radius); background: var(--bg-1); overflow: hidden; }
+  .media video { width: 100%; height: auto; }
+  .media figcaption, .code figcaption { font-size: 12.5px; color: var(--ink-3); padding: 10px 14px; background: var(--card); border-top: 1px solid var(--line); display: flex; justify-content: space-between; gap: 12px; }
+  .code { margin: 14px 0 0; border: 1px solid var(--line); border-radius: var(--radius); background: var(--card); overflow: hidden; }
   .code figcaption { border-top: 0; border-bottom: 1px solid var(--line); }
-  .code figcaption span { color: var(--amber); }
-  .code a { color: var(--ink-2); }
-  .code pre { margin: 0; padding: 20px; overflow-x: auto; font-size: 12px; line-height: 1.75; color: var(--ink); }
+  .code figcaption span { color: var(--ink); font-weight: 600; }
+  .code a { color: var(--accent); }
+  .code pre { margin: 0; padding: 18px; overflow-x: auto; font-size: 12.5px; line-height: 1.7; color: var(--ink); }
 
-  .lead { margin: -12px 0 28px; max-width: 70ch; color: var(--ink-2); }
   .batch { display: grid; gap: 14px; }
-  @media (min-width: 960px) { .batch { grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); } }
-  .bars, .risk { margin: 0; padding: 24px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--bg-1); }
-  .bars ul { list-style: none; margin: 18px 0 0; padding: 0; display: grid; gap: 16px; }
-  .bars li { display: grid; grid-template-columns: 150px minmax(0, 1fr) 64px; align-items: center; gap: 14px; border-radius: 6px; outline-offset: 4px; }
-  .bars li:hover .fill, .bars li:focus-visible .fill { filter: brightness(1.15); }
-  .op { display: grid; font-weight: 600; line-height: 1.25; }
-  .op .mono { font-weight: 400; font-size: 10px; color: var(--ink-3); }
-  .track { position: relative; height: 10px; border-radius: 4px; background: var(--bg-3); overflow: hidden; }
-  .fill { position: absolute; inset: 0 auto 0 0; border-radius: 0 4px 4px 0; background: var(--bar, #c97d1c); }
-  :global(:root[data-theme='day']) .fill { background: #8c5000; }
-  .val { font-size: 12px; text-align: right; color: var(--ink); font-variant-numeric: tabular-nums; }
-  .bars figcaption { margin-top: 18px; font-size: 10px; color: var(--ink-3); }
-  .tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 18px; }
-  .tile { display: grid; gap: 4px; padding: 14px; border: 1px solid var(--line); border-radius: 8px; }
-  .tile .lvl { font-size: 10px; color: var(--ink-2); display: inline-flex; align-items: center; gap: 6px; }
-  .tile .lvl::before { content: ''; width: 7px; height: 7px; border-radius: 2px; background: var(--ink-3); }
-  .tile.high { border-color: color-mix(in srgb, var(--alert) 45%, var(--line)); }
-  .tile.high .lvl::before { background: var(--alert); }
-  .tile.medium .lvl::before { background: var(--amber); }
-  .tile.low .lvl::before { background: var(--ok); }
-  .tile .n { font-family: var(--display); font-stretch: 108%; font-weight: 750; font-size: 28px; letter-spacing: -0.02em; line-height: 1.1; }
-  .tile .n small { font-family: var(--sans); font-size: 12px; font-weight: 400; color: var(--ink-3); letter-spacing: 0; }
-  .tile .t { font-size: 10px; color: var(--ink-3); }
-  .risk .note { margin-top: 16px; font-size: 14px; color: var(--ink-2); }
-  @media (max-width: 560px) { .bars li { grid-template-columns: 100px minmax(0, 1fr) 52px; gap: 10px; } .tiles { grid-template-columns: 1fr; } }
+  @media (min-width: 860px) { .batch { grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); } }
+  .bars, .risk { margin: 0; padding: 20px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--card); }
+  .bars ul { list-style: none; margin: 16px 0 0; padding: 0; display: grid; gap: 14px; }
+  .bars li { display: grid; grid-template-columns: 120px minmax(0, 1fr) 56px; align-items: center; gap: 12px; border-radius: 6px; outline-offset: 4px; }
+  .op { display: grid; font-weight: 600; font-size: 14.5px; line-height: 1.25; }
+  .op span { font-weight: 400; font-size: 12px; color: var(--ink-3); }
+  .track { position: relative; height: 10px; border-radius: 4px; background: var(--bg-2); overflow: hidden; }
+  .fill { position: absolute; inset: 0 auto 0 0; border-radius: 0 4px 4px 0; background: var(--accent); }
+  .bars li:hover .fill, .bars li:focus-visible .fill { filter: brightness(1.1); }
+  .val { font-size: 13px; text-align: right; font-variant-numeric: tabular-nums; }
+  .bars figcaption { margin-top: 16px; font-size: 12.5px; color: var(--ink-3); }
+  .tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 16px; }
+  .tile { display: grid; gap: 2px; padding: 12px; border: 1px solid var(--line); border-radius: 10px; }
+  .lvl { font-size: 11px; color: var(--ink-2); display: inline-flex; align-items: center; gap: 6px; }
+  .lvl::before { content: ''; width: 7px; height: 7px; border-radius: 2px; background: var(--ink-3); }
+  .high .lvl::before { background: #c2410c; }
+  .medium .lvl::before { background: #b45309; }
+  .low .lvl::before { background: var(--ok); }
+  .n { font-size: 24px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.15; }
+  .n small { font-size: 12px; font-weight: 400; color: var(--ink-3); letter-spacing: 0; }
+  .t { font-size: 12px; color: var(--ink-3); }
+  .risk .note { margin-top: 14px; font-size: 14px; color: var(--ink-2); }
+  @media (max-width: 560px) { .bars li { grid-template-columns: 90px minmax(0, 1fr) 50px; gap: 10px; } .tiles { grid-template-columns: 1fr; } }
 
-  .dec { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
-  @media (min-width: 800px) { .dec { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-  .dec li { padding: 24px; border: 1px solid var(--line); border-radius: var(--radius); background: linear-gradient(160deg, var(--amber-soft), transparent 50%), var(--bg-1); display: grid; gap: 8px; }
-  .dec .n { font-size: 11px; color: var(--amber); }
-  .dec h3 { font-size: 19px; }
-  .dec p { color: var(--ink-2); }
-
-  .two { display: grid; gap: 40px; }
-  @media (min-width: 900px) { .two { grid-template-columns: 1fr 1fr; gap: 64px; } }
-  .next { margin: 0; padding: 0; list-style: none; display: grid; gap: 10px; }
-  .next li { position: relative; padding-left: 22px; color: var(--ink-2); }
-  .next li::before { content: ''; position: absolute; left: 0; top: 0.7em; width: 10px; height: 1px; background: var(--amber); }
+  .dec { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+  @media (min-width: 760px) { .dec { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .dec li { padding: 18px 20px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--card); display: grid; gap: 6px; }
+  .dec h3 { font-size: 16px; font-weight: 650; }
+  .dec p { color: var(--ink-2); font-size: 15px; }
   .stack { display: flex; flex-wrap: wrap; gap: 6px; }
 
-  .pg { display: grid; gap: 12px; }
-  @media (min-width: 700px) { .pg { grid-template-columns: 1fr 1fr; } }
-  .pg a { display: grid; gap: 6px; padding: 24px; border: 1px solid var(--line); border-radius: var(--radius); text-decoration: none; font-family: var(--display); font-stretch: 108%; font-weight: 750; font-size: 22px; letter-spacing: -0.02em; transition: border-color 0.2s; }
-  .pg a:hover { border-color: var(--amber); }
-  .pg a .mono { font-size: 10.5px; color: var(--ink-3); font-weight: 400; letter-spacing: 0; }
-  .pg .r { text-align: right; }
+  .pager { display: grid; gap: 10px; }
+  @media (min-width: 640px) { .pager { grid-template-columns: 1fr 1fr; } }
+  .pager a { display: grid; gap: 4px; padding: 18px 20px; border: 1px solid var(--line); border-radius: var(--radius); text-decoration: none; font-weight: 650; font-size: 17px; background: var(--card); transition: border-color 0.2s; }
+  .pager a:hover { border-color: var(--accent); }
+  .pager .r { text-align: right; }
 </style>

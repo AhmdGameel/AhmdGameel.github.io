@@ -147,8 +147,8 @@ export function startEgypt(root: HTMLElement) {
     const [lon0, lat0, lon1, lat1] = T.bbox;
     kx = Math.cos((((lat0 + lat1) / 2) * Math.PI) / 180);
     const gw = (lon1 - lon0) * kx, gh = lat1 - lat0;
-    const wide = W > 700;
-    const [pt, pr, pb, pl] = wide ? [76, 12, 44, 12] : [14, 10, 14, 10];
+    const wide = W > 700 && root.dataset.layout !== 'center';
+    const [pt, pr, pb, pl] = wide ? [76, 12, 44, 12] : [18, 12, 18, 12];
     scale = Math.min((W - pl - pr) / gw, (H - pt - pb) / gh);
     ox = pl + (W - pl - pr - gw * scale) * (wide ? 0.85 : 0.5);
     oy = pt + (H - pt - pb - gh * scale) / 2;

@@ -1,111 +1,62 @@
 ---
 import Icon from './Icon.astro';
 import { person } from '../lib/data';
-
-const links = [
-  { icon: 'linkedin', label: 'LinkedIn', handle: 'in/AhmdGameel', href: person.linkedin },
-  { icon: 'github', label: 'GitHub', handle: '@AhmdGameel', href: person.github },
-  { icon: 'youtube', label: 'YouTube', handle: '@AhmdGameel', href: person.youtube },
-  { icon: 'x', label: 'X', handle: '@AhmdGameel', href: person.x },
-] as const;
 ---
 
-<section id="contact" class="stage contact">
-  <div class="wrap">
-    <p class="kicker reveal"><span class="mono">05</span> Contact</p>
-    <h2 class="big reveal">Have data that needs to arrive <em>on time</em> and <em>correct</em>? Let's talk.</h2>
+<section id="contact" class="section" aria-labelledby="contact-h">
+  <div class="section-head">
+    <h2 id="contact-h">Contact</h2>
+    <p>I am open to Data Engineering opportunities. Email is the fastest way to reach me, or leave a message below.</p>
+  </div>
 
-    <div class="grid">
-      <div class="left reveal">
-        <p class="label">Email</p>
-        <a class="address" href={`mailto:${person.email}`}>{person.email}</a>
-        <div class="row">
-          <button class="btn ghost small" type="button" data-copy={person.email}><Icon name="copy" size={14} /> <span>Copy email</span></button>
-          <a class="btn small" href={person.cv} download><Icon name="download" size={14} /> Resume, 1 page PDF</a>
-        </div>
-        <p class="avail"><span class="dot"></span><span>{person.status}. Based in {person.location}, local time <time data-clock>--:--</time>.</span></p>
-        <ul class="links">
-          {links.map((l) => (
-            <li>
-              <a href={l.href} target="_blank" rel="noopener">
-                <Icon name={l.icon} size={17} />
-                <span class="lbl">{l.label}</span>
-                <span class="mono faint">{l.handle}</span>
-                <span class="arr" aria-hidden="true"><Icon name="arrow" size={14} /></span>
-              </a>
-            </li>
-          ))}
-        </ul>
-      </div>
-
-      <form class="form reveal" id="contact-form" data-endpoint={`https://formsubmit.co/ajax/${person.email}`} novalidate>
-        <p class="label">Or leave a message here</p>
-        <div class="row2">
-          <label class="field"><span>Your name</span><input name="name" type="text" autocomplete="name" required maxlength="120" /></label>
-          <label class="field"><span>Your email</span><input name="email" type="email" autocomplete="email" required maxlength="200" /></label>
-        </div>
-        <label class="field"><span>Message</span><textarea name="message" rows="6" required maxlength="5000" placeholder="A role, a project, or a question"></textarea></label>
-        <input class="honey" type="text" name="_honey" tabindex="-1" autocomplete="off" aria-hidden="true" />
-        <div class="send">
-          <button class="btn" type="submit">Send message</button>
-          <p class="status" id="form-status" role="status" aria-live="polite"></p>
-        </div>
-      </form>
+  <div class="mail">
+    <a class="address" href={`mailto:${person.email}`}>{person.email}</a>
+    <div class="row">
+      <button class="btn ghost small" type="button" data-copy={person.email}><Icon name="copy" size={14} /> <span>Copy email</span></button>
+      <a class="btn ghost small" href={person.linkedin} target="_blank" rel="noopener"><Icon name="linkedin" size={14} /> LinkedIn</a>
+      <a class="btn ghost small" href={person.cv} download><Icon name="download" size={14} /> Resume</a>
     </div>
   </div>
+
+  <form class="form" id="contact-form" data-endpoint={`https://formsubmit.co/ajax/${person.email}`} novalidate>
+    <div class="row2">
+      <label class="field"><span>Your name</span><input name="name" type="text" autocomplete="name" required maxlength="120" /></label>
+      <label class="field"><span>Your email</span><input name="email" type="email" autocomplete="email" required maxlength="200" /></label>
+    </div>
+    <label class="field"><span>Message</span><textarea name="message" rows="5" required maxlength="5000" placeholder="A role, a project, or a question"></textarea></label>
+    <input class="honey" type="text" name="_honey" tabindex="-1" autocomplete="off" aria-hidden="true" />
+    <div class="send">
+      <button class="btn" type="submit">Send message</button>
+      <p class="status" id="form-status" role="status" aria-live="polite"></p>
+    </div>
+  </form>
 </section>
 
 <style>
-  .contact { background: radial-gradient(60% 70% at 0% 100%, var(--amber-soft), transparent 70%); }
-  .big {
-    margin: 20px 0 clamp(48px, 7vw, 80px);
-    font-family: var(--display); font-stretch: 115%; font-weight: 800;
-    font-size: clamp(36px, 5.8vw, 82px); line-height: 0.98; letter-spacing: -0.04em;
-    max-width: 18ch; text-wrap: balance;
-  }
-  .big em { font-style: normal; color: var(--amber); }
-  .grid { display: grid; gap: 48px; }
-  @media (min-width: 960px) { .grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 64px; } }
-  .left { display: grid; gap: 14px; align-content: start; }
-  .address {
-    font-family: var(--display); font-stretch: 105%; font-weight: 700;
-    font-size: clamp(22px, 2.8vw, 34px); letter-spacing: -0.02em; line-height: 1.1;
-    text-decoration: none; overflow-wrap: anywhere; justify-self: start;
-    background: linear-gradient(var(--amber), var(--amber)) 0 100% / 0% 2px no-repeat;
-    transition: background-size 0.4s var(--ease), color 0.2s;
-    padding-bottom: 4px;
-  }
-  .address:hover { color: var(--amber); background-size: 100% 2px; }
+  .mail { display: grid; gap: 12px; margin-bottom: 28px; }
+  .address { font-size: clamp(20px, 2.4vw, 26px); font-weight: 650; letter-spacing: -0.02em; text-decoration: none; overflow-wrap: anywhere; justify-self: start; border-bottom: 2px solid var(--line-2); }
+  .address:hover { border-color: currentColor; }
   .row { display: flex; flex-wrap: wrap; gap: 8px; }
-  .avail { display: flex; align-items: center; gap: 10px; color: var(--ink-2); font-size: 14.5px; margin-top: 6px; }
-  .avail time { color: var(--ink); font-variant-numeric: tabular-nums; }
-  .links { list-style: none; margin: 14px 0 0; padding: 0; border-top: 1px solid var(--line); }
-  .links a { display: grid; grid-template-columns: 22px 1fr auto 16px; align-items: center; gap: 12px; padding: 14px 2px; border-bottom: 1px solid var(--line); text-decoration: none; transition: color 0.2s, padding 0.2s; }
-  .links a:hover { color: var(--amber); padding-left: 8px; }
-  .lbl { font-weight: 600; }
-  .links .mono { font-size: 11px; }
-  .arr { color: var(--ink-3); }
-
-  .form { display: grid; gap: 14px; padding: clamp(20px, 3vw, 30px); border: 1px solid var(--line); border-radius: 18px; background: var(--bg-1); align-content: start; }
+  .form { display: grid; gap: 14px; padding: 22px 24px; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); }
   .row2 { display: grid; gap: 14px; }
   @media (min-width: 640px) { .row2 { grid-template-columns: 1fr 1fr; } }
   .field { display: grid; gap: 6px; }
-  .field span { font-size: 13px; font-weight: 600; }
+  .field span { font-size: 13.5px; font-weight: 600; }
   .field input, .field textarea {
     font: inherit; font-size: 16px; color: var(--ink);
-    width: 100%; padding: 12px 14px;
+    width: 100%; padding: 11px 13px;
     background: var(--bg); border: 1px solid var(--line-2); border-radius: 10px;
     outline: none; resize: vertical; transition: border-color 0.2s, box-shadow 0.2s;
   }
   .field textarea::placeholder { color: var(--ink-3); }
-  .field input:focus, .field textarea:focus { border-color: var(--amber); box-shadow: 0 0 0 4px var(--amber-soft); }
-  .field [aria-invalid='true'] { border-color: var(--alert); }
+  .field input:focus, .field textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft); }
+  .field [aria-invalid='true'] { border-color: #c2410c; }
   .honey { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
   .send { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 18px; }
   .send .btn[disabled] { opacity: 0.6; cursor: wait; }
   .status { margin: 0; font-size: 14px; color: var(--ink-2); }
   .status.ok { color: var(--ok); }
-  .status.err { color: var(--alert); }
+  .status.err { color: #c2410c; }
 </style>
 
 <script>
@@ -172,9 +123,4 @@ const links = [
     }),
   );
 
-  const clocks = document.querySelectorAll<HTMLTimeElement>('#contact [data-clock]');
-  const fmt = new Intl.DateTimeFormat('en-GB', { hour: '2-digit', minute: '2-digit', hourCycle: 'h23', timeZone: 'Africa/Cairo' });
-  const tick = () => clocks.forEach((c) => (c.textContent = fmt.format(new Date())));
-  tick();
-  setInterval(tick, 20_000);
 </script>

@@ -5,15 +5,13 @@ const items = [
   { group: 'Do', label: 'Download resume (PDF)', hint: 'file', act: 'download', arg: person.cv },
   { group: 'Do', label: 'Copy email address', hint: person.email, act: 'copy', arg: person.email },
   { group: 'Do', label: 'Write an email', hint: 'mailto', act: 'href', arg: `mailto:${person.email}` },
-  { group: 'Do', label: 'Switch to Engineer view', hint: 'lens', act: 'event', arg: 'setlens:engineer' },
-  { group: 'Do', label: 'Switch to Recruiter view', hint: 'lens', act: 'event', arg: 'setlens:recruiter' },
-  { group: 'Do', label: 'Toggle night and day', hint: 'theme', act: 'event', arg: 'toggletheme:' },
-  { group: 'Go', label: 'Work experience', hint: '#work', act: 'href', arg: '/#work' },
+  { group: 'Do', label: 'Toggle light and dark', hint: 'theme', act: 'click', arg: '[data-theme-toggle]' },
+  { group: 'Go', label: 'Experience', hint: '#experience', act: 'href', arg: '/#experience' },
   { group: 'Go', label: 'Projects', hint: '#projects', act: 'href', arg: '/#projects' },
-  { group: 'Go', label: 'Skills and evidence', hint: '#skills', act: 'href', arg: '/#skills' },
-  { group: 'Go', label: 'How this site is built', hint: '#platform', act: 'href', arg: '/#platform' },
-  { group: 'Go', label: 'Query my data with SQL', hint: '#console', act: 'href', arg: '/?lens=engineer#console' },
+  { group: 'Go', label: 'Skills', hint: '#skills', act: 'href', arg: '/#skills' },
+  { group: 'Go', label: 'Check the fit for a role', hint: '#fit', act: 'href', arg: '/#fit' },
   { group: 'Go', label: 'Contact', hint: '#contact', act: 'href', arg: '/#contact' },
+  { group: 'Go', label: 'How this site is built', hint: '/platform/', act: 'href', arg: '/platform/' },
   ...projects.filter((p) => p.featured).map((p) => ({ group: 'Case studies', label: p.name, hint: p.kind.toLowerCase(), act: 'href', arg: `/projects/${p.id}/` })),
   { group: 'Elsewhere', label: 'LinkedIn', hint: 'in/AhmdGameel', act: 'open', arg: person.linkedin },
   { group: 'Elsewhere', label: 'GitHub', hint: '@AhmdGameel', act: 'open', arg: person.github },
@@ -45,12 +43,12 @@ const items = [
     width: min(620px, calc(100vw - 24px));
     margin: 12vh auto auto;
     padding: 0; border: 1px solid var(--line-2); border-radius: 16px;
-    background: var(--bg-1); color: var(--ink);
-    box-shadow: 0 40px 120px -20px #000c, 0 0 0 1px #ffffff08;
+    background: var(--card); color: var(--ink);
+    box-shadow: 0 40px 120px -20px #0008;
   }
-  .palette::backdrop { background: #04050799; backdrop-filter: blur(4px); }
+  .palette::backdrop { background: #0b0d1066; backdrop-filter: blur(3px); }
   .search { display: flex; align-items: center; gap: 12px; padding: 16px 18px; border-bottom: 1px solid var(--line); }
-  .prompt { color: var(--amber); font-size: 14px; }
+  .prompt { color: var(--accent); font-size: 14px; }
   input { flex: 1; border: 0; outline: 0; background: transparent; color: var(--ink); font: 16px var(--sans); }
   kbd { font-size: 10px; color: var(--ink-3); border: 1px solid var(--line-2); border-radius: 5px; padding: 3px 6px; }
   ul { list-style: none; margin: 0; padding: 8px; max-height: min(420px, 55vh); overflow: auto; }
@@ -58,8 +56,8 @@ const items = [
     display: grid; grid-template-columns: 92px 1fr auto; align-items: center; gap: 12px;
     padding: 10px 12px; border-radius: 10px; cursor: pointer;
   }
-  li[aria-selected='true'] { background: var(--bg-3); }
-  li[aria-selected='true'] .l { color: var(--amber); }
+  li[aria-selected='true'] { background: var(--bg-2); }
+  li[aria-selected='true'] .l { color: var(--accent); }
   li[hidden] { display: none; }
   .g { font-size: 10px; color: var(--ink-3); text-transform: uppercase; }
   .l { font-size: 14.5px; }
@@ -106,7 +104,7 @@ const items = [
     if (act === 'href') location.href = arg;
     else if (act === 'open') window.open(arg, '_blank', 'noopener');
     else if (act === 'download') { const a = document.createElement('a'); a.href = arg; a.download = ''; a.click(); }
-    else if (act === 'event') { const [name, detail] = arg.split(':'); window.dispatchEvent(new CustomEvent(name, { detail })); }
+    else if (act === 'click') document.querySelector<HTMLElement>(arg)?.click();
   };
 
   q.addEventListener('input', () => {

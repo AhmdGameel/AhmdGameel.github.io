@@ -1,215 +1,86 @@
 ---
-import SectionHead from './SectionHead.astro';
-import Topology from './Topology.astro';
 import Icon from './Icon.astro';
-import { projects, KIND_LABEL } from '../lib/data';
+import { projects } from '../lib/data';
 
 const featured = projects.filter((p) => p.featured);
 const rest = projects.filter((p) => !p.featured);
 ---
 
-<section id="projects" class="stage">
-  <div class="wrap">
-    <SectionHead
-      index="02"
-      kicker="Projects"
-      title="Systems I built <em>end to end</em>"
-      intro="Personal projects in streaming, batch and warehousing. Every number below links to the file it came from, so nothing here asks to be taken on trust."
-    />
-
-    <div class="list">
-      {featured.map((p, i) => (
-        <article class="card reveal" id={`p-${p.id}`}>
-          <header class="top">
-            <span class="num mono">{String(i + 1).padStart(2, '0')}</span>
-            <span class="tag mono">{p.kind}</span>
-            <h3>{p.name}</h3>
-            <p class="summary">{p.summary}</p>
-          </header>
-
-          <div class="body">
-            <dl class="case">
-              <div><dt class="label">Problem</dt><dd>{p.problem}</dd></div>
-              <div><dt class="label">What I built</dt><dd>{p.built}</dd></div>
-              <div><dt class="label">Result</dt><dd class="res">{p.result}</dd></div>
-            </dl>
-
-            <div class="side">
-              <div class="metrics" role="group" aria-label={`${p.name} numbers and their sources`}>
-                {p.metrics.map((m, mi) => (
-                  <button
-                    type="button"
-                    class="metric"
-                    aria-pressed={mi === 0 ? 'true' : 'false'}
-                    aria-controls={`lin-${p.id}`}
-                    data-kind={m.kind ? KIND_LABEL[m.kind] : ''}
-                    data-source={m.source}
-                    data-url={m.source_url}
-                    data-how={m.how}
-                    data-label={m.label}
-                  >
-                    <span class="v">{m.value}</span>
-                    <span class="l">{m.label}</span>
-                    <span class="src mono" aria-hidden="true"><Icon name="source" size={11} /></span>
-                  </button>
-                ))}
-              </div>
-              <div class="lineage" id={`lin-${p.id}`} aria-live="polite">
-                <p class="label">Where <b data-l>{p.metrics[0]?.label}</b> comes from</p>
-                <p class="how" data-h>{p.metrics[0]?.how}</p>
-                <a class="file mono" data-a href={p.metrics[0]?.source_url ?? p.repo_url} target="_blank" rel="noopener">
-                  <span class="k" data-k>{p.metrics[0]?.kind && KIND_LABEL[p.metrics[0].kind]}</span>
-                  <span data-s>{p.metrics[0]?.source}</span>
-                  <Icon name="external" size={12} />
-                </a>
-              </div>
-            </div>
-          </div>
-
-          {p.decisions.length > 0 && (
-            <div class="decisions only-eng">
-              <p class="label">Decisions and trade-offs</p>
-              <ul>
-                {p.decisions.map((d) => (
-                  <li><h4>{d.title}</h4><p>{d.body}</p></li>
-                ))}
-              </ul>
-            </div>
-          )}
-
-          <div class="flow">
-            <div class="flow-head">
-              <span class="label">How the data flows</span>
-              <div class="stack">{p.stack.map((s) => <span class="chip">{s}</span>)}</div>
-            </div>
-            <div class="t-h"><Topology id={p.id} nodes={p.topology} edges={p.edges} /></div>
-            <div class="t-v"><Topology id={p.id} nodes={p.topology} edges={p.edges} vertical /></div>
-          </div>
-
-          <footer class="actions">
-            <a class="btn" href={`/projects/${p.id}/`}>Read the case study <span aria-hidden="true">&rarr;</span></a>
-            <a class="btn ghost" href={p.repo_url} target="_blank" rel="noopener"><Icon name="github" size={15} /> Code on GitHub</a>
-          </footer>
-        </article>
-      ))}
-    </div>
-
-    <div class="more reveal">
-      <h3 class="label">Also on GitHub</h3>
-      <ul>
-        {rest.map((p) => (
-          <li>
-            <a href={p.repo_url} target="_blank" rel="noopener">
-              <span class="m-name">{p.name}</span>
-              <span class="m-sum">{p.summary}</span>
-              <span class="m-stack mono">{p.stack.join(', ')}</span>
-              <span class="m-arrow" aria-hidden="true"><Icon name="arrow" size={16} /></span>
-            </a>
-          </li>
-        ))}
-      </ul>
-    </div>
+<section id="projects" class="section" aria-labelledby="proj-h">
+  <div class="section-head">
+    <h2 id="proj-h">Projects</h2>
+    <p>Three systems I built end to end: streaming, batch and a warehouse. Each case study explains the design and shows where every number comes from.</p>
   </div>
+
+  <div class="cards">
+    {featured.map((p) => (
+      <article class="card reveal">
+        <p class="kind label">{p.kind}</p>
+        <h3><a href={`/projects/${p.id}/`}>{p.name}<Icon name="arrow" size={15} /></a></h3>
+        <p class="summary">{p.summary}</p>
+        <p class="result">{p.result}</p>
+        <dl class="nums">
+          {p.metrics.slice(0, 3).map((m) => (
+            <div><dt>{m.label}</dt><dd>{m.value}</dd></div>
+          ))}
+        </dl>
+        <div class="stack">
+          {p.stack.slice(0, 6).map((s) => <span class="chip">{s}</span>)}
+          {p.stack.length > 6 && <span class="chip more">+{p.stack.length - 6}</span>}
+        </div>
+        <p class="links">
+          <a href={`/projects/${p.id}/`}>Case study</a>
+          <a href={p.repo_url} target="_blank" rel="noopener"><Icon name="github" size={14} /> Code</a>
+        </p>
+      </article>
+    ))}
+  </div>
+
+  <h3 class="label sub">Also on GitHub</h3>
+  <ul class="more">
+    {rest.map((p) => (
+      <li>
+        <a href={p.repo_url} target="_blank" rel="noopener">
+          <span class="m-name">{p.name}<Icon name="arrow" size={13} /></span>
+          <span class="m-sum">{p.summary}</span>
+        </a>
+      </li>
+    ))}
+  </ul>
 </section>
 
 <style>
-  .list { display: grid; gap: clamp(28px, 4vw, 44px); }
+  .cards { display: grid; gap: 14px; }
   .card {
     position: relative;
-    border: 1px solid var(--line); border-radius: 18px;
-    background: linear-gradient(180deg, var(--bg-1), var(--bg) 70%);
-    overflow: hidden;
+    padding: 22px 24px;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    transition: border-color 0.2s, box-shadow 0.2s;
   }
-  .card::before {
-    content: ''; position: absolute; inset: 0 0 auto; height: 1px;
-    background: linear-gradient(90deg, transparent, var(--amber), transparent); opacity: 0.6;
-  }
-  .top { display: grid; grid-template-columns: auto auto 1fr; align-items: center; gap: 10px 12px; padding: clamp(24px, 3.4vw, 40px) clamp(20px, 3.4vw, 40px) 0; }
-  .num { font-size: 12px; color: var(--amber); }
-  .tag { justify-self: start; font-size: 10px; padding: 4px 9px; border: 1px solid var(--line-2); border-radius: 999px; color: var(--ink-2); }
-  .top h3 { grid-column: 1 / -1; font-family: var(--display); font-stretch: 115%; font-weight: 800; font-size: clamp(32px, 4.4vw, 58px); letter-spacing: -0.035em; line-height: 0.98; margin-top: 6px; }
-  .summary { grid-column: 1 / -1; color: var(--ink-2); max-width: 70ch; font-size: 17px; }
-
-  .body { display: grid; gap: 28px; padding: clamp(24px, 3vw, 36px) clamp(20px, 3.4vw, 40px); }
-  @media (min-width: 980px) { .body { grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 48px; } }
-  .case { margin: 0; display: grid; gap: 20px; align-content: start; }
-  .case dt { color: var(--amber); margin-bottom: 4px; }
-  .case dd { margin: 0; color: var(--ink-2); }
-  .case .res { color: var(--ink); font-weight: 500; }
-
-  .metrics { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
-  .metric {
-    position: relative; text-align: left; cursor: pointer;
-    display: grid; gap: 4px; padding: 16px 16px 14px;
-    border: 1px solid var(--line); border-radius: 12px; background: var(--bg);
-    transition: border-color 0.2s, background-color 0.2s, transform 0.2s var(--ease);
-  }
-  .metric:hover { border-color: var(--line-2); transform: translateY(-1px); }
-  .metric[aria-pressed='true'] { border-color: var(--amber); background: linear-gradient(180deg, var(--amber-soft), transparent); }
-  .metric .v { font-family: var(--display); font-stretch: 110%; font-weight: 750; font-size: clamp(20px, 2vw, 26px); letter-spacing: -0.02em; line-height: 1.1; }
-  .metric .l { font-family: var(--mono); font-size: 10.5px; color: var(--ink-3); }
-  .metric .src { position: absolute; top: 12px; right: 12px; color: var(--ink-3); }
-  .metric[aria-pressed='true'] .src { color: var(--amber); }
-
-  .lineage { margin-top: 10px; padding: 16px; border-radius: 12px; border: 1px dashed var(--line-2); display: grid; gap: 8px; }
-  .lineage .label b { color: var(--ink); font-weight: 500; }
-  .how { font-size: 14px; color: var(--ink-2); }
-  .file { display: inline-flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 11px; color: var(--amber); text-decoration: none; word-break: break-all; }
-  .file:hover { text-decoration: underline; }
-  .file .k { color: var(--on-amber); background: var(--amber); border-radius: 4px; padding: 2px 6px; font-size: 9.5px; text-transform: uppercase; }
-
-  .decisions { padding: 0 clamp(20px, 3.4vw, 40px) clamp(24px, 3vw, 36px); }
-  .decisions ul { list-style: none; margin: 12px 0 0; padding: 0; display: grid; gap: 10px; }
-  @media (min-width: 760px) { .decisions ul { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-  .decisions li { padding: 16px 18px; border-left: 2px solid var(--amber); background: var(--bg-1); border-radius: 0 10px 10px 0; }
-  .decisions h4 { font-size: 15px; margin-bottom: 4px; }
-  .decisions p { font-size: 14px; color: var(--ink-2); }
-
-  .flow {
-    padding: clamp(20px, 3vw, 32px) clamp(20px, 3.4vw, 40px);
-    border-top: 1px solid var(--line);
-    background: radial-gradient(circle at 1px 1px, var(--line) 1px, transparent 0) 0 0 / 18px 18px;
-    display: grid; gap: 18px;
-  }
-  .flow-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; }
+  .card:hover { border-color: var(--line-2); box-shadow: var(--shadow); }
+  .kind { margin-bottom: 6px; }
+  h3 { font-size: 19px; font-weight: 650; }
+  h3 a { display: inline-flex; align-items: center; gap: 8px; text-decoration: none; }
+  h3 a :global(svg) { color: var(--ink-3); transition: transform 0.2s, color 0.2s; }
+  h3 a:hover :global(svg) { color: var(--accent); transform: translate(2px, -2px); }
+  .summary { margin-top: 6px; color: var(--ink-2); }
+  .result { margin-top: 8px; font-size: 15px; color: var(--ink); }
+  .nums { margin: 16px 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; padding: 12px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+  .nums dt { font-family: var(--mono); font-size: 11px; color: var(--ink-3); }
+  .nums dd { margin: 2px 0 0; font-weight: 650; font-size: 16px; font-variant-numeric: tabular-nums; }
   .stack { display: flex; flex-wrap: wrap; gap: 6px; }
-  .t-h { max-width: 1000px; width: 100%; margin: 0 auto; }
-  .t-v { display: none; }
-  @media (max-width: 640px) { .t-h { display: none; } .t-v { display: block; max-width: 400px; margin: 0 auto; width: 100%; } }
+  .links { display: flex; gap: 18px; margin-top: 16px; font-size: 14px; font-weight: 550; }
+  .links a { display: inline-flex; align-items: center; gap: 6px; color: var(--accent); text-decoration: none; }
+  .links a:hover { text-decoration: underline; }
+  @media (max-width: 480px) { .nums { grid-template-columns: 1fr 1fr; } }
 
-  .actions { display: flex; flex-wrap: wrap; gap: 10px; padding: 20px clamp(20px, 3.4vw, 40px) clamp(24px, 3vw, 32px); border-top: 1px solid var(--line); }
-
-  .more { margin-top: clamp(48px, 7vw, 72px); }
-  .more h3 { margin: 0 0 12px; font-weight: 400; }
-  .more ul { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
-  .more a { display: grid; gap: 2px 24px; padding: 18px 4px; border-bottom: 1px solid var(--line); text-decoration: none; transition: background-color 0.2s, padding 0.2s; }
-  @media (min-width: 860px) { .more a { grid-template-columns: 220px minmax(0, 1fr) 280px 20px; align-items: baseline; } }
-  .more a:hover { background: var(--bg-1); padding-left: 12px; }
-  .more a:hover .m-arrow { color: var(--amber); }
-  .m-name { font-weight: 650; }
-  .m-sum { color: var(--ink-2); font-size: 15px; }
-  .m-stack { font-size: 10.5px; color: var(--ink-3); }
-  .m-arrow { color: var(--ink-3); transition: color 0.2s; }
-  @media (max-width: 859px) { .m-arrow { display: none; } }
+  .sub { margin: 36px 0 8px; font-size: 11.5px; font-weight: 400; letter-spacing: 0.06em; }
+  .more { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+  .more a { display: grid; gap: 2px; padding: 12px 20px; margin: 0 -20px; border-radius: var(--radius); text-decoration: none; transition: background-color 0.2s; }
+  .more a:hover { background: var(--card); color: inherit; }
+  .m-name { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; }
+  .m-name :global(svg) { color: var(--ink-3); }
+  .m-sum { color: var(--ink-2); font-size: 14.5px; }
 </style>
-
-<script>
-  document.querySelectorAll<HTMLElement>('#projects .card').forEach((card) => {
-    const buttons = [...card.querySelectorAll<HTMLButtonElement>('.metric')];
-    const panel = card.querySelector<HTMLElement>('.lineage')!;
-    const set = (sel: string, v: string) => { const el = panel.querySelector<HTMLElement>(sel); if (el) el.textContent = v; };
-    buttons.forEach((b) =>
-      b.addEventListener('click', () => {
-        buttons.forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
-        const d = b.dataset;
-        set('[data-l]', d.label || '');
-        set('[data-h]', d.how || '');
-        set('[data-k]', d.kind || '');
-        set('[data-s]', d.source || '');
-        const a = panel.querySelector<HTMLAnchorElement>('[data-a]');
-        if (a && d.url) a.href = d.url;
-        panel.animate([{ opacity: 0.4 }, { opacity: 1 }], { duration: 300 });
-      }),
-    );
-  });
-</script>

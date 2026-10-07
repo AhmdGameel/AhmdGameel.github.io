@@ -1,170 +1,61 @@
 ---
-import SectionHead from './SectionHead.astro';
-import { experience, education, certifications, projects, fmtMonth, duration, currentMonth } from '../lib/data';
+import { experience, fmtMonth, duration } from '../lib/data';
 
 const work = experience.filter((e) => e.type === 'work');
 const training = experience.filter((e) => e.type === 'training');
-
-// ------------------------------------------------------------- timeline
-const now = currentMonth();
-const toIdx = (m: string) => { const [y, mo] = m.split('-').map(Number); return y * 12 + (mo - 1); };
-const START = toIdx('2022-07');
-const END = Math.max(toIdx(now) + 4, toIdx('2027-01'));
-const VW = 1000, LEFT = 108, RIGHT = 16, LANE = 46, TOP = 10;
-const x = (m: string) => LEFT + ((toIdx(m) - START) / (END - START)) * (VW - LEFT - RIGHT);
-const xEnd = (m: string | null) => x(m ?? now) + (VW - LEFT - RIGHT) / (END - START);
-
-const shortTraining = (company: string, role: string) =>
-  company.includes('Pioneers') ? `DEPI ${role.includes('Power BI') ? 'Power BI' : 'Data Engineering'}` : company.replace(' Egypt', '');
-type Bar = { label: string; sub: string; from: string; to: string | null; cls: string; row: number };
-const lanes: { name: string; bars: Bar[]; dots?: { label: string; at: string; cls: string; show: boolean }[] }[] = [
-  { name: 'Work', bars: work.map((e) => ({ label: e.company, sub: e.role, from: e.start_month, to: e.end_month, cls: 'work', row: 0 })) },
-  { name: 'Training', bars: training.map((e) => ({ label: shortTraining(e.company, e.role), sub: e.role, from: e.start_month, to: e.end_month, cls: 'train', row: 0 })) },
-  { name: 'Projects', bars: [], dots: projects.filter((p) => p.created).map((p) => ({ label: p.name.split(' ').slice(0, 2).join(' '), at: p.created!.slice(0, 7), cls: p.featured ? 'proj f' : 'proj', show: p.featured })) },
-  { name: 'Education', bars: education.map((e) => ({ label: 'B.Sc. Artificial Intelligence', sub: e.school, from: `${e.start}-09`, to: `${e.end}-06`, cls: 'edu', row: 0 })) },
-  { name: 'Certificates', bars: [], dots: certifications.map((c) => ({ label: c.issuer === 'Microsoft' ? 'Microsoft Fabric' : c.issuer, at: String(c.date).slice(0, 7), cls: 'cert', show: true })) },
-];
-// stack overlapping bars into rows
-for (const lane of lanes) {
-  const ends: number[] = [];
-  for (const b of [...lane.bars].sort((a, c) => a.from.localeCompare(c.from))) {
-    const s = toIdx(b.from);
-    let r = ends.findIndex((e) => e < s);
-    if (r < 0) { r = ends.length; ends.push(0); }
-    ends[r] = toIdx(b.to ?? now) + 3;
-    b.row = r;
-  }
-}
-const laneH = lanes.map((l) => Math.max(1, ...l.bars.map((b) => b.row + 1)) * 26 + 20);
-const laneY = laneH.map((_, i) => TOP + laneH.slice(0, i).reduce((a, b) => a + b, 0));
-const VH = TOP + laneH.reduce((a, b) => a + b, 0) + 28;
-const years = Array.from({ length: Math.floor(END / 12) - Math.ceil(START / 12) + 1 }, (_, i) => Math.ceil(START / 12) + i);
+const when = (e: (typeof experience)[number]) => `${fmtMonth(e.start_month)} to ${e.is_current ? 'Present' : fmtMonth(e.end_month)}`;
 ---
 
-<section id="work" class="stage">
-  <div class="wrap">
-    <SectionHead index="01" kicker="Work" title="Where I work, and where I <em>trained</em>" intro="One job in production, three structured training programs, and the projects I built in between. Work and training are kept apart on purpose." />
+<section id="experience" class="section" aria-labelledby="exp-h">
+  <div class="section-head"><h2 id="exp-h">Experience</h2></div>
 
-    <figure class="timeline reveal" aria-label="Career timeline">
-      <div class="scroll">
-        <svg viewBox={`0 0 ${VW} ${VH}`} role="img" aria-label="Timeline of work, training, projects, education and certificates from 2022 to today">
-          {years.map((y) => (
-            <g class="yr">
-              <line x1={x(`${y}-01`)} x2={x(`${y}-01`)} y1={TOP} y2={VH - 22} />
-              <text x={x(`${y}-01`) + 4} y={VH - 8}>{y}</text>
-            </g>
-          ))}
-          {lanes.map((lane, li) => (
-            <g class="lane">
-              <line class="sep" x1="0" x2={VW} y1={laneY[li] + laneH[li]} y2={laneY[li] + laneH[li]} />
-              <text class="ln" x="0" y={laneY[li] + 24}>{lane.name}</text>
-              {lane.bars.map((b) => {
-                const x0 = x(b.from), w = Math.max(6, xEnd(b.to) - x0), y = laneY[li] + 10 + b.row * 26;
-                const inside = w > 150;
-                return (
-                  <g class:list={['bar', b.cls, !b.to && 'live']}>
-                    <title>{`${b.label}, ${b.sub}: ${fmtMonth(b.from)} to ${fmtMonth(b.to)}`}</title>
-                    <rect x={x0} y={y} width={w} height="20" rx="5" />
-                    <text x={inside ? x0 + 8 : x0 + w + 6} y={y + 14} class:list={[inside && 'in']}>{b.label}</text>
-                  </g>
-                );
-              })}
-              {lane.dots?.map((d, di) => {
-                const cx = x(d.at), cy = laneY[li] + 21;
-                const nth = lane.dots!.filter((o) => o.show).indexOf(d);
-                return (
-                  <g class:list={['dotm', d.cls]}>
-                    <title>{`${d.label}, ${fmtMonth(d.at)}`}</title>
-                    {d.cls.startsWith('cert') ? <rect x={cx - 5} y={cy - 5} width="10" height="10" transform={`rotate(45 ${cx} ${cy})`} /> : <circle cx={cx} cy={cy} r="5" />}
-                    {d.show && <text x={cx + 9} y={cy + (nth % 2 ? 15 : -7)}>{d.label}</text>}
-                  </g>
-                );
-              })}
-            </g>
-          ))}
-          <g class="now">
-            <line x1={x(now) + 2} x2={x(now) + 2} y1={TOP - 4} y2={VH - 22} />
-            <text x={x(now) + 6} y={VH - 8}>now</text>
-          </g>
-        </svg>
-      </div>
-    </figure>
+  <ol class="rows">
+    {work.map((e) => (
+      <li class="row reveal">
+        <p class="when mono">{when(e)}</p>
+        <div class="body">
+          <h3>{e.role} <span class="at">at</span> {e.company}</h3>
+          <p class="meta">{e.mode}, {duration(e.start_month, e.end_month)}{e.is_current && <span class="now">Current role</span>}</p>
+          <ul class="hl">{e.highlights.map((h) => <li>{h}</li>)}</ul>
+          <div class="stack">{e.stack.map((s) => <span class="chip">{s}</span>)}</div>
+        </div>
+      </li>
+    ))}
+  </ol>
 
-    <div class="cols">
-      <div class="col">
-        <h3 class="label">Work</h3>
-        {work.map((r) => (
-          <article class="role main reveal">
-            <div class="top">
-              <div>
-                <h4>{r.role}</h4>
-                <p class="org">{r.company}</p>
-              </div>
-              {r.is_current && <span class="now-tag mono"><span class="dot"></span>Current</span>}
-            </div>
-            <p class="when mono">{fmtMonth(r.start_month)} to {r.is_current ? 'present' : fmtMonth(r.end_month)} <span>/</span> {duration(r.start_month, r.end_month)} <span>/</span> {r.mode}</p>
-            <ul class="hl">{r.highlights.map((h) => <li>{h}</li>)}</ul>
-            <div class="stack">{r.stack.map((s) => <span class="chip">{s}</span>)}</div>
-          </article>
-        ))}
-      </div>
-      <div class="col">
-        <h3 class="label">Training programs</h3>
-        {training.map((r) => (
-          <article class="role reveal">
-            <p class="when mono">{fmtMonth(r.start_month)} to {fmtMonth(r.end_month)} <span>/</span> {duration(r.start_month, r.end_month)} <span>/</span> {r.mode}</p>
-            <h4>{r.role}</h4>
-            <p class="org">{r.company}</p>
-            {r.context && <p class="ctx">{r.context}</p>}
-            <ul class="hl only-eng">{r.highlights.map((h) => <li>{h}</li>)}</ul>
-            <div class="stack">{r.stack.map((s) => <span class="chip">{s}</span>)}</div>
-          </article>
-        ))}
-      </div>
-    </div>
-  </div>
+  <h3 class="label sub">Training programs</h3>
+  <ol class="rows">
+    {training.map((e) => (
+      <li class="row reveal">
+        <p class="when mono">{when(e)}</p>
+        <div class="body">
+          <h3>{e.role} <span class="at">at</span> {e.company}</h3>
+          <p class="meta">{e.mode}, {duration(e.start_month, e.end_month)}. {e.context}</p>
+          <ul class="hl">{e.highlights.map((h) => <li>{h}</li>)}</ul>
+          <div class="stack">{e.stack.map((s) => <span class="chip">{s}</span>)}</div>
+        </div>
+      </li>
+    ))}
+  </ol>
 </section>
 
 <style>
-  .timeline { margin: 0 0 clamp(48px, 7vw, 80px); padding: 22px 22px 12px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--bg-1); }
-  .scroll { overflow-x: auto; scrollbar-width: thin; }
-  .scroll svg { min-width: 760px; width: 100%; height: auto; }
-  .yr line { stroke: var(--line); stroke-dasharray: 2 4; }
-  .yr text, .now text { font: 10px var(--mono); fill: var(--ink-3); }
-  .sep { stroke: var(--line); }
-  .ln { font: 10px var(--mono); fill: var(--ink-3); text-transform: uppercase; letter-spacing: 0.04em; }
-  .bar rect { fill: var(--bg-3); stroke: var(--line-2); }
-  .bar text { font: 600 11px var(--sans); fill: var(--ink-2); }
-  .bar.work rect { fill: var(--amber); stroke: var(--amber); }
-  .bar.work text.in { fill: var(--on-amber); }
-  .bar.work.live rect { filter: drop-shadow(0 0 8px var(--amber-glow)); }
-  .bar.edu rect { fill: color-mix(in srgb, var(--nile) 22%, var(--bg-1)); stroke: color-mix(in srgb, var(--nile) 50%, transparent); }
-  .bar.edu text { fill: var(--ink); }
-  .bar.train rect { fill: color-mix(in srgb, var(--ink) 10%, var(--bg-1)); }
-  .dotm circle, .dotm rect { fill: var(--bg-1); stroke: var(--ink-3); stroke-width: 1.5; }
-  .dotm.f circle { fill: var(--amber); stroke: var(--amber); }
-  .dotm.cert rect { fill: var(--nile); stroke: var(--nile); }
-  .dotm text { font: 10px var(--mono); fill: var(--ink-2); }
-  .now line { stroke: var(--amber); stroke-width: 1.5; }
-  .now text { fill: var(--amber); }
-
-  .cols { display: grid; gap: 40px; }
-  @media (min-width: 960px) { .cols { grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 56px; } }
-  .col { display: grid; gap: 14px; align-content: start; }
-  .col > h3 { margin: 0 0 4px; font-weight: 400; }
-  .role { padding: 20px 22px; border: 1px solid var(--line); border-radius: var(--radius); display: grid; gap: 8px; }
-  .role.main { padding: 28px; background: linear-gradient(160deg, var(--amber-soft), transparent 55%), var(--bg-1); border-color: var(--line-2); gap: 12px; }
-  .top { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; }
-  .role h4 { font-family: var(--display); font-stretch: 108%; font-size: 21px; letter-spacing: -0.02em; }
-  .role.main h4 { font-size: clamp(26px, 2.6vw, 34px); }
-  .org { font-weight: 600; color: var(--ink-2); font-size: 15px; }
-  .role.main .org { color: var(--amber); font-size: 17px; }
-  .now-tag { display: inline-flex; align-items: center; gap: 8px; font-size: 10.5px; color: var(--ok); border: 1px solid color-mix(in srgb, var(--ok) 40%, transparent); padding: 5px 10px; border-radius: 999px; white-space: nowrap; }
-  .when { font-size: 11px; color: var(--ink-3); }
-  .when span { opacity: 0.5; margin: 0 4px; }
-  .ctx { font-size: 13.5px; color: var(--ink-3); }
-  .hl { margin: 4px 0 6px; padding: 0; list-style: none; display: grid; gap: 8px; }
-  .hl li { position: relative; padding-left: 20px; color: var(--ink-2); font-size: 15px; }
-  .hl li::before { content: ''; position: absolute; left: 0; top: 0.72em; width: 10px; height: 1px; background: var(--amber); }
+  .rows { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+  .row {
+    display: grid; gap: 4px 24px;
+    padding: 18px 20px; margin: 0 -20px;
+    border-radius: var(--radius);
+    transition: background-color 0.2s, box-shadow 0.2s;
+  }
+  .row:hover { background: var(--card); box-shadow: var(--shadow); }
+  @media (min-width: 640px) { .row { grid-template-columns: 150px minmax(0, 1fr); } }
+  .when { font-size: 12px; color: var(--ink-3); padding-top: 4px; }
+  h3 { font-size: 16.5px; font-weight: 650; }
+  .at { font-weight: 400; color: var(--ink-3); }
+  .meta { margin-top: 2px; font-size: 14px; color: var(--ink-3); }
+  .now { margin-left: 10px; font-size: 12px; font-weight: 550; color: var(--ok); background: var(--ok-soft); padding: 2px 8px; border-radius: 999px; }
+  .hl { margin: 10px 0 12px; padding: 0 0 0 18px; display: grid; gap: 4px; color: var(--ink-2); font-size: 15px; }
+  .hl li::marker { color: var(--ink-3); }
   .stack { display: flex; flex-wrap: wrap; gap: 6px; }
+  .sub { margin: 36px 0 8px; font-size: 11.5px; font-weight: 400; letter-spacing: 0.06em; }
 </style>

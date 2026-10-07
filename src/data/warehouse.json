@@ -4,7 +4,6 @@
    "name": "Ahmed Gameel",
    "handle": "AhmdGameel",
    "title": "Data Engineer",
-   "headline": "Batch and streaming pipelines, on AWS and in the open",
    "location": "Cairo, Egypt",
    "timezone": "Africa/Cairo",
    "email": "ahmed0gameel@gmail.com",
@@ -13,12 +12,12 @@
    "youtube": "https://www.youtube.com/@AhmdGameel",
    "x": "https://x.com/AhmdGameel",
    "cv": "/Ahmed_Gameel.pdf",
-   "status": "Open to Data Engineering roles",
-   "intro": "I ship AWS Glue and PySpark jobs at DigitalH. On the side I built Tower Health Stream, a Kafka and Flink pipeline that watches 10,192 Egyptian cell towers and flags trouble in under 150 ms.\n",
+   "status": "Open to Data Engineering opportunities",
+   "intro": "I build ETL pipelines with Python, SQL and PySpark, currently on AWS Glue at DigitalH. I graduated in Artificial Intelligence from Kafrelsheikh University in 2026.\n",
    "about": [
-    "I care about the boring parts that make data trustworthy: contracts at the edges, quality checks before anything is published, and numbers that can be traced back to where they came from.\n",
-    "At DigitalH I build ETL jobs on AWS Glue with PySpark and Python over data in Amazon S3. Outside work I learn by building complete systems end to end: a streaming pipeline with Kafka and Flink, batch pipelines orchestrated with Airflow, and a SQL Server warehouse modeled as a star schema.\n",
-    "I am early in my career and I want to grow in a team that ships reliable, well documented data.\n"
+    "I work as a Data Engineer at DigitalH, where I help build ETL pipelines on AWS Glue with PySpark and Python, moving and cleaning data stored in Amazon S3.\n",
+    "Outside work I learn by building complete projects: a streaming pipeline with Kafka and Flink, batch pipelines orchestrated with Airflow, and a SQL Server warehouse modeled as a star schema. Each one has a README that explains the design and how to run it.\n",
+    "I am early in my career and looking to grow in a team that cares about reliable, well documented data.\n"
    ],
    "community": "Microsoft Student Ambassador"
   }
@@ -139,11 +138,7 @@
      "body": "No ZooKeeper to run, one less moving part in a local stack that already has eight services."
     }
    ],
-   "next": [
-    "Move the Python sinks into Flink so delivery to PostgreSQL is checkpointed.",
-    "Add a schema registry so a producer change cannot break consumers.",
-    "Run it on managed services with infrastructure as code."
-   ],
+   "next": [],
    "media": {
     "src": "/media/tower-architecture.mp4",
     "poster": "/media/tower-architecture.jpg",
@@ -315,11 +310,7 @@
      "body": "Duplicates, malformed IPs, invalid status codes and nulls are handled in one DAG, so analytics only reads clean data."
     }
    ],
-   "next": [
-    "Unit tests for the log parser with real sample lines.",
-    "Incremental runs driven by data intervals instead of folder polling.",
-    "Publish the daily reports as a small dashboard."
-   ],
+   "next": [],
    "media": null,
    "stack": [
     "Airflow",
@@ -457,10 +448,7 @@
      "body": "TRUNCATE and INSERT keeps the procedures simple at this size. Incremental loads are the next step."
     }
    ],
-   "next": [
-    "Slowly changing dimensions for customer history.",
-    "Data tests on keys and row counts between layers."
-   ],
+   "next": [],
    "media": null,
    "stack": [
     "SQL Server",
@@ -1033,7 +1021,7 @@
    "skill": "Apache Spark",
    "category": "Processing",
    "evidence_id": "odc",
-   "evidence": "Orange Digital Center Egypt, Big Data Trainee",
+   "evidence": "Orange Digital Center Egypt (Big Data Trainee)",
    "kind": "training"
   },
   {
@@ -1096,7 +1084,7 @@
    "skill": "Apache NiFi",
    "category": "Orchestration and streaming",
    "evidence_id": "odc",
-   "evidence": "Orange Digital Center Egypt, Big Data Trainee",
+   "evidence": "Orange Digital Center Egypt (Big Data Trainee)",
    "kind": "training"
   },
   {
@@ -1124,7 +1112,7 @@
    "skill": "Hadoop",
    "category": "Storage and warehousing",
    "evidence_id": "odc",
-   "evidence": "Orange Digital Center Egypt, Big Data Trainee",
+   "evidence": "Orange Digital Center Egypt (Big Data Trainee)",
    "kind": "training"
   },
   {
@@ -1138,7 +1126,7 @@
    "skill": "Hive",
    "category": "Storage and warehousing",
    "evidence_id": "odc",
-   "evidence": "Orange Digital Center Egypt, Big Data Trainee",
+   "evidence": "Orange Digital Center Egypt (Big Data Trainee)",
    "kind": "training"
   },
   {
@@ -1152,7 +1140,7 @@
    "skill": "Data Modeling",
    "category": "Storage and warehousing",
    "evidence_id": "depi-de",
-   "evidence": "Digital Egypt Pioneers Initiative, Data Engineer Trainee",
+   "evidence": "Digital Egypt Pioneers Initiative (Data Engineer Trainee)",
    "kind": "training"
   },
   {
@@ -1166,7 +1154,7 @@
    "skill": "PostgreSQL",
    "category": "Databases",
    "evidence_id": "odc",
-   "evidence": "Orange Digital Center Egypt, Big Data Trainee",
+   "evidence": "Orange Digital Center Egypt (Big Data Trainee)",
    "kind": "training"
   },
   {
@@ -1201,7 +1189,7 @@
    "skill": "SQL Server",
    "category": "Databases",
    "evidence_id": "depi-de",
-   "evidence": "Digital Egypt Pioneers Initiative, Data Engineer Trainee",
+   "evidence": "Digital Egypt Pioneers Initiative (Data Engineer Trainee)",
    "kind": "training"
   },
   {
@@ -1222,7 +1210,7 @@
    "skill": "MongoDB",
    "category": "Databases",
    "evidence_id": "odc",
-   "evidence": "Orange Digital Center Egypt, Big Data Trainee",
+   "evidence": "Orange Digital Center Egypt (Big Data Trainee)",
    "kind": "training"
   },
   {
@@ -1243,7 +1231,7 @@
    "skill": "Docker",
    "category": "Cloud and tools",
    "evidence_id": "odc",
-   "evidence": "Orange Digital Center Egypt, Big Data Trainee",
+   "evidence": "Orange Digital Center Egypt (Big Data Trainee)",
    "kind": "training"
   },
   {
@@ -1285,14 +1273,14 @@
    "skill": "Power BI",
    "category": "Analytics",
    "evidence_id": "depi-powerbi",
-   "evidence": "Digital Egypt Pioneers Initiative, Microsoft Power BI Specialist track",
+   "evidence": "Digital Egypt Pioneers Initiative (Microsoft Power BI Specialist track)",
    "kind": "training"
   },
   {
    "skill": "DAX",
    "category": "Analytics",
    "evidence_id": "depi-powerbi",
-   "evidence": "Digital Egypt Pioneers Initiative, Microsoft Power BI Specialist track",
+   "evidence": "Digital Egypt Pioneers Initiative (Microsoft Power BI Specialist track)",
    "kind": "training"
   },
   {

@@ -139,7 +139,7 @@ def build_evidence(profile: dict, projects: list[dict]) -> tuple[list[dict], lis
 
     sources = []
     for e in profile["experience"]:
-        label = e["company"] if e["type"] == "work" else f'{e["company"]}, {e["role"]}'
+        label = e["company"] if e["type"] == "work" else f'{e["company"]} ({e["role"]})'
         sources.append({"id": e["id"], "label": label, "kind": e["type"], "stack": {norm(s) for s in e["stack"]}})
     for p in projects:
         sources.append({"id": p["id"], "label": p["name"], "kind": "project", "stack": {norm(s) for s in p["stack"]}})

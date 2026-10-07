@@ -8,7 +8,6 @@ person:
   name: Ahmed Gameel
   handle: AhmdGameel
   title: Data Engineer
-  headline: Batch and streaming pipelines, on AWS and in the open
   location: Cairo, Egypt
   timezone: Africa/Cairo
   email: ahmed0gameel@gmail.com
@@ -17,22 +16,21 @@ person:
   youtube: https://www.youtube.com/@AhmdGameel
   x: https://x.com/AhmdGameel
   cv: /Ahmed_Gameel.pdf
-  status: Open to Data Engineering roles
+  status: Open to Data Engineering opportunities
   intro: >
-    I ship AWS Glue and PySpark jobs at DigitalH. On the side I built Tower Health Stream,
-    a Kafka and Flink pipeline that watches 10,192 Egyptian cell towers and flags trouble in
-    under 150 ms.
+    I build ETL pipelines with Python, SQL and PySpark, currently on AWS Glue at DigitalH.
+    I graduated in Artificial Intelligence from Kafrelsheikh University in 2026.
   about:
     - >
-      I care about the boring parts that make data trustworthy: contracts at the edges, quality
-      checks before anything is published, and numbers that can be traced back to where they came from.
+      I work as a Data Engineer at DigitalH, where I help build ETL pipelines on AWS Glue with
+      PySpark and Python, moving and cleaning data stored in Amazon S3.
     - >
-      At DigitalH I build ETL jobs on AWS Glue with PySpark and Python over data in Amazon S3.
-      Outside work I learn by building complete systems end to end: a streaming pipeline with Kafka
-      and Flink, batch pipelines orchestrated with Airflow, and a SQL Server warehouse modeled as a
-      star schema.
+      Outside work I learn by building complete projects: a streaming pipeline with Kafka and
+      Flink, batch pipelines orchestrated with Airflow, and a SQL Server warehouse modeled as a
+      star schema. Each one has a README that explains the design and how to run it.
     - >
-      I am early in my career and I want to grow in a team that ships reliable, well documented data.
+      I am early in my career and looking to grow in a team that cares about reliable,
+      well documented data.
   community: Microsoft Student Ambassador
 
 experience:
@@ -143,10 +141,6 @@ projects:
         body: Every alert is enriched with live Open-Meteo weather, so the team can tell a hardware fault from a storm and respond differently.
       - title: Kafka in KRaft mode
         body: No ZooKeeper to run, one less moving part in a local stack that already has eight services.
-    next:
-      - Move the Python sinks into Flink so delivery to PostgreSQL is checkpointed.
-      - Add a schema registry so a producer change cannot break consumers.
-      - Run it on managed services with infrastructure as code.
     media: { src: /media/tower-architecture.mp4, poster: /media/tower-architecture.jpg, caption: Architecture animation from the project README }
     stack: [Kafka, Flink, Iceberg, Airflow, dbt, DuckDB, PostgreSQL, Grafana, Docker, Python]
     topology:
@@ -202,10 +196,6 @@ projects:
         body: Writing Parquet right after parsing means every later stage reads 93% less data.
       - title: Quality as its own stage
         body: Duplicates, malformed IPs, invalid status codes and nulls are handled in one DAG, so analytics only reads clean data.
-    next:
-      - Unit tests for the log parser with real sample lines.
-      - Incremental runs driven by data intervals instead of folder polling.
-      - Publish the daily reports as a small dashboard.
     stack: [Airflow, PySpark, Parquet, PostgreSQL, Docker, Python]
     topology:
       - { id: raw, label: Raw Logs, sub: 3.5 GB, x: 0, y: 1 }
@@ -257,9 +247,6 @@ projects:
         body: The star schema is views over Silver, so a model change needs no reload.
       - title: Full reload in Silver
         body: TRUNCATE and INSERT keeps the procedures simple at this size. Incremental loads are the next step.
-    next:
-      - Slowly changing dimensions for customer history.
-      - Data tests on keys and row counts between layers.
     stack: [SQL Server, SSIS, T-SQL, Data Modeling]
     topology:
       - { id: crm, label: CRM, sub: sales, x: 0, y: 0 }

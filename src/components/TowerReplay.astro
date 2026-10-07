@@ -1,0 +1,66 @@
+---
+import Icon from './Icon.astro';
+import { pipelineRun } from '../lib/data';
+
+const towers = pipelineRun.towers;
+const real = towers.source === 'opencellid';
+---
+
+<figure class="replay night" id="egypt" data-source={towers.source} data-layout="center">
+  <div class="head">
+    <p class="live mono"><span class="rec"></span>Live replay in your browser</p>
+    <p class="note">
+      {towers.count.toLocaleString('en-US')} {real ? 'real tower locations from OpenCelliD' : 'tower points (illustrative positions)'}, each reporting every 5 seconds.
+      The event generator and alert rules are ported from the project code.
+    </p>
+    <button class="pause no-print" type="button" data-pause aria-pressed="false" aria-label="Pause the stream">
+      <span class="i-pause"><Icon name="pause" size={12} /></span><span class="i-play"><Icon name="play" size={12} /></span>
+    </button>
+  </div>
+  <div class="stage">
+    <canvas role="img" aria-label={`Map of Egypt drawn by ${towers.count.toLocaleString('en-US')} cell towers, with anomalies lighting up as the rules detect them.`}></canvas>
+    <div class="tip" data-tip hidden role="status"></div>
+  </div>
+  <div class="stats mono">
+    <span><b data-stat="eps">0</b> events per second</span>
+    <span><b data-stat="window-alerts">0</b> alerts in the current 10 minute window</span>
+    <span><b data-stat="outages">0</b> regional outages last window</span>
+    <span class="legend"><i style="--c: var(--t-weak)"></i>Weak signal <i style="--c: var(--t-drop)"></i>High drop rate <i style="--c: var(--t-outage)"></i>Regional outage</span>
+  </div>
+</figure>
+
+<style>
+  .replay { margin: 0; border-radius: var(--radius); background: var(--bg); color: var(--ink); overflow: hidden; border: 1px solid var(--line); }
+  .head { display: grid; grid-template-columns: 1fr auto; gap: 4px 16px; padding: 16px 18px 0; }
+  .live { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; }
+  .rec { width: 7px; height: 7px; border-radius: 50%; background: var(--alert); animation: blink 1.4s infinite; }
+  :global(.paused) .rec { animation: none; background: var(--ink-3); }
+  @keyframes blink { 50% { opacity: 0.35; } }
+  .note { grid-column: 1; font-size: 13.5px; color: var(--ink-2); max-width: 70ch; }
+  .pause { grid-column: 2; grid-row: 1 / span 2; align-self: start; width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; cursor: pointer; border: 1px solid var(--line-2); background: transparent; color: var(--ink); }
+  .pause:hover { border-color: var(--amber); color: var(--amber); }
+  .i-play { display: none; }
+  :global(.paused) .i-play { display: block; }
+  :global(.paused) .i-pause { display: none; }
+  .stage { position: relative; }
+  canvas { width: 100%; height: clamp(360px, 52vw, 560px); touch-action: pan-y; }
+  :global(.replay:not([data-ready])) canvas { opacity: 0; }
+  canvas { transition: opacity 0.8s ease; }
+  .tip[hidden] { display: none; }
+  .tip { position: absolute; z-index: 5; pointer-events: none; display: grid; gap: 2px; min-width: 200px; padding: 10px 12px; border-radius: 10px; background: #12151af2; border: 1px solid var(--line-2); font: 11px/1.5 var(--mono); color: var(--ink-2); }
+  .tip :global(b) { font: 600 13px var(--sans); color: var(--ink); }
+  .tip :global(b span) { font: 11px var(--mono); color: var(--ink-3); margin-left: 4px; }
+  .tip :global(.v) { color: var(--ink); margin-top: 4px; }
+  .tip :global(.st) { color: var(--c); }
+  .tip :global(i) { font-style: normal; color: var(--ink-3); }
+  .stats { display: flex; flex-wrap: wrap; gap: 6px 22px; padding: 12px 18px 16px; border-top: 1px solid var(--line); font-size: 12px; color: var(--ink-3); }
+  .stats b { color: var(--amber); font-weight: 600; font-variant-numeric: tabular-nums; }
+  .legend { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; }
+  .legend i { width: 7px; height: 7px; border-radius: 50%; background: var(--c); display: inline-block; }
+</style>
+
+<script>
+  import { startEgypt } from '../scripts/egypt';
+  const map = document.getElementById('egypt');
+  if (map) startEgypt(map);
+</script>
