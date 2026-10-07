@@ -1,7 +1,7 @@
 {
- "run_id": "fe8892f9",
- "started_at": "2026-10-07T11:39:29+00:00",
- "duration_ms": 191,
+ "run_id": "5b65c8aa",
+ "started_at": "2026-10-07T11:50:50+00:00",
+ "duration_ms": 211,
  "github_fetched_at": "2026-10-02T12:32:26+00:00",
  "rows": {
   "person": 1,
@@ -17,7 +17,7 @@
   "towers": 10192,
   "dbt_operator_performance": 4,
   "dbt_regional_risk_index": 358,
-  "runs": 7,
+  "runs": 8,
   "quality_checks": 19
  },
  "rows_total": 10685,
@@ -236,6 +236,17 @@
    "run_id": "fe8892f9",
    "started_at": "2026-10-07T11:39:29+00:00",
    "duration_ms": 191,
+   "rows_total": 10685,
+   "checks_passed": 17,
+   "checks_total": 17,
+   "warnings": 2,
+   "trigger": "local",
+   "commit": "local"
+  },
+  {
+   "run_id": "5b65c8aa",
+   "started_at": "2026-10-07T11:50:50+00:00",
+   "duration_ms": 211,
    "rows_total": 10685,
    "checks_passed": 17,
    "checks_total": 17,
