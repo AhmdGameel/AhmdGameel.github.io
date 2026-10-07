@@ -20,15 +20,16 @@ import { person, whatsapp } from '../lib/data';
   </div>
 
   <form class="form" id="contact-form" data-endpoint={`https://formsubmit.co/ajax/${person.email}`} novalidate>
+    <p class="label form-title">Or send a quick message</p>
     <div class="row2">
-      <label class="field"><span>Your name</span><input name="name" type="text" autocomplete="name" required maxlength="120" /></label>
-      <label class="field"><span>Your email</span><input name="email" type="email" autocomplete="email" required maxlength="200" /></label>
+      <label class="field"><input name="name" type="text" autocomplete="name" required maxlength="120" placeholder=" " /><span>Your name</span></label>
+      <label class="field"><input name="email" type="email" autocomplete="email" required maxlength="200" placeholder=" " /><span>Your email</span></label>
     </div>
-    <label class="field"><span>Message</span><textarea name="message" rows="5" required maxlength="5000" placeholder="A role, a project, or a question"></textarea></label>
+    <label class="field"><textarea name="message" rows="3" required maxlength="5000" placeholder=" "></textarea><span>A role, a project, or a question</span></label>
     <input class="honey" type="text" name="_honey" tabindex="-1" autocomplete="off" aria-hidden="true" />
     <div class="send">
-      <button class="btn" type="submit">Send message</button>
       <p class="status" id="form-status" role="status" aria-live="polite"></p>
+      <button class="btn small" type="submit"><Icon name="send" size={14} /><span>Send</span></button>
     </div>
   </form>
 </section>
@@ -40,24 +41,43 @@ import { person, whatsapp } from '../lib/data';
   .row { display: flex; flex-wrap: wrap; gap: 8px; }
   .wa :global(svg) { color: #1ea952; }
   .wa { font-variant-numeric: tabular-nums; }
-  .form { display: grid; gap: 14px; padding: 22px 24px; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); }
-  .row2 { display: grid; gap: 14px; }
-  @media (min-width: 640px) { .row2 { grid-template-columns: 1fr 1fr; } }
-  .field { display: grid; gap: 6px; }
-  .field span { font-size: 13.5px; font-weight: 600; }
-  .field input, .field textarea {
-    font: inherit; font-size: 16px; color: var(--ink);
-    width: 100%; padding: 11px 13px;
-    background: var(--bg); border: 1px solid var(--line-2); border-radius: 10px;
-    outline: none; resize: vertical; transition: border-color 0.2s, box-shadow 0.2s;
+  .form {
+    display: grid; gap: 8px; max-width: 620px;
+    padding: 16px 18px 14px;
+    background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
   }
-  .field textarea::placeholder { color: var(--ink-3); }
-  .field input:focus, .field textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft); }
+  .form-title { margin-bottom: 2px; }
+  .row2 { display: grid; gap: 8px; }
+  @media (min-width: 640px) { .row2 { grid-template-columns: 1fr 1fr; } }
+
+  /* Floating labels: the label sits inside the field and moves up once the field has focus or text. */
+  .field { position: relative; display: block; }
+  .field input, .field textarea {
+    display: block; width: 100%;
+    font: inherit; font-size: 15px; line-height: 1.5; color: var(--ink);
+    padding: 18px 12px 4px;
+    background: var(--bg); border: 1px solid var(--line); border-radius: 9px;
+    outline: none; transition: border-color 0.2s, box-shadow 0.2s, background-color 0.2s;
+  }
+  .field textarea { resize: vertical; min-height: 80px; padding-top: 22px; }
+  .field span {
+    position: absolute; left: 13px; top: 11px;
+    font-size: 15px; color: var(--ink-3); pointer-events: none;
+    transform-origin: left top; transition: transform 0.15s var(--ease), color 0.15s;
+  }
+  .field input:focus + span, .field input:not(:placeholder-shown) + span,
+  .field textarea:focus + span, .field textarea:not(:placeholder-shown) + span { transform: translateY(-7px) scale(0.76); }
+  .field input:focus + span, .field textarea:focus + span { color: var(--accent); }
+  .field input:hover, .field textarea:hover { border-color: var(--line-2); }
+  .field input:focus, .field textarea:focus { border-color: var(--accent); background: var(--card); box-shadow: 0 0 0 3px var(--accent-soft); }
   .field [aria-invalid='true'] { border-color: #c2410c; }
+  /* Phones zoom into fields under 16px. */
+  @media (max-width: 640px) { .field input, .field textarea, .field span { font-size: 16px; } }
   .honey { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
-  .send { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 18px; }
+  .send { display: flex; align-items: center; justify-content: flex-end; gap: 12px 16px; margin-top: 2px; }
+  .send .btn { flex: none; padding-inline: 14px; }
   .send .btn[disabled] { opacity: 0.6; cursor: wait; }
-  .status { margin: 0; font-size: 14px; color: var(--ink-2); }
+  .status { margin: 0 auto 0 0; font-size: 13.5px; color: var(--ink-2); }
   .status.ok { color: var(--ok); }
   .status.err { color: #c2410c; }
 </style>
@@ -88,8 +108,9 @@ import { person, whatsapp } from '../lib/data';
     const data = Object.fromEntries(new FormData(form)) as Record<string, string>;
     if (data._honey) return; // bots fill hidden fields
     const button = form.querySelector<HTMLButtonElement>('button[type=submit]')!;
+    const label = button.querySelector('span')!;
     button.disabled = true;
-    button.textContent = 'Sending...';
+    label.textContent = 'Sending...';
     setStatus('');
     try {
       const res = await fetch(form.dataset.endpoint!, {
@@ -113,7 +134,7 @@ import { person, whatsapp } from '../lib/data';
       setStatus('Sorry, the message could not be sent. Please email me directly.', 'err');
     } finally {
       button.disabled = false;
-      button.textContent = 'Send message';
+      label.textContent = 'Send';
     }
   });
   form?.querySelectorAll('input, textarea').forEach((f) => f.addEventListener('input', () => f.removeAttribute('aria-invalid')));
