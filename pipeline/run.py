@@ -355,8 +355,6 @@ def quality(tables: dict[str, list[dict]], tower_rows: list[dict], tower_source:
     stale = [c["name"] for c in tables["certifications"]
              if c["issuer"] == "Microsoft" and (today - dt.date.fromisoformat(c["date"])).days > 365 and not c.get("url")]
     check("certification_renewal", not stale, ", ".join(stale) + (" is older than a year, add the renewal link" if stale else ""), blocking=False)
-    listed = [s["skill"] for s in tables["skills"] if s["tier"] == "listed"]
-    check("skills_have_evidence", not listed, ", ".join(listed), blocking=False)
     return checks
 
 

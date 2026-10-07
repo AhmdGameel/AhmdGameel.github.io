@@ -1,37 +1,20 @@
 ---
-import { skills, skillGroups, evidence, education, certifications, fmtMonth } from '../lib/data';
+import { skillGroups, education, certifications, fmtMonth } from '../lib/data';
 
-const tierOf = Object.fromEntries(skills.map((s) => [s.skill, s.tier]));
-const proof = (skill: string) => {
-  const ev = evidence.filter((e) => e.skill === skill);
-  return ev.length ? `Where: ${ev.map((e) => e.evidence).join(', ')}` : 'No public proof yet';
-};
 const edu = education[0];
 ---
 
 <section id="skills" class="section" aria-labelledby="skills-h">
   <div class="section-head">
     <h2 id="skills-h">Skills</h2>
-    <p>No ratings. Each skill shows the strongest proof behind it. Hover or tap a skill to see where I used it.</p>
   </div>
-
-  <ul class="legend" aria-label="Legend">
-    <li><span class="k work"></span>Used at work</li>
-    <li><span class="k built"></span>In a public project</li>
-    <li><span class="k trained"></span>Training or course</li>
-  </ul>
 
   <dl class="groups">
     {skillGroups.map((g) => (
       <div class="group">
         <dt>{g.group}</dt>
         <dd>
-          {g.items.map((s) => (
-            <span class:list={['skill', tierOf[s]]} title={proof(s)} tabindex="0">
-              <span class="k" aria-hidden="true"></span>{s}
-              <span class="sr-only">, {({ work: 'used at work', built: 'in a public project', trained: 'from training', listed: 'listed' } as Record<string, string>)[tierOf[s]]}</span>
-            </span>
-          ))}
+          {g.items.map((s) => <span class="skill">{s}</span>)}
         </dd>
       </div>
     ))}
@@ -59,26 +42,17 @@ const edu = education[0];
 </section>
 
 <style>
-  .legend { list-style: none; margin: -12px 0 20px; padding: 0; display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 13px; color: var(--ink-3); }
-  .legend li { display: inline-flex; align-items: center; gap: 8px; }
-  .k { width: 8px; height: 8px; border-radius: 50%; flex: none; border: 1.5px solid var(--ink-3); }
-  .k.work, .work .k { background: var(--accent); border-color: var(--accent); }
-  .k.built, .built .k { background: var(--ink-3); border-color: var(--ink-3); }
-  .k.trained, .trained .k, .listed .k { background: transparent; }
-
   .groups { margin: 0; display: grid; }
   .group { display: grid; gap: 8px 20px; padding: 14px 0; border-top: 1px solid var(--line); }
   @media (min-width: 640px) { .group { grid-template-columns: 170px minmax(0, 1fr); align-items: baseline; } }
   .group dt { font-size: 14px; font-weight: 600; }
   .group dd { margin: 0; display: flex; flex-wrap: wrap; gap: 6px; }
   .skill {
-    display: inline-flex; align-items: center; gap: 7px;
-    padding: 5px 10px; border-radius: 999px;
+    display: inline-flex; align-items: center;
+    padding: 5px 11px; border-radius: 999px;
     background: var(--card); border: 1px solid var(--line);
-    font-size: 13.5px; cursor: default;
+    font-size: 13.5px;
   }
-  .skill.listed { color: var(--ink-3); }
-  .skill:hover, .skill:focus-visible { border-color: var(--line-2); }
 
   .edu { display: grid; gap: 28px; margin-top: 40px; }
   @media (min-width: 720px) { .edu { grid-template-columns: 1fr 1fr; } }

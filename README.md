@@ -15,8 +15,7 @@ and the two actions that matter (email, resume) stay visible while the page scro
 - **Projects**: three case studies with equal weight (streaming, batch, warehouse). Each case study page
   explains the problem, the design decisions and where every number comes from, linked to the file in
   the project repo.
-- **Skills**: no ratings; each skill is marked by its strongest proof (used at work, in a public project,
-  or from training) and shows where it was used.
+- **Skills**: grouped by area, with education and certificates.
 - **Contact**: email, WhatsApp, LinkedIn, resume and a short form.
 
 Engineering depth lives one click away: the Tower Health Stream case study replays the project live on a

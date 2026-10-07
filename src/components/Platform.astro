@@ -34,7 +34,6 @@ const HW = 600, HH = 90, bw = HW / Math.max(history.length, 12);
 
 const presets = [
   { label: 'Where did I use Kafka?', sql: "SELECT skill, evidence, kind\nFROM skill_evidence\nWHERE skill = 'Apache Kafka';" },
-  { label: 'Skills by evidence', sql: "SELECT tier, count(*) AS skills,\n       string_agg(skill, ', ') AS which\nFROM skills\nGROUP BY tier\nORDER BY min(CASE tier WHEN 'work' THEN 0 WHEN 'built' THEN 1 WHEN 'trained' THEN 2 ELSE 3 END);" },
   { label: 'Where every number comes from', sql: 'SELECT project, label, value, kind, source\nFROM metric_lineage\nORDER BY project;' },
   { label: 'Quality checks of this build', sql: 'SELECT name, passed, blocking, detail\nFROM quality_checks\nORDER BY passed, blocking DESC;' },
   { label: 'Pipeline runs', sql: "SELECT started_at, duration_ms,\n       checks_passed || '/' || checks_total AS checks, trigger\nFROM runs\nORDER BY started_at DESC\nLIMIT 10;" },

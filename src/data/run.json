@@ -1,7 +1,7 @@
 {
- "run_id": "5b65c8aa",
- "started_at": "2026-10-07T11:50:50+00:00",
- "duration_ms": 211,
+ "run_id": "0c11273d",
+ "started_at": "2026-10-07T12:15:38+00:00",
+ "duration_ms": 189,
  "github_fetched_at": "2026-10-02T12:32:26+00:00",
  "rows": {
   "person": 1,
@@ -17,8 +17,8 @@
   "towers": 10192,
   "dbt_operator_performance": 4,
   "dbt_regional_risk_index": 358,
-  "runs": 8,
-  "quality_checks": 19
+  "runs": 9,
+  "quality_checks": 18
  },
  "rows_total": 10685,
  "checks": [
@@ -128,12 +128,6 @@
    "name": "certification_renewal",
    "passed": false,
    "detail": "Fabric Data Engineer Associate is older than a year, add the renewal link",
-   "blocking": false
-  },
-  {
-   "name": "skills_have_evidence",
-   "passed": false,
-   "detail": "C++, MySQL, Azure, Linux",
    "blocking": false
   }
  ],
@@ -251,6 +245,17 @@
    "checks_passed": 17,
    "checks_total": 17,
    "warnings": 2,
+   "trigger": "local",
+   "commit": "local"
+  },
+  {
+   "run_id": "0c11273d",
+   "started_at": "2026-10-07T12:15:38+00:00",
+   "duration_ms": 189,
+   "rows_total": 10685,
+   "checks_passed": 17,
+   "checks_total": 17,
+   "warnings": 1,
    "trigger": "local",
    "commit": "local"
   }
