@@ -17,10 +17,7 @@ and the two actions that matter (email, resume) stay visible while the page scro
   the project repo.
 - **Skills**: no ratings; each skill is marked by its strongest proof (used at work, in a public project,
   or from training) and shows where it was used.
-- **Role fit check**: a recruiter pastes a job description or picks requirements and sees, for each one,
-  where I have used it and what I have not used yet. One click opens an email about the role, another
-  copies a summary for the hiring manager. It runs entirely in the browser.
-- **Contact**: email, LinkedIn, resume and a short form.
+- **Contact**: email, WhatsApp, LinkedIn, resume and a short form.
 
 Engineering depth lives one click away: the Tower Health Stream case study replays the project live on a
 map of the 10,192 real towers, and [/platform/](https://ahmdgameel.github.io/platform/) shows how the site
