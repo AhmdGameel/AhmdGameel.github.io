@@ -29,6 +29,7 @@ import towers as tower_layer  # noqa: E402
 ROOT = Path(__file__).resolve().parent.parent
 SOURCE = ROOT / "pipeline" / "sources" / "profile.yaml"
 TOWERS_CSV = ROOT / "pipeline" / "sources" / "towers_clean.csv"
+BATCH_DIR = ROOT / "pipeline" / "sources" / "tower_health_stream"  # dbt model outputs from the project
 CACHE = ROOT / "pipeline" / "cache" / "github.json"
 RUNS_CACHE = ROOT / "pipeline" / "cache" / "runs.json"
 SITE = "https://ahmdgameel.github.io"
@@ -91,6 +92,26 @@ def extract_run_history(offline: bool) -> list[dict]:
     if RUNS_CACHE.exists():
         return json.loads(RUNS_CACHE.read_text())
     return []
+
+
+def extract_batch() -> dict[str, list[dict]]:
+    """Outputs of the dbt models in tower-health-stream, exported as CSV."""
+    import csv
+
+    def num(v: str):
+        try:
+            f = float(v)
+            return int(f) if f.is_integer() and "." not in v else f
+        except ValueError:
+            return v
+
+    out = {}
+    for name in ("operator_performance", "regional_risk_index"):
+        path = BATCH_DIR / f"{name}.csv"
+        if path.exists():
+            with path.open(newline="") as f:
+                out[f"dbt_{name}"] = [{k: num(v) for k, v in r.items()} for r in csv.DictReader(f)]
+    return out
 
 
 # -------------------------------------------------------------- transform
@@ -260,7 +281,7 @@ def walk_strings(obj, path="$"):
             yield from walk_strings(v, f"{path}[{i}]")
 
 
-def quality(tables: dict[str, list[dict]], tower_rows: list[dict]) -> list[dict]:
+def quality(tables: dict[str, list[dict]], tower_rows: list[dict], tower_source: str) -> list[dict]:
     checks: list[dict] = []
 
     def check(name: str, ok: bool, detail: str = "", blocking: bool = True) -> None:
@@ -304,6 +325,30 @@ def quality(tables: dict[str, list[dict]], tower_rows: list[dict]) -> list[dict]
     check("towers_in_egypt_bbox", outside == 0 and bool(tower_rows), f"{outside} outside")
     unknown = sum(1 for t in tower_rows if t["operator"] not in tower_layer.OPERATORS)
     check("towers_operator_known", unknown == 0, f"{unknown} unknown")
+
+    if tower_source == "opencellid":
+        # OpenCelliD cell ids are only unique within radio, network and area.
+        keys = {(t["radio"], t["operator"], t["area"], t["cell"]) for t in tower_rows}
+        repeats = len(tower_rows) - len({t["cell"] for t in tower_rows})
+        check("towers_natural_key_unique", len(keys) == len(tower_rows),
+              f"key (radio, operator, area, cell); {repeats} rows share a cell id with another row")
+        claimed = [m["value"] for p in tables["projects"] for m in p["metrics"] if m["label"] == "towers"]
+        check("towers_metric_matches_data", all(c.replace(",", "") == str(len(tower_rows)) for c in claimed),
+              f"site says {claimed}, data has {len(tower_rows):,}")
+
+        counts: dict[str, int] = {}
+        for t in tower_rows:
+            counts[t["operator"]] = counts.get(t["operator"], 0) + 1
+        ops = tables.get("dbt_operator_performance", [])
+        if ops:
+            off = [o["operator"] for o in ops if counts.get(o["operator"]) != o["total_towers"]]
+            check("dbt_operator_totals_reconcile", not off and len(ops) == len(counts), ", ".join(off))
+        risk = tables.get("dbt_regional_risk_index", [])
+        if risk:
+            areas = {t["area"] for t in tower_rows}
+            total = sum(r["total_towers"] for r in risk)
+            check("dbt_risk_totals_reconcile", total == len(tower_rows) and len(risk) == len(areas),
+                  f"{total} towers in {len(risk)} areas vs {len(tower_rows)} in {len(areas)}")
 
     # Warnings: visible on the status board, but they do not stop a deploy.
     today = dt.date.today()
@@ -356,7 +401,13 @@ def load_parquet(tables: dict[str, list[dict]], tower_rows: list[dict], tower_so
         ],
     }
     if tower_source == "opencellid":  # only real towers are queryable
-        sql_tables["towers"] = tower_rows
+        sql_tables["towers"] = [
+            {"tower_id": t["cell"], "operator": t["operator"], "radio": t["radio"], "lat": t["lat"], "lon": t["lon"], "area": t["area"]}
+            for t in tower_rows
+        ]
+    for name in ("dbt_operator_performance", "dbt_regional_risk_index"):
+        if tables.get(name):
+            sql_tables[name] = tables[name]
     counts = {name: write_parquet(con, name, rows) for name, rows in sql_tables.items()}
     return {k: v for k, v in counts.items() if v}
 
@@ -376,9 +427,10 @@ def main() -> int:
     log("extract", f"towers: {len(tower_rows)} ({tower_source})")
 
     tables = transform(profile, gh)
+    tables.update(extract_batch())
     log("transform", ", ".join(f"{k}={len(v)}" for k, v in tables.items()))
 
-    checks = quality(tables, tower_rows)
+    checks = quality(tables, tower_rows, tower_source)
     for c in checks:
         flag = "PASS" if c["passed"] else ("FAIL" if c["blocking"] else "WARN")
         log("quality", f"{flag} {c['name']} {c['detail']}".rstrip())

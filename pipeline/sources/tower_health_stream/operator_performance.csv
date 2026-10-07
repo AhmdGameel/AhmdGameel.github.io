@@ -1,0 +1,5 @@
+operator,total_towers,lte_towers,umts_towers,gsm_towers,lte_pct,umts_pct,gsm_pct,areas_covered,performance_rank
+WE,415,415.0,0.0,0.0,100.0,0.0,0.0,49,1
+Vodafone,4791,4487.0,235.0,69.0,93.65,4.91,1.44,94,2
+e&,2774,2378.0,345.0,51.0,85.72,12.44,1.84,153,3
+Orange,2212,1885.0,280.0,47.0,85.22,12.66,2.12,125,4

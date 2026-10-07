@@ -32,7 +32,7 @@ const WINDOW_MS = 10_000; // 10 minutes at 60x
 const CITIES: [string, number, number, 'l' | 'r'][] = [
   ['Alexandria', 31.2, 29.92, 'l'], ['Cairo', 30.04, 30.86, 'l'], ['Port Said', 31.26, 32.3, 'r'],
   ['Asyut', 27.18, 31.18, 'l'], ['Luxor', 25.69, 32.64, 'r'], ['Aswan', 24.09, 32.9, 'r'],
-  ['Hurghada', 27.26, 33.81, 'r'], ['Sharm El Sheikh', 27.91, 34.33, 'r'], ['Siwa', 29.2, 25.52, 'r'],
+  ['Hurghada', 27.26, 33.81, 'r'], ['Sharm El Sheikh', 27.91, 34.33, 'r'],
 ];
 
 interface Towers {

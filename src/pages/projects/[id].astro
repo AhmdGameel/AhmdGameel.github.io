@@ -4,7 +4,7 @@ import Header from '../../components/Header.astro';
 import Footer from '../../components/Footer.astro';
 import Topology from '../../components/Topology.astro';
 import Icon from '../../components/Icon.astro';
-import { projects, person, KIND_LABEL, type Project } from '../../lib/data';
+import { projects, person, batch, KIND_LABEL, type Project } from '../../lib/data';
 
 export function getStaticPaths() {
   return projects.filter((p) => p.featured).map((p) => ({ params: { id: p.id }, props: { p } }));
@@ -53,6 +53,17 @@ CREATE VIEW gold.fact_sales    AS ...
   },
 };
 const snippet = code[p.id];
+
+// Batch layer results, only for Tower Health Stream and only when the dbt exports are present.
+const showBatch = p.id === 'tower-health-stream' && batch.operators.length > 0;
+const ops = [...batch.operators].sort((a, b) => b.lte_pct - a.lte_pct);
+const riskLevels = (['HIGH', 'MEDIUM', 'LOW'] as const).map((level) => {
+  const rows = batch.risk.filter((r) => r.risk_level === level);
+  return { level, areas: rows.length, towers: rows.reduce((n, r) => n + r.total_towers, 0) };
+});
+const totalTowers = batch.operators.reduce((n, o) => n + o.total_towers, 0);
+const noLte = batch.risk.filter((r) => r.lte_coverage_pct === 0);
+const fmt = (n: number) => n.toLocaleString('en-US');
 ---
 
 <Base title={`${p.name} | ${person.name}`} description={`${p.summary} Case study: problem, design decisions, numbers with their sources, and what comes next.`} path={`/projects/${p.id}/`} map={false}>
@@ -117,6 +128,50 @@ const snippet = code[p.id];
         )}
       </div>
     </section>
+
+    {showBatch && (
+      <section class="block" id="batch">
+        <div class="wrap">
+          <h2 class="h3">What the batch layer found</h2>
+          <p class="lead">
+            Output of the dbt models on DuckDB, run over the {fmt(totalTowers)} real towers. Every build of this site
+            reconciles these tables against the raw data and refuses to publish if the counts drift.
+          </p>
+          <div class="batch">
+            <figure class="bars" aria-labelledby="lte-title">
+              <p class="label" id="lte-title">Share of LTE towers by operator</p>
+              <ul>
+                {ops.map((o) => (
+                  <li title={`${o.operator}: ${fmt(o.lte_towers)} LTE, ${fmt(o.umts_towers)} UMTS, ${fmt(o.gsm_towers)} GSM across ${o.areas_covered} areas`} tabindex="0">
+                    <span class="op">{o.operator}<span class="mono">{fmt(o.total_towers)} towers</span></span>
+                    <span class="track" aria-hidden="true"><span class="fill" style={`width:${o.lte_pct}%`}></span></span>
+                    <span class="val mono">{o.lte_pct.toFixed(1)}%</span>
+                  </li>
+                ))}
+              </ul>
+              <figcaption class="mono">dbt model operator_performance. Hover a row for the full radio mix.</figcaption>
+            </figure>
+            <div class="risk">
+              <p class="label">Areas by legacy risk</p>
+              <div class="tiles">
+                {riskLevels.map((r) => (
+                  <div class:list={['tile', r.level.toLowerCase()]}>
+                    <span class="lvl mono">{r.level}</span>
+                    <span class="n">{fmt(r.areas)}<small> areas</small></span>
+                    <span class="mono t">{fmt(r.towers)} towers</span>
+                  </div>
+                ))}
+              </div>
+              <p class="note">
+                Risk rises with the share of non LTE towers in a location area. {noLte.length} areas
+                ({fmt(noLte.reduce((n, r) => n + r.total_towers, 0))} towers) have no LTE tower at all, a ready short list
+                for an upgrade plan. Source: dbt model regional_risk_index.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+    )}
 
     {p.decisions.length > 0 && (
       <section class="block" id="decisions">
@@ -196,6 +251,34 @@ const snippet = code[p.id];
   .code figcaption span { color: var(--amber); }
   .code a { color: var(--ink-2); }
   .code pre { margin: 0; padding: 20px; overflow-x: auto; font-size: 12px; line-height: 1.75; color: var(--ink); }
+
+  .lead { margin: -12px 0 28px; max-width: 70ch; color: var(--ink-2); }
+  .batch { display: grid; gap: 14px; }
+  @media (min-width: 960px) { .batch { grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); } }
+  .bars, .risk { margin: 0; padding: 24px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--bg-1); }
+  .bars ul { list-style: none; margin: 18px 0 0; padding: 0; display: grid; gap: 16px; }
+  .bars li { display: grid; grid-template-columns: 150px minmax(0, 1fr) 64px; align-items: center; gap: 14px; border-radius: 6px; outline-offset: 4px; }
+  .bars li:hover .fill, .bars li:focus-visible .fill { filter: brightness(1.15); }
+  .op { display: grid; font-weight: 600; line-height: 1.25; }
+  .op .mono { font-weight: 400; font-size: 10px; color: var(--ink-3); }
+  .track { position: relative; height: 10px; border-radius: 4px; background: var(--bg-3); overflow: hidden; }
+  .fill { position: absolute; inset: 0 auto 0 0; border-radius: 0 4px 4px 0; background: var(--bar, #c97d1c); }
+  :global(:root[data-theme='day']) .fill { background: #8c5000; }
+  .val { font-size: 12px; text-align: right; color: var(--ink); font-variant-numeric: tabular-nums; }
+  .bars figcaption { margin-top: 18px; font-size: 10px; color: var(--ink-3); }
+  .tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 18px; }
+  .tile { display: grid; gap: 4px; padding: 14px; border: 1px solid var(--line); border-radius: 8px; }
+  .tile .lvl { font-size: 10px; color: var(--ink-2); display: inline-flex; align-items: center; gap: 6px; }
+  .tile .lvl::before { content: ''; width: 7px; height: 7px; border-radius: 2px; background: var(--ink-3); }
+  .tile.high { border-color: color-mix(in srgb, var(--alert) 45%, var(--line)); }
+  .tile.high .lvl::before { background: var(--alert); }
+  .tile.medium .lvl::before { background: var(--amber); }
+  .tile.low .lvl::before { background: var(--ok); }
+  .tile .n { font-family: var(--display); font-stretch: 108%; font-weight: 750; font-size: 28px; letter-spacing: -0.02em; line-height: 1.1; }
+  .tile .n small { font-family: var(--sans); font-size: 12px; font-weight: 400; color: var(--ink-3); letter-spacing: 0; }
+  .tile .t { font-size: 10px; color: var(--ink-3); }
+  .risk .note { margin-top: 16px; font-size: 14px; color: var(--ink-2); }
+  @media (max-width: 560px) { .bars li { grid-template-columns: 100px minmax(0, 1fr) 52px; gap: 10px; } .tiles { grid-template-columns: 1fr; } }
 
   .dec { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
   @media (min-width: 800px) { .dec { grid-template-columns: repeat(2, minmax(0, 1fr)); } }

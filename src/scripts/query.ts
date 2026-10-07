@@ -31,8 +31,12 @@ export function highlight(sql: string) {
   return out + (sql.endsWith('\n') ? ' ' : '');
 }
 
-function fmt(v: unknown): { text: string; cls: string } {
+// Identifiers read better without thousands separators.
+const isId = (name: string) => /(^|_)(id|area|cell)$/i.test(name);
+
+function fmt(v: unknown, id = false): { text: string; cls: string } {
   if (v === null || v === undefined) return { text: 'NULL', cls: 'null' };
+  if (id && (typeof v === 'number' || typeof v === 'bigint')) return { text: String(v), cls: 'num' };
   if (typeof v === 'bigint') return { text: v.toLocaleString('en-US'), cls: 'num' };
   if (typeof v === 'number') return { text: Number.isInteger(v) ? v.toLocaleString('en-US') : String(+v.toFixed(3)), cls: 'num' };
   if (typeof v === 'boolean') return { text: String(v), cls: 'num' };
@@ -159,7 +163,7 @@ export function initConsole() {
                 const { text, cls } =
                   (kind === 'date' || kind === 'timestamp') && (typeof raw === 'number' || typeof raw === 'bigint')
                     ? { text: new Date(Number(raw)).toISOString().slice(0, kind === 'date' ? 10 : 16).replace('T', ' '), cls: '' }
-                    : fmt(raw);
+                    : fmt(raw, isId(f.name));
                 return `<td class="${cls}">${esc(text)}</td>`;
               })
               .join('');

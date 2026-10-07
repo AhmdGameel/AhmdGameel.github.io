@@ -53,11 +53,22 @@ back from the live site before appending its own row.
 
 ## The tower layer
 
-Drop the cleaned OpenCelliD export from the tower-health-stream repo (`data/towers_clean.csv`, the
-output of `simulator/data_cleaner.py`) into `pipeline/sources/towers_clean.csv` and run the pipeline.
-The map then shows the real towers, the `towers` table appears in the SQL console and the footer
-switches to OpenCelliD attribution (CC BY-SA 4.0). Until then the map uses an illustrative model
-of where Egyptians live with the real operator split, and says so on screen.
+`pipeline/sources/towers_clean.csv` holds the 10,192 Egyptian towers (OpenCelliD, MCC 602), cleaned by
+`simulator/data_cleaner.py` in the tower-health-stream repo. Tower locations are from
+[OpenCelliD](https://opencellid.org), licensed CC BY-SA 4.0.
+
+`pipeline/sources/tower_health_stream/` holds the CSV exports of two dbt models from the same project,
+`operator_performance` and `regional_risk_index`. They power the batch results on the case study page
+and are queryable in the console.
+
+On every build the quality gate checks that:
+
+- every tower sits inside Egypt's bounding box and belongs to a known operator,
+- the natural key `(radio, operator, area, cell)` is unique (cell ids alone repeat across areas),
+- the tower count claimed on the site equals the rows in the data,
+- the dbt outputs reconcile with the raw towers, per operator and per area.
+
+Without the CSV the map falls back to an illustrative model and says so on screen.
 
 ## Stack
 

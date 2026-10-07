@@ -40,7 +40,9 @@ const presets = [
   { label: 'Quality checks of this build', sql: 'SELECT name, passed, blocking, detail\nFROM quality_checks\nORDER BY passed, blocking DESC;' },
   { label: 'Pipeline runs', sql: "SELECT started_at, duration_ms,\n       checks_passed || '/' || checks_total AS checks, trigger\nFROM runs\nORDER BY started_at DESC\nLIMIT 10;" },
   { label: 'Work and training', sql: "SELECT type, role, company, start_month,\n       coalesce(end_month, 'present') AS end_month\nFROM experience\nORDER BY start_month DESC;" },
-  ...(tables.some(([t]) => t === 'towers') ? [{ label: 'Towers by operator', sql: 'SELECT operator, radio, count(*) AS towers\nFROM towers\nGROUP BY ALL\nORDER BY towers DESC;' }] : []),
+  ...(tables.some(([t]) => t === 'towers') ? [{ label: 'Real towers by operator', sql: "SELECT operator,\n       count(*) AS towers,\n       round(100 * count(*) FILTER (radio = 'LTE') / count(*), 1) AS lte_pct\nFROM towers\nGROUP BY operator\nORDER BY towers DESC;" }] : []),
+  ...(tables.some(([t]) => t === 'dbt_regional_risk_index') ? [{ label: 'Riskiest areas (dbt)', sql: 'SELECT area, total_towers, lte_coverage_pct, risk_level\nFROM dbt_regional_risk_index\nWHERE risk_level = \'HIGH\'\nORDER BY total_towers DESC\nLIMIT 10;' }] : []),
+  ...(tables.some(([t]) => t === 'dbt_operator_performance') ? [{ label: 'dbt vs raw, reconciled', sql: 'SELECT d.operator, d.total_towers AS dbt_towers, r.raw_towers,\n       d.total_towers = r.raw_towers AS match\nFROM dbt_operator_performance d\nJOIN (SELECT operator, count(*) AS raw_towers\n      FROM towers GROUP BY operator) r USING (operator)\nORDER BY dbt_towers DESC;' }] : []),
 ];
 ---
 
