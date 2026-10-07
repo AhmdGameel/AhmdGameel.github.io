@@ -1,10 +1,11 @@
 ---
-import { person, projects } from '../lib/data';
+import { person, projects, whatsapp } from '../lib/data';
 
 const items = [
   { group: 'Do', label: 'Download resume (PDF)', hint: 'file', act: 'download', arg: person.cv },
   { group: 'Do', label: 'Copy email address', hint: person.email, act: 'copy', arg: person.email },
   { group: 'Do', label: 'Write an email', hint: 'mailto', act: 'href', arg: `mailto:${person.email}` },
+  { group: 'Do', label: 'Message on WhatsApp', hint: whatsapp.display, act: 'open', arg: whatsapp.url() },
   { group: 'Do', label: 'Toggle light and dark', hint: 'theme', act: 'click', arg: '[data-theme-toggle]' },
   { group: 'Go', label: 'Experience', hint: '#experience', act: 'href', arg: '/#experience' },
   { group: 'Go', label: 'Projects', hint: '#projects', act: 'href', arg: '/#projects' },

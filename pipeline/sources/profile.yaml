@@ -15,8 +15,12 @@ person:
   linkedin: https://www.linkedin.com/in/AhmdGameel
   youtube: https://www.youtube.com/@AhmdGameel
   x: https://x.com/AhmdGameel
+  whatsapp: '+201063647503'
+  photo: /ahmed.webp
   cv: /Ahmed_Gameel.pdf
-  status: Open to Data Engineering opportunities
+  status: Open to the right Data Engineering role
+  availability: Remote, hybrid or on site
+  availability_note: Teams in Egypt or abroad
   intro: >
     I build ETL pipelines with Python, SQL and PySpark, currently on AWS Glue at DigitalH.
     I graduated in Artificial Intelligence from Kafrelsheikh University in 2026.
@@ -29,8 +33,8 @@ person:
       Flink, batch pipelines orchestrated with Airflow, and a SQL Server warehouse modeled as a
       star schema. Each one has a README that explains the design and how to run it.
     - >
-      I am early in my career and looking to grow in a team that cares about reliable,
-      well documented data.
+      I care about data that is reliable and well documented, and about pipelines the next
+      engineer can understand and run on day one.
   community: Microsoft Student Ambassador
 
 experience:

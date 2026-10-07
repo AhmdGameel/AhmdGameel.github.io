@@ -54,6 +54,16 @@ export interface Check { name: string; passed: boolean; detail: string; blocking
 export interface RunSummary { run_id: string; started_at: string; duration_ms: number; rows_total: number; checks_passed: number; checks_total: number; trigger: string; commit: string }
 
 export const person = warehouse.person[0];
+
+const waNumber = String(person.whatsapp).replace(/\D/g, '');
+/** WhatsApp chat link with an optional prefilled message, and the number written for people. */
+export const whatsapp = {
+  display: waNumber.startsWith('20') && waNumber.length === 12
+    ? `+20 ${waNumber.slice(2, 5)} ${waNumber.slice(5, 8)} ${waNumber.slice(8)}`
+    : `+${waNumber}`,
+  url: (text = `Hi ${person.name.split(' ')[0]}, I found your portfolio and would like to talk about a Data Engineering role.`) =>
+    `https://wa.me/${waNumber}?text=${encodeURIComponent(text)}`,
+};
 export const experience = warehouse.experience as Experience[];
 export const projects = warehouse.projects as unknown as Project[];
 export const skills = warehouse.skills as Skill[];

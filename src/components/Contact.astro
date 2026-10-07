@@ -1,18 +1,19 @@
 ---
 import Icon from './Icon.astro';
-import { person } from '../lib/data';
+import { person, whatsapp } from '../lib/data';
 ---
 
 <section id="contact" class="section" aria-labelledby="contact-h">
   <div class="section-head">
     <h2 id="contact-h">Contact</h2>
-    <p>I am open to Data Engineering opportunities. Email is the fastest way to reach me, or leave a message below.</p>
+    <p>Have a Data Engineering role in mind? Email me or message me on WhatsApp, or use the form below.</p>
   </div>
 
   <div class="mail">
     <a class="address" href={`mailto:${person.email}`}>{person.email}</a>
     <div class="row">
       <button class="btn ghost small" type="button" data-copy={person.email}><Icon name="copy" size={14} /> <span>Copy email</span></button>
+      <a class="btn ghost small wa" href={whatsapp.url()} target="_blank" rel="noopener"><Icon name="whatsapp" size={14} /> WhatsApp {whatsapp.display}</a>
       <a class="btn ghost small" href={person.linkedin} target="_blank" rel="noopener"><Icon name="linkedin" size={14} /> LinkedIn</a>
       <a class="btn ghost small" href={person.cv} download><Icon name="download" size={14} /> Resume</a>
     </div>
@@ -37,6 +38,8 @@ import { person } from '../lib/data';
   .address { font-size: clamp(20px, 2.4vw, 26px); font-weight: 650; letter-spacing: -0.02em; text-decoration: none; overflow-wrap: anywhere; justify-self: start; border-bottom: 2px solid var(--line-2); }
   .address:hover { border-color: currentColor; }
   .row { display: flex; flex-wrap: wrap; gap: 8px; }
+  .wa :global(svg) { color: #1ea952; }
+  .wa { font-variant-numeric: tabular-nums; }
   .form { display: grid; gap: 14px; padding: 22px 24px; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); }
   .row2 { display: grid; gap: 14px; }
   @media (min-width: 640px) { .row2 { grid-template-columns: 1fr 1fr; } }

@@ -1,6 +1,6 @@
 ---
 import Icon from './Icon.astro';
-import { person, experience, education, certifications, fmtMonth } from '../lib/data';
+import { person, experience, education, certifications, fmtMonth, whatsapp } from '../lib/data';
 
 const current = experience.find((e) => e.is_current);
 const edu = education[0];
@@ -26,12 +26,14 @@ const socials = [
 <header class="side" id="top">
   <div class="inner">
     <div class="id">
+      <img class="photo" src={person.photo} width="112" height="112" alt={`Photo of ${person.name}`} decoding="async" fetchpriority="high" />
       <h1>{person.name}</h1>
       <p class="role">{person.title}</p>
       <p class="pitch">{person.intro}</p>
       <p class="status"><span class="dot"></span>{person.status}</p>
       <div class="cta" id="cta">
         <a class="btn" href={`mailto:${person.email}`}><Icon name="mail" size={16} /> Email me</a>
+        <a class="btn ghost wa" href={whatsapp.url()} target="_blank" rel="noopener"><Icon name="whatsapp" size={16} /> WhatsApp</a>
         <a class="btn ghost" href={person.cv} download><Icon name="download" size={16} /> Resume</a>
       </div>
       <div class="links no-print">
@@ -51,6 +53,7 @@ const socials = [
         <div><dt>Now</dt><dd>{current.role} at {current.company}<span>Since {fmtMonth(current.start_month)}, {current.mode.toLowerCase()}</span></dd></div>
       )}
       <div><dt>Based in</dt><dd>{person.location}<span>Local time <time data-clock>--:--</time></span></dd></div>
+      <div><dt>Work mode</dt><dd>{person.availability}<span>{person.availability_note}</span></dd></div>
       <div><dt>Degree</dt><dd>B.Sc. Artificial Intelligence<span>{edu.school}, {edu.end}</span></dd></div>
       <div><dt>Certified</dt><dd>{cert.issuer} {cert.name}<span>{fmtMonth(String(cert.date).slice(0, 7))}</span></dd></div>
     </dl>
@@ -67,8 +70,10 @@ const socials = [
 </header>
 
 <div class="mbar no-print" id="mbar" aria-hidden="true">
+  <img class="mphoto" src={person.photo} width="34" height="34" alt="" loading="lazy" decoding="async" />
   <span class="mname">{person.name}<small>{person.title}</small></span>
   <a class="btn small" href={`mailto:${person.email}`} tabindex="-1">Email</a>
+  <a class="btn small ghost wa icon" href={whatsapp.url()} target="_blank" rel="noopener" tabindex="-1" aria-label="WhatsApp" title="WhatsApp"><Icon name="whatsapp" size={16} /></a>
   <a class="btn small ghost" href={person.cv} download tabindex="-1">Resume</a>
 </div>
 
@@ -88,11 +93,36 @@ const socials = [
     .inner { gap: 26px; }
   }
 
+  .photo {
+    width: 112px; height: 112px; margin-bottom: 22px;
+    border-radius: 50%; object-fit: cover; background: #eaeff7;
+    box-shadow: 0 0 0 4px var(--card), 0 0 0 5px var(--line), var(--shadow);
+  }
+  /* Short laptop screens: keep the identity, contact and facts in view without scrolling the column.
+     The pitch repeats the first About paragraph, which is visible next to it. */
+  @media (min-width: 1024px) and (max-height: 820px) {
+    .side { padding: 40px 0 24px; }
+    .photo { width: 88px; height: 88px; margin-bottom: 18px; }
+    .pitch { display: none; }
+  }
+  @media (min-width: 1024px) and (max-height: 700px) {
+    .side { padding: 32px 0 20px; }
+    .inner { gap: 20px; }
+    .photo { width: 72px; height: 72px; margin-bottom: 14px; }
+    .status { margin-top: 14px; }
+    .cta { margin-top: 16px; }
+    .links { margin-top: 10px; }
+  }
   h1 { font-size: clamp(34px, 4vw, 44px); font-weight: 700; letter-spacing: -0.03em; line-height: 1.05; }
   .role { margin-top: 8px; font-size: 19px; font-weight: 550; color: var(--ink); }
   .pitch { margin-top: 14px; max-width: 38ch; color: var(--ink-2); font-size: 15.5px; }
   .status { display: inline-flex; align-items: center; gap: 10px; margin-top: 18px; font-size: 14px; color: var(--ink-2); }
   .cta { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
+  @media (max-width: 1023px) {
+    .cta { display: grid; grid-template-columns: 1fr 1fr; max-width: 420px; }
+    .cta .btn:first-child { grid-column: 1 / -1; }
+  }
+  .wa :global(svg) { color: #1ea952; }
 
   .facts { margin: 0; display: grid; gap: 10px; padding-top: 20px; border-top: 1px solid var(--line); }
   .facts div { display: grid; grid-template-columns: 78px 1fr; gap: 12px; align-items: baseline; }
@@ -102,7 +132,7 @@ const socials = [
   .facts time { font-variant-numeric: tabular-nums; }
 
   .nav { display: none; }
-  @media (min-width: 1024px) { .nav { display: block; } }
+  @media (min-width: 1024px) and (min-height: 1110px) { .nav { display: block; } }
   .nav ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
   .nav a {
     display: inline-flex; align-items: center; gap: 14px;
@@ -133,7 +163,10 @@ const socials = [
     transform: translateY(-100%); transition: transform 0.25s var(--ease);
   }
   .mbar.show { transform: none; }
-  .mname { margin-right: auto; display: grid; font-weight: 650; font-size: 14px; line-height: 1.2; }
+  .mphoto { width: 34px; height: 34px; border-radius: 50%; background: #eaeff7; flex: none; }
+  .mbar .icon { padding: 7px 9px; }
+  @media (max-width: 379px) { .mphoto { display: none; } }
+  .mname { margin-right: auto; white-space: nowrap; display: grid; font-weight: 650; font-size: 14px; line-height: 1.2; }
   .mname small { font-weight: 400; font-size: 12px; color: var(--ink-3); }
   @media (min-width: 1024px) { .mbar { display: none; } }
 </style>

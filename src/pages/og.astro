@@ -12,9 +12,12 @@ const cert = certifications[0];
   <div class="card">
     <p class="top"><Mark size={40} /><span>ahmdgameel.github.io</span></p>
     <div class="main">
-      <h1>{person.name}</h1>
-      <p class="role">{person.title}</p>
-      <p class="pitch">{person.intro}</p>
+      <div>
+        <h1>{person.name}</h1>
+        <p class="role">{person.title}</p>
+        <p class="pitch">{person.intro}</p>
+      </div>
+      <img class="photo" src={person.photo} width="250" height="250" alt="" />
     </div>
     <dl class="facts">
       {current && <div><dt>Now</dt><dd>{current.role} at {current.company}</dd></div>}
@@ -33,10 +36,11 @@ const cert = certifications[0];
     border-top: 10px solid #1f4fd1;
   }
   .top { display: flex; align-items: center; gap: 14px; margin: 0; font-family: var(--mono); font-size: 20px; color: #4a4f59; }
-  .main { margin-top: auto; }
+  .main { margin-top: auto; display: flex; align-items: center; justify-content: space-between; gap: 48px; }
+  .photo { width: 250px; height: 250px; flex: none; border-radius: 50%; box-shadow: 0 0 0 8px #fff, 0 0 0 10px #e7e6e2; }
   h1 { font-size: 92px; font-weight: 700; letter-spacing: -0.035em; line-height: 1; }
   .role { margin-top: 10px; font-size: 36px; font-weight: 550; color: #1f4fd1; }
-  .pitch { margin-top: 18px; font-size: 24px; line-height: 1.45; color: #4a4f59; max-width: 44ch; }
+  .pitch { margin-top: 18px; font-size: 24px; line-height: 1.45; color: #4a4f59; max-width: 40ch; }
   .facts { display: flex; gap: 48px; margin: 0; padding-top: 22px; border-top: 1px solid #e7e6e2; }
   .facts dt { font-family: var(--mono); font-size: 15px; letter-spacing: 0.06em; text-transform: uppercase; color: #676c75; }
   .facts dd { margin: 4px 0 0; font-size: 20px; font-weight: 600; }
